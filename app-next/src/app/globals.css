@@ -81,7 +81,7 @@
   --ring: oklch(0.28 0.05 250); /* Match primary */
 
   /* Charts - Scientific color palette (colorblind friendly) */
-  --chart-1: oklch(0.55 0.12 250); /* Navy */
+  --chart-1: oklch(66.565% 0.13239 268.569); /* Navy */
   --chart-2: oklch(0.6 0.15 190); /* Teal */
   --chart-3: oklch(0.55 0.18 320); /* Purple */
   --chart-4: oklch(0.65 0.16 80); /* Olive green */
@@ -95,7 +95,7 @@
   --sidebar-accent: oklch(0.94 0.01 250);
   --sidebar-accent-foreground: oklch(0.28 0.05 250);
   --sidebar-border: oklch(0.88 0.015 250);
-  --sidebar-ring: oklch(0.55 0.08 250);
+  --sidebar-ring: oklch(66.565% 0.13239 268.569);
 }
 
 .dark {
@@ -111,7 +111,7 @@
   --popover-foreground: oklch(0.98 0.005 250);
 
   /* Primary - Bright but professional blue */
-  --primary: oklch(0.75 0.12 250); /* Clear, readable blue */
+  --primary: oklch(66.565% 0.13239 268.569); /* Clear, readable blue */
   --primary-foreground: oklch(0.12 0.02 250); /* Dark background */
 
   /* Secondary - Medium dark gray */
@@ -132,10 +132,10 @@
   /* Borders - Defined but subtle */
   --border: oklch(0.25 0.04 250);
   --input: oklch(0.2 0.03 250);
-  --ring: oklch(0.75 0.12 250); /* Match primary */
+  --ring: oklch(66.565% 0.13239 268.569); /* Match primary */
 
   /* Charts - Optimized for dark background */
-  --chart-1: oklch(0.7 0.15 250); /* Bright navy */
+  --chart-1: oklch(66.565% 0.13239 268.569); /* Bright navy */
   --chart-2: oklch(0.75 0.18 190); /* Bright teal */
   --chart-3: oklch(0.72 0.2 320); /* Bright purple */
   --chart-4: oklch(0.78 0.16 80); /* Bright olive */
@@ -144,12 +144,12 @@
   /* Sidebar */
   --sidebar: oklch(0.14 0.025 250);
   --sidebar-foreground: oklch(0.98 0.005 250);
-  --sidebar-primary: oklch(0.75 0.12 250);
+  --sidebar-primary: oklch(66.565% 0.13239 268.569);
   --sidebar-primary-foreground: oklch(0.12 0.02 250);
   --sidebar-accent: oklch(0.2 0.03 250);
   --sidebar-accent-foreground: oklch(0.98 0.005 250);
   --sidebar-border: oklch(0.25 0.04 250);
-  --sidebar-ring: oklch(0.65 0.08 250);
+  --sidebar-ring: oklch(66.565% 0.13239 268.569);
 }
 
 @layer base {
@@ -161,5 +161,41 @@
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
+  }
+}
+
+@layer utilities {
+  /* Hero gradient utilities */
+  .gradient-bg {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+  }
+
+  .gradient-text {
+    background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .glow-effect {
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+  }
+
+  .card-gradient {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .floating {
+    animation: float 6s ease-in-out infinite;
   }
 }

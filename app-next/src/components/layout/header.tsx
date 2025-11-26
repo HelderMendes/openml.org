@@ -1,12 +1,12 @@
-import Link from "next/link";
 import Image from "next/image";
-import { BookOpen, Plus } from "lucide-react";
+import { BookOpen, Link } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SearchBar } from "@/components/header/search-bar";
 import { LanguageSwitcher } from "@/components/header/language-switcher";
 import { NotificationsBell } from "@/components/header/notifications-bell";
 import { AccountMenu } from "@/components/header/account-menu";
+import { CreateMenu } from "@/components/header/create-menu";
 
 export function Header() {
   return (
@@ -14,24 +14,22 @@ export function Header() {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex h-24 items-center gap-4">
           {/* Logo - Left */}
-          <Link href="/" className="flex flex-shrink-0 items-center">
-            <Image
-              src="/logo_openML_light-bkg.png"
-              alt="OpenML"
-              width={180}
-              height={60}
-              className="size-18 w-auto dark:hidden"
-              priority
-            />
-            <Image
-              src="/logo_openML_dark-bkg.png"
-              alt="OpenML"
-              width={180}
-              height={60}
-              className="hidden size-18 w-auto dark:block"
-              priority
-            />
-          </Link>
+          <Image
+            src="/logo_openML_light-bkg.png"
+            alt="OpenML"
+            width={180}
+            height={60}
+            className="size-18 w-auto dark:hidden"
+            priority
+          />
+          <Image
+            src="/logo_openML_dark-bkg.png"
+            alt="OpenML"
+            width={180}
+            height={60}
+            className="hidden size-18 w-auto dark:block"
+            priority
+          />
 
           {/* Search Bar - Middle (flexible) */}
           <div className="mx-6 hidden flex-1 md:flex">
@@ -63,18 +61,8 @@ export function Header() {
               <LanguageSwitcher />
             </div>
 
-            {/* Create Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              className="hidden h-9 w-9 md:inline-flex"
-            >
-              <Link href="/create" title="Create">
-                <Plus className="h-5 w-5" />
-                <span className="sr-only">Create</span>
-              </Link>
-            </Button>
+            {/* Create Menu */}
+            <CreateMenu />
 
             {/* Theme Toggle */}
             <ThemeToggle />

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { User, LogOut, Settings, FileText } from "lucide-react";
+import { User, LogOut, FileText } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,15 +53,9 @@ export function AccountMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className="cursor-pointer">
-          <Link href="/settings" className="flex items-center">
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild className="cursor-pointer">
-          <Link href="/my-contributions" className="flex items-center">
+          <Link href="/api-key" className="flex items-center">
             <FileText className="mr-2 h-4 w-4" />
-            <span>My Contributions</span>
+            <span>API Key</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

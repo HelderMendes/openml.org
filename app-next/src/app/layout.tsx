@@ -42,9 +42,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
-      <body className="flex min-h-screen flex-col antialiased">
+      <body
+        className="flex min-h-screen flex-col antialiased"
+        suppressHydrationWarning
+      >
         <ThemeProvider
-          attribute="className"
+          attribute="class"
           defaultTheme="dark"
           enableSystem
           disableTransitionOnChange={false}

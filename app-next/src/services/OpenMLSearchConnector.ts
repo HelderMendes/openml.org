@@ -251,14 +251,19 @@ class OpenMLSearchConnector implements APIConnector {
         JSON.stringify(esQuery, null, 2),
       );
 
-      const url = `${this.baseUrl}${this.indexName}/_search`;
+      // Use local proxy to avoid CORS
+      const url = "/api/es-proxy";
+      console.log("[OpenMLSearchConnector] Fetching via proxy:", url);
 
       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(esQuery),
+        body: JSON.stringify({
+          indexName: this.indexName,
+          esQuery: esQuery,
+        }),
       });
 
       const data = await response.json();
