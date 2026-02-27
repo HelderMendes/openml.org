@@ -565,7 +565,7 @@ export function TaskAnalysisSection({
                         customdata: group.runs.map((r) => r.run_id),
                       };
                     })}
-                  layout={{
+                  layout={({
                     height: Math.max(400, flowsData.length * 35),
                     margin: { l: 280, r: 40, t: 40, b: 60 },
                     showlegend: false,
@@ -577,12 +577,12 @@ export function TaskAnalysisSection({
                       side: "top",
                       tickfont: { color: "#9ca3af" },
                       titlefont: { color: "#9ca3af" },
-                    } as object,
+                    },
                     yaxis: {
                       automargin: true,
                       gridcolor: "rgba(128,128,128,0.2)",
                       tickfont: { color: "#9ca3af" },
-                    } as object,
+                    },
                     hovermode: "closest",
                     hoverlabel: {
                       font: { color: "white" },
@@ -590,7 +590,7 @@ export function TaskAnalysisSection({
                     },
                     paper_bgcolor: "transparent",
                     plot_bgcolor: "transparent",
-                  }}
+                  } as object)}
                   config={{
                     displayModeBar: true,
                     responsive: true,
@@ -642,7 +642,7 @@ export function TaskAnalysisSection({
                       customdata: uploaderRuns.map((r) => r.run_id),
                     };
                   })}
-                  layout={{
+                  layout={({
                     height: 450,
                     margin: { l: 80, r: 40, t: 40, b: 60 },
                     showlegend: false,
@@ -653,14 +653,14 @@ export function TaskAnalysisSection({
                       type: "date",
                       tickfont: { color: "#9ca3af" },
                       titlefont: { color: "#9ca3af" },
-                    } as object,
+                    },
                     yaxis: {
                       title: selectedMetric,
                       gridcolor: "rgba(128,128,128,0.2)",
                       autorange: isLowerBetter ? "reversed" : true,
                       tickfont: { color: "#9ca3af" },
                       titlefont: { color: "#9ca3af" },
-                    } as object,
+                    },
                     hovermode: "closest",
                     hoverlabel: {
                       font: { color: "white" },
@@ -668,7 +668,7 @@ export function TaskAnalysisSection({
                     },
                     paper_bgcolor: "transparent",
                     plot_bgcolor: "transparent",
-                  }}
+                  } as object)}
                   config={{
                     displayModeBar: true,
                     responsive: true,
