@@ -1,6 +1,7 @@
 "use client";
 
 import { Download, FileText, FileSpreadsheet, ChevronDown } from "lucide-react";
+import { APP_CONFIG } from "@/lib/config";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,7 +26,7 @@ export function RunOutputFilesSection({
   outputFiles,
 }: RunOutputFilesSectionProps) {
   const apiUrl =
-    process.env.NEXT_PUBLIC_URL_API || "https://www.openml.org/api/v1";
+    APP_CONFIG.urlApi || "https://www.openml.org/api/v1";
 
   // Default output files for runs
   const defaultFiles = [

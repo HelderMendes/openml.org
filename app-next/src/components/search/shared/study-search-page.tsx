@@ -61,7 +61,7 @@ export function StudySearchPage({
             <div className="flex items-start gap-3">
               <Icon
                 className="h-8 w-8"
-                style={{ color: entityColor }}
+                style={{ color: entityColor, height: "2rem", width: "2rem" }}
                 aria-hidden="true"
               />
               <div className="space-y-0">

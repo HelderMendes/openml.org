@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { APP_CONFIG } from "@/lib/config";
 import { generateConfirmEmail } from "./email-templates/confirm-email";
 import { generateResetPasswordEmail } from "./email-templates/reset-password";
 import { generateProfileUpdateEmail } from "./email-templates/profile-update";
@@ -21,7 +22,7 @@ const transporter = nodemailer.createTransport({
 
 // Send account confirmation email
 export async function sendConfirmationEmail(email: string, token: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3050";
+  const baseUrl = APP_CONFIG.siteUrl || "http://localhost:3050";
   const link = `${baseUrl}/auth/confirm-email?token=${token}`;
   const logoUrl = `${baseUrl}/logo_openML_light-bkg.png`;
 
@@ -58,7 +59,7 @@ The OpenML team`,
 
 //Send password reset email
 export async function sendPasswordResetEmail(email: string, token: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3050";
+  const baseUrl = APP_CONFIG.siteUrl || "http://localhost:3050";
   const link = `${baseUrl}/auth/reset-password?token=${token}`;
   const logoUrl = `${baseUrl}/logo_openML_light-bkg.png`;
 
@@ -98,7 +99,7 @@ The OpenML Team`,
 
 // Send profile update notification
 export async function sendProfileUpdateEmail(email: string, name: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+  const baseUrl = APP_CONFIG.siteUrl || "http://localhost:3000";
   const logoUrl = `${baseUrl}/logo_openML_light-bkg.png`;
   const supportUrl = "mailto:openmachinelearning@gmail.com";
 
@@ -140,7 +141,7 @@ export async function sendDatasetUploadEmail(
   datasetName: string,
   datasetId: string | number,
 ) {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+  const baseUrl = APP_CONFIG.siteUrl || "http://localhost:3000";
   const datasetUrl = `${baseUrl}/d/${datasetId}`;
   const logoUrl = `${baseUrl}/logo_openML_light-bkg.png`;
 
@@ -185,7 +186,7 @@ export async function sendDatasetEditEmail(
   datasetName: string,
   datasetId: string | number,
 ) {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+  const baseUrl = APP_CONFIG.siteUrl || "http://localhost:3000";
   const datasetUrl = `${baseUrl}/d/${datasetId}`;
   const logoUrl = `${baseUrl}/logo_openML_light-bkg.png`;
 

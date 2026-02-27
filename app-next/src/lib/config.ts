@@ -42,4 +42,19 @@ export const APP_CONFIG = {
   get minioUrl() {
     return getConfig("NEXT_PUBLIC_URL_MINIO");
   },
+  get openmlApiUrl() {
+    return getConfig("NEXT_PUBLIC_OPENML_API_URL");
+  },
+  get urlApi() {
+    return getConfig("NEXT_PUBLIC_URL_API");
+  },
+  get siteUrl() {
+    return getConfig("NEXT_PUBLIC_URL");
+  },
+  get esUrl() {
+    return getConfig("NEXT_PUBLIC_ELASTICSEARCH_URL");
+  },
+  get enableEs() {
+    return getConfig("NEXT_PUBLIC_ENABLE_ELASTICSEARCH");
+  },
 };

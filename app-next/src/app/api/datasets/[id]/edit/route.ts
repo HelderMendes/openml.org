@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sendDatasetEditEmail } from "@/lib/mail";
+import { APP_CONFIG } from "@/lib/config";
 
 const OPENML_API =
   process.env.OPENML_API_URL ||
-  process.env.NEXT_PUBLIC_OPENML_API_URL ||
+  APP_CONFIG.openmlApiUrl ||
   "https://www.openml.org";
 
 export async function POST(

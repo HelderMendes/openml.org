@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
+import { APP_CONFIG } from "@/lib/config";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { WithSearch, Paging, SearchContext } from "@elastic/react-search-ui";
@@ -101,8 +102,7 @@ async function fetchFlowName(flowId: number): Promise<string> {
   }
 
   try {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_URL_API || "https://www.openml.org/api/v1";
+    const apiUrl = APP_CONFIG.urlApi || "https://www.openml.org/api/v1";
     const response = await fetch(`${apiUrl}/json/flow/${flowId}`, {
       headers: { Accept: "application/json" },
     });
@@ -127,8 +127,7 @@ async function fetchDatasetName(dataId: number): Promise<string> {
   }
 
   try {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_URL_API || "https://www.openml.org/api/v1";
+    const apiUrl = APP_CONFIG.urlApi || "https://www.openml.org/api/v1";
     const response = await fetch(`${apiUrl}/json/data/${dataId}`, {
       headers: { Accept: "application/json" },
     });
@@ -274,12 +273,11 @@ function EnrichedRunsView({
   const [enrichedResults, setEnrichedResults] = useState<EnhancedRunResult[]>(
     [],
   );
-  const [lastResultsKey, setLastResultsKey] = useState<string>("");
+  const lastResultsKey = useRef<string>("");
 
   useEffect(() => {
     if (!results || results.length === 0) {
-      setEnrichedResults((prev) => (prev.length === 0 ? prev : []));
-      setLastResultsKey((prev) => (prev === "" ? prev : ""));
+      lastResultsKey.current = "";
       return;
     }
 
@@ -287,23 +285,18 @@ function EnrichedRunsView({
     const resultsKey = results.map((r) => r.run_id?.raw).join(",");
 
     // Don't re-fetch if we already have these results
-    if (resultsKey === lastResultsKey) {
+    if (resultsKey === lastResultsKey.current) {
       return;
     }
 
-    setLastResultsKey(resultsKey);
+    lastResultsKey.current = resultsKey;
 
-    // Set initial results immediately (with IDs as fallback)
-    const initialEnriched: EnhancedRunResult[] = results.map((r) => ({ ...r }));
-    setEnrichedResults(initialEnriched);
-
-    // Fetch names in background
+    // Fetch names in background, then update state once (async — no cascading renders)
     Promise.all(
       results.map(async (result) => {
         const flowId = result["run_flow.flow_id"]?.raw || result.flow_id?.raw;
         const dataId = result["run_task.source_data.data_id"]?.raw;
 
-        // Check cache first before fetching
         const [flowName, datasetName] = await Promise.all([
           flowId ? fetchFlowName(Number(flowId)) : Promise.resolve(undefined),
           dataId
@@ -326,16 +319,30 @@ function EnrichedRunsView({
       .catch((error) => {
         console.error("Failed to enrich runs:", error);
       });
-  }, [results, lastResultsKey]); // Depend on results and lastResultsKey
+  }, [results]);
+
+  // Fall back to raw results while enrichment is in flight to avoid showing stale data
+  const enrichedKey = enrichedResults[0]?.run_id?.raw;
+  const currentKey = results[0]?.run_id?.raw;
+  const enrichmentIsCurrent =
+    results.length > 0 &&
+    enrichedResults.length > 0 &&
+    enrichedKey === currentKey;
+  const displayedResults =
+    results.length === 0
+      ? []
+      : enrichmentIsCurrent
+        ? enrichedResults
+        : results.map((r) => ({ ...r }));
 
   return (
     <>
-      {view === "list" && <RunListView results={enrichedResults} />}
-      {view === "grid" && <RunGridView results={enrichedResults} />}
-      {view === "table" && <RunTableView results={enrichedResults} />}
+      {view === "list" && <RunListView results={displayedResults} />}
+      {view === "grid" && <RunGridView results={displayedResults} />}
+      {view === "table" && <RunTableView results={displayedResults} />}
       {view === "split" && (
         <RunSplitView
-          results={enrichedResults}
+          results={displayedResults}
           selectedRun={selectedRun}
           onSelectRun={onSelectRun}
         />
@@ -762,9 +769,7 @@ function RunGridView({ results }: { results: EnhancedRunResult[] }) {
         const hasError = !!(result.error_message?.raw || result.error?.raw);
 
         // Use helper functions to extract data from ES response
-        const flowId = getFlowId(result);
         const flowName = truncateName(result._flowName || getFlowName(result));
-        const dataId = getDatasetId(result);
         const datasetName = result._datasetName || getDatasetName(result);
         const taskId = getTaskId(result);
         const taskTypeName = getTaskTypeName(result);
@@ -1012,16 +1017,13 @@ function RunSplitView({
   const runId = selected?.run_id?.raw;
 
   // Use helper functions for selected run details
-  const flowId = selected ? getFlowId(selected) : undefined;
   const flowName = selected
     ? truncateName(selected._flowName || getFlowName(selected))
     : "Unknown Flow";
-  const dataId = selected ? getDatasetId(selected) : undefined;
   const datasetName = selected
     ? selected._datasetName || getDatasetName(selected)
     : "Unknown Dataset";
   const taskId = selected ? getTaskId(selected) : undefined;
-  const taskTypeName = selected ? getTaskTypeName(selected) : undefined;
   const metrics = extractMetrics(selected?.evaluations?.raw);
 
   return (

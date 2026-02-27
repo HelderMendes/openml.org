@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Award, Database, Flag, Calendar, User } from "lucide-react";
+import { Database, Flag, Calendar, User } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { entityColors, ENTITY_ICONS } from "@/constants";
 import { Card, CardContent } from "@/components/ui/card";
@@ -77,16 +77,30 @@ export default async function BenchmarkDetailPage({
     {
       label: "Flows",
       count: study.flows_included || 0,
-      icon: (props: any) => (
-        <FontAwesomeIcon icon={ENTITY_ICONS.flow} {...props} />
+      icon: (props: React.HTMLAttributes<HTMLElement>) => (
+        <FontAwesomeIcon
+          icon={ENTITY_ICONS.flow}
+          className={props.className}
+          style={
+            props.style as React.CSSProperties &
+              Record<`--fa-font-${string}`, string>
+          }
+        />
       ),
       color: entityColors.flow,
     },
     {
       label: "Runs",
       count: study.runs_included || 0,
-      icon: (props: any) => (
-        <FontAwesomeIcon icon={ENTITY_ICONS.run} {...props} />
+      icon: (props: React.HTMLAttributes<HTMLElement>) => (
+        <FontAwesomeIcon
+          icon={ENTITY_ICONS.run}
+          className={props.className}
+          style={
+            props.style as React.CSSProperties &
+              Record<`--fa-font-${string}`, string>
+          }
+        />
       ),
       color: entityColors.run,
     },
@@ -108,10 +122,15 @@ export default async function BenchmarkDetailPage({
           </div>
 
           <h1 className="mb-4 flex items-center gap-3 text-3xl font-bold tracking-tight">
-            <Award
+            <FontAwesomeIcon
+              icon={ENTITY_ICONS.benchmark}
               className="h-8 w-8"
-              style={{ color: entityColors.benchmarks }}
-              aria-hidden="true"
+              style={{
+                color: entityColors.benchmarks,
+                height: "2rem",
+                width: "2rem",
+              }}
+              aria-hidden={true}
             />
             {study.name}
           </h1>
@@ -168,9 +187,14 @@ export default async function BenchmarkDetailPage({
                 <CollapsibleSection
                   title="Description"
                   icon={
-                    <Award
+                    <FontAwesomeIcon
+                      icon={ENTITY_ICONS.benchmark}
                       className="h-4 w-4"
-                      style={{ color: entityColors.benchmarks }}
+                      style={{
+                        color: entityColors.benchmarks,
+                        height: "1rem",
+                        width: "1rem",
+                      }}
                     />
                   }
                   defaultOpen={true}

@@ -187,7 +187,7 @@ export function MeasureSearchContainer({
             "[MeasureSearchContainer] Error data parsed:",
             errorData,
           );
-        } catch (parseErr) {
+        } catch {
           console.error(
             "[MeasureSearchContainer] Could not parse error as JSON",
           );
@@ -451,7 +451,7 @@ export function MeasureSearchContainer({
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground text-sm">Sort:</span>
           <Select value={sortId} onValueChange={handleSortChange}>
-            <SelectTrigger className="h-8 w-[180px] text-sm">
+            <SelectTrigger className="h-8 w-60 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

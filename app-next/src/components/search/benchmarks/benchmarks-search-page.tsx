@@ -1,8 +1,10 @@
 "use client";
 
-import { ENTITY_ICONS } from "@/constants/entityIcons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { entityColors } from "@/constants/entityColors";
+import { ENTITY_ICONS, entityColors } from "@/constants";
+import {
+  FontAwesomeIcon,
+  type FontAwesomeIconProps,
+} from "@fortawesome/react-fontawesome";
 import { createBenchmarkConfig } from "./benchmark-search-config";
 import { StudySearchPage } from "../shared/study-search-page";
 import type { SearchTab } from "../shared/search-tabs";
@@ -18,8 +20,13 @@ interface BenchmarksSearchPageProps {
   description: string;
 }
 
-const BenchmarkIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <FontAwesomeIcon icon={ENTITY_ICONS.benchmark} {...props} />
+const BenchmarkIcon = (props: React.HTMLAttributes<HTMLElement>) => (
+  // FontAwesomeIcon accepts HTML attributes, not full SVG props
+  <FontAwesomeIcon
+    icon={ENTITY_ICONS.benchmark}
+    className={props.className}
+    style={props.style as FontAwesomeIconProps["style"]}
+  />
 );
 
 export function BenchmarksSearchPage({
