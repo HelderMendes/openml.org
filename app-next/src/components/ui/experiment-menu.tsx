@@ -4,13 +4,14 @@ import { useState } from "react";
 import {
   Play,
   ChevronDown,
-  Trophy,
   Code,
   BookOpen,
   Copy,
   Check,
   ExternalLink,
 } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ENTITY_ICONS, entityColors } from "@/constants";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -198,7 +199,12 @@ flow <- getOMLFlow(${entityId})
                 }}
                 className="cursor-pointer"
               >
-                <Trophy className="mr-2 h-4 w-4 text-orange-500" />
+                <div
+                  style={{ color: entityColors.task }}
+                  className="mr-2 flex h-4 w-4 items-center justify-center"
+                >
+                  <FontAwesomeIcon icon={ENTITY_ICONS.task} />
+                </div>
                 View Tasks ({taskCount})
               </DropdownMenuItem>
               {taskCount === 0 && (

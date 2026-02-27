@@ -6,10 +6,6 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Database,
-  Trophy,
-  Cog,
-  FlaskConical,
   Calendar,
   X,
   MessageSquare,
@@ -24,6 +20,8 @@ import {
   Loader2,
 } from "lucide-react";
 import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ENTITY_ICONS, entityColors } from "@/constants";import { faFlag } from "@fortawesome/free-solid-svg-icons";
 
 interface UserStats {
   // Contribution counts
@@ -157,7 +155,7 @@ export function UserDashboard() {
     // Load user from NextAuth session or localStorage fallback
     if (status === "authenticated" && session?.user) {
       const userId = session.user.id;
-      const isLocalUser = (session.user as any).isLocalUser;
+      const isLocalUser = (session.user as { isLocalUser?: boolean }).isLocalUser;
 
       setUser({
         name: session.user.name || session.user.username || "User",
@@ -210,7 +208,11 @@ export function UserDashboard() {
       id: "datasets",
       title: "Datasets",
       description: "Explore and share datasets",
-      icon: <Database className="h-8 w-8" />,
+      icon: (
+        <div style={{ color: entityColors.data }}>
+          <FontAwesomeIcon icon={ENTITY_ICONS.dataset} className="h-8 w-8" />
+        </div>
+      ),
       color: "from-blue-400 via-blue-500 to-green-500",
       href: "/datasets",
     },
@@ -218,7 +220,11 @@ export function UserDashboard() {
       id: "tasks",
       title: "Tasks",
       description: "Define ML problems and benchmarks",
-      icon: <Trophy className="h-8 w-8" />,
+      icon: (
+        <div style={{ color: entityColors.task }}>
+          <FontAwesomeIcon icon={ENTITY_ICONS.task} className="h-8 w-8" />
+        </div>
+      ),
       color: "from-yellow-400 via-yellow-500 to-green-500",
       href: "/tasks",
     },
@@ -226,7 +232,11 @@ export function UserDashboard() {
       id: "flows",
       title: "Flows",
       description: "Share ML workflows and models",
-      icon: <FlaskConical className="h-8 w-8" />,
+      icon: (
+        <div style={{ color: entityColors.flow }}>
+          <FontAwesomeIcon icon={ENTITY_ICONS.flow} className="h-8 w-8" />
+        </div>
+      ),
       color: "from-yellow-400 via-green-500 to-blue-500",
       href: "/flows",
     },
@@ -393,7 +403,12 @@ export function UserDashboard() {
           <Card className="bg-white dark:bg-slate-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <Database className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <div style={{ color: entityColors.data }}>
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.dataset}
+                    className="h-5 w-5"
+                  />
+                </div>
                 <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
                   Datasets
                 </CardTitle>
@@ -403,7 +418,7 @@ export function UserDashboard() {
               <div className="text-3xl font-bold text-slate-900 dark:text-white">
                 {isLoadingStats ? "..." : stats.datasetsCreated}
               </div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p style={{ color: entityColors.data }} className="text-sm">
                 created
               </p>
               <div className="mt-3 flex items-center gap-3 text-xs">
@@ -429,7 +444,12 @@ export function UserDashboard() {
           <Card className="bg-white dark:bg-slate-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <FlaskConical className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <div style={{ color: entityColors.flow }}>
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.flow}
+                    className="h-5 w-5"
+                  />
+                </div>
                 <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
                   Flows
                 </CardTitle>
@@ -439,7 +459,7 @@ export function UserDashboard() {
               <div className="text-3xl font-bold text-slate-900 dark:text-white">
                 {isLoadingStats ? "..." : stats.flowsCreated}
               </div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p style={{ color: entityColors.flow }} className="text-sm">
                 created
               </p>
               <div className="mt-3 flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
@@ -455,7 +475,12 @@ export function UserDashboard() {
           <Card className="bg-white dark:bg-slate-800">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <Cog className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <div style={{ color: entityColors.run }}>
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.run}
+                    className="h-5 w-5"
+                  />
+                </div>
                 <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
                   Runs
                 </CardTitle>
@@ -465,7 +490,7 @@ export function UserDashboard() {
               <div className="text-3xl font-bold text-slate-900 dark:text-white">
                 {isLoadingStats ? "..." : stats.runsCreated}
               </div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p style={{ color: entityColors.run }} className="text-sm">
                 experiments
               </p>
             </CardContent>
@@ -511,7 +536,12 @@ export function UserDashboard() {
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div className="flex size-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
-                          <Database className="h-6 w-6 text-green-600 dark:text-green-400" />
+                          <div style={{ color: entityColors.data }}>
+                            <FontAwesomeIcon
+                              icon={ENTITY_ICONS.dataset}
+                              className="h-6 w-6"
+                            />
+                          </div>
                         </div>
                         <div>
                           <CardTitle className="text-lg text-slate-900 dark:text-white">
@@ -522,7 +552,12 @@ export function UserDashboard() {
                           </p>
                         </div>
                       </div>
-                      <Trophy className="h-6 w-6 text-amber-500" />
+                      <div className="h-6 w-6 text-amber-500">
+                        <FontAwesomeIcon
+                          icon={faFlag}
+                          className="h-full w-full"
+                        />
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -545,7 +580,12 @@ export function UserDashboard() {
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div className="flex size-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                          <FlaskConical className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                          <div style={{ color: entityColors.flow }}>
+                            <FontAwesomeIcon
+                              icon={ENTITY_ICONS.flow}
+                              className="h-6 w-6"
+                            />
+                          </div>
                         </div>
                         <div>
                           <CardTitle className="text-lg text-slate-900 dark:text-white">

@@ -82,7 +82,9 @@ class OpenMLSearchConnector implements APIConnector {
               ? "flow_id"
               : this.indexName === "run"
                 ? "run_id"
-                : null;
+                : this.indexName === "study"
+                  ? "study_id"
+                  : null;
 
       if (searchFields.length === 0) {
         query.bool?.must?.push({ match_all: {} });
@@ -242,12 +244,13 @@ class OpenMLSearchConnector implements APIConnector {
         const isNested = nestedPath === "tags";
 
         if (isNested) {
-          // Each value needs its own nested query
+          // Use match query for nested text fields (e.g. tags.tag) so the
+          // analyzer is applied and case differences are handled correctly.
           values.forEach((value) => {
             query.bool?.filter?.push({
               nested: {
                 path: nestedPath,
-                query: { term: { [field]: value } },
+                query: { match: { [field]: value } },
               },
             });
           });

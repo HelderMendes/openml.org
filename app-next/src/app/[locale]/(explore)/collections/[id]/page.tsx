@@ -1,13 +1,14 @@
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Layers, Database, Flag, Cog, FlaskConical, Calendar, User } from "lucide-react";
+import { Layers, Database, Flag, Calendar, User } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { entityColors, ENTITY_ICONS } from "@/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { CollectionDatasetsSection } from "@/components/collection/collection-datasets-section";
 import { CollectionTasksSection } from "@/components/collection/collection-tasks-section";
 import { CollectionNavigationMenu } from "@/components/collection/collection-navigation-menu";
-import { entityColors } from "@/constants/entityColors";
 import Link from "next/link";
 import { fetchStudy } from "@/lib/api/study";
 import type { StudyData } from "@/lib/api/study";
@@ -27,8 +28,7 @@ export async function generateMetadata({
     return {
       title: `${study.name} - ${typeLabel} - OpenML`,
       description:
-        study.description?.substring(0, 160) ||
-        `OpenML ${typeLabel} #${id}`,
+        study.description?.substring(0, 160) || `OpenML ${typeLabel} #${id}`,
       openGraph: {
         title: `${study.name} - ${typeLabel}`,
         description: `OpenML Collection #${id}: ${study.name}`,
@@ -78,13 +78,17 @@ export default async function CollectionDetailPage({
     {
       label: "Flows",
       count: study.flows_included || 0,
-      icon: Cog,
+      icon: (props: any) => (
+        <FontAwesomeIcon icon={ENTITY_ICONS.flow} {...props} />
+      ),
       color: entityColors.flow,
     },
     {
       label: "Runs",
       count: study.runs_included || 0,
-      icon: FlaskConical,
+      icon: (props: any) => (
+        <FontAwesomeIcon icon={ENTITY_ICONS.run} {...props} />
+      ),
       color: entityColors.run,
     },
   ];

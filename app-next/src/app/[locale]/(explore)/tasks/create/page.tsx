@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { TaskCreateForm } from "@/components/task/task-create-form";
 
 export default async function TaskCreatePage({
   params,
@@ -12,15 +13,22 @@ export default async function TaskCreatePage({
 
   if (!session) {
     redirect(
-      `/${locale}/auth/sign-in?reason=createTask&callbackUrl=/${locale}/tasks/create`
+      `/${locale}/auth/sign-in?reason=createTask&callbackUrl=/${locale}/tasks/create`,
     );
   }
 
-  // TODO: Implement task creation form
   return (
-    <div className="container mx-auto px-4 py-16">
-      <h1 className="text-3xl font-bold">Define Task</h1>
-      <p className="text-muted-foreground mt-2">Coming soon.</p>
+    <div className="container mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mb-8 text-center">
+        <h1 className="text-primary text-3xl font-bold tracking-tight sm:text-4xl">
+          Define Task
+        </h1>
+        <p className="text-muted-foreground mt-4 text-lg">
+          Create a new machine learning task for a dataset.
+        </p>
+      </div>
+
+      <TaskCreateForm />
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Info, AlertCircle, Loader2 } from "lucide-react";
+import { Info, AlertCircle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -94,10 +94,19 @@ const LOWER_IS_BETTER = [
 ];
 
 // Helper to get metric value from array
-function getMetric(evaluations: any[] = [], name: string): number | undefined {
+function getMetric(evaluations: { evaluation_measure: string; value?: number }[] = [], name: string): number | undefined {
   const metric = evaluations.find((e) => e.evaluation_measure === name);
-  return metric ? metric.value : undefined;
+  return metric?.value;
 }
+
+type HitSource = {
+  run_id: number;
+  evaluations: { evaluation_measure: string; value?: number }[];
+  run_flow?: { name?: string; flow_id?: number };
+  uploader?: string;
+  uploader_id?: number;
+  date?: string;
+};
 
 interface EvaluationRun {
   run_id: number;
@@ -109,11 +118,6 @@ interface EvaluationRun {
   date: string;
 }
 
-interface LeaderboardEntry {
-  uploader: string;
-  topScore: number;
-  entries: number;
-}
 
 interface TaskAnalysisSectionProps {
   task: Task;
@@ -190,7 +194,7 @@ export function TaskAnalysisSection({
 
         const fetchedRuns: EvaluationRun[] = [];
 
-        data.hits.hits.forEach((hit: any) => {
+        data.hits.hits.forEach((hit: { _source: HitSource }) => {
           const source = hit._source;
           const val = getMetric(source.evaluations, selectedMetric);
 
@@ -198,9 +202,9 @@ export function TaskAnalysisSection({
             fetchedRuns.push({
               run_id: source.run_id,
               flow_name: source.run_flow?.name || "Unknown Flow",
-              flow_id: source.run_flow?.flow_id,
+              flow_id: source.run_flow?.flow_id ?? 0,
               uploader: source.uploader || "Unknown",
-              uploader_id: source.uploader_id,
+              uploader_id: source.uploader_id ?? 0,
               value: val,
               date: source.date || "",
             });
@@ -242,7 +246,7 @@ export function TaskAnalysisSection({
           return;
         }
 
-        const runIds = evaluationList.map((e: any) => e.run_id);
+        const runIds = evaluationList.map((e: { run_id: number }) => e.run_id);
 
         // Fetch uploader details for these top runs from ES
         const details = await searchRuns({
@@ -261,16 +265,16 @@ export function TaskAnalysisSection({
         });
 
         const fetchedTopRuns: EvaluationRun[] = [];
-        details.hits.hits.forEach((hit: any) => {
+        details.hits.hits.forEach((hit: { _source: HitSource }) => {
           const source = hit._source;
           const val = getMetric(source.evaluations, selectedMetric);
           if (val !== undefined) {
             fetchedTopRuns.push({
               run_id: source.run_id,
               flow_name: source.run_flow?.name || "Unknown Flow",
-              flow_id: source.run_flow?.flow_id,
+              flow_id: source.run_flow?.flow_id ?? 0,
               uploader: source.uploader || "Unknown",
-              uploader_id: source.uploader_id,
+              uploader_id: source.uploader_id ?? 0,
               value: val,
               date: source.date || "",
             });
@@ -560,8 +564,7 @@ export function TaskAnalysisSection({
                         },
                         customdata: group.runs.map((r) => r.run_id),
                       };
-                    }) as any
-                  }
+                    })}
                   layout={{
                     height: Math.max(400, flowsData.length * 35),
                     margin: { l: 280, r: 40, t: 40, b: 60 },
@@ -574,12 +577,12 @@ export function TaskAnalysisSection({
                       side: "top",
                       tickfont: { color: "#9ca3af" },
                       titlefont: { color: "#9ca3af" },
-                    },
+                    } as object,
                     yaxis: {
                       automargin: true,
                       gridcolor: "rgba(128,128,128,0.2)",
                       tickfont: { color: "#9ca3af" },
-                    },
+                    } as object,
                     hovermode: "closest",
                     hoverlabel: {
                       font: { color: "white" },
@@ -587,7 +590,7 @@ export function TaskAnalysisSection({
                     },
                     paper_bgcolor: "transparent",
                     plot_bgcolor: "transparent",
-                  } as any}
+                  }}
                   config={{
                     displayModeBar: true,
                     responsive: true,
@@ -597,7 +600,7 @@ export function TaskAnalysisSection({
                   style={{ width: "100%" }}
                   onClick={(event) => {
                     if (event.points && event.points[0]) {
-                      const runId = (event.points[0] as any).customdata;
+                      const runId = (event.points[0] as { customdata?: number }).customdata;
                       if (runId) window.open(`/runs/${runId}`, "_blank");
                     }
                   }}
@@ -632,7 +635,7 @@ export function TaskAnalysisSection({
                       ),
                       hoverinfo: "text",
                       marker: {
-                        color: (uploaderColors.get(uploader) || "#000") as any,
+                        color: uploaderColors.get(uploader) || "#000",
                         size: 7,
                         opacity: 0.6,
                       },
@@ -650,14 +653,14 @@ export function TaskAnalysisSection({
                       type: "date",
                       tickfont: { color: "#9ca3af" },
                       titlefont: { color: "#9ca3af" },
-                    },
+                    } as object,
                     yaxis: {
                       title: selectedMetric,
                       gridcolor: "rgba(128,128,128,0.2)",
                       autorange: isLowerBetter ? "reversed" : true,
                       tickfont: { color: "#9ca3af" },
                       titlefont: { color: "#9ca3af" },
-                    },
+                    } as object,
                     hovermode: "closest",
                     hoverlabel: {
                       font: { color: "white" },
@@ -665,7 +668,7 @@ export function TaskAnalysisSection({
                     },
                     paper_bgcolor: "transparent",
                     plot_bgcolor: "transparent",
-                  } as any}
+                  }}
                   config={{
                     displayModeBar: true,
                     responsive: true,
@@ -674,7 +677,7 @@ export function TaskAnalysisSection({
                   style={{ width: "100%" }}
                   onClick={(event) => {
                     if (event.points && event.points[0]) {
-                      const runId = (event.points[0] as any).customdata;
+                      const runId = (event.points[0] as { customdata?: number }).customdata;
                       if (runId) window.open(`/runs/${runId}`, "_blank");
                     }
                   }}

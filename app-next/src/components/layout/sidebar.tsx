@@ -61,7 +61,7 @@ export function Sidebar() {
       const name =
         session.user.name ||
         `${firstName} ${lastName}`.trim() ||
-        (session.user as any).username ||
+        session.user.username ||
         session.user.email?.split("@")[0] ||
         "User";
       const email = session.user.email || "";
@@ -531,6 +531,7 @@ function SidebarItem({
         isActive && "bg-[#1E2A38] font-medium text-white",
       )}
     >
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <Link
         href={item.href as any}
         className="flex items-center justify-between"

@@ -5,7 +5,6 @@ import { parseDescription } from "../teaser";
 import {
   Heart,
   CloudDownload,
-  FlaskConical,
   Hash,
   Clock,
   Check,
@@ -13,6 +12,8 @@ import {
   Wrench,
   BarChart3,
 } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ENTITY_ICONS, entityColors } from "@/constants";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -171,8 +172,12 @@ export function ResultCard({ result }: ResultCardProps) {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span className="flex items-center gap-1.5">
-                    <FlaskConical className="h-4 w-4 fill-red-500 text-red-500" />
-                    {abbreviateNumber(result.runs.raw)}
+                    <FontAwesomeIcon
+                      icon={ENTITY_ICONS.run}
+                      className="h-4 w-4"
+                      style={{ color: entityColors.run }}
+                    />
+                    {result.runs && abbreviateNumber(result.runs.raw)}
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>Runs</TooltipContent>

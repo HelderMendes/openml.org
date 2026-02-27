@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ENTITY_ICONS } from "@/constants/entityIcons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   BarChart3,
   Database,
@@ -16,7 +18,6 @@ import {
   Play,
   Activity,
   Tag,
-  FlaskConical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -55,7 +56,13 @@ export function DatasetNavigationMenu({
       : []),
     { id: "metadata", label: "Metadata", icon: Tag },
     { id: "activity", label: "Activity", icon: Activity },
-    { id: "experiments", label: "Experiments", icon: FlaskConical },
+    {
+      id: "experiments",
+      label: "Experiments",
+      icon: ({ className }: { className?: string }) => (
+        <FontAwesomeIcon icon={ENTITY_ICONS.run} className={className} />
+      ),
+    },
     ...(hasQualities
       ? [{ id: "qualities", label: "Qualities", icon: BarChart3 }]
       : []),
@@ -182,7 +189,7 @@ export function DatasetNavigationMenu({
 
                 {/* Navigation Links */}
                 <div className="bg-card rounded-lg border p-4 shadow-sm">
-                  <h3 className="text-foreground mb-3 text-sm font-semibold">
+                  <h3 className="mb-3 text-sm font-semibold text-[#66bb6a]">
                     Quick Links
                   </h3>
                   <nav className="space-y-1">
@@ -303,7 +310,7 @@ export function DatasetNavigationMenu({
 
             {/* Navigation Links */}
             <div className="bg-card rounded-lg border p-4 shadow-sm">
-              <h3 className="text-foreground mb-3 text-sm font-semibold">
+              <h3 className="mb-3 text-sm font-semibold text-[#66bb6a]">
                 Navigation
               </h3>
               <nav className="space-y-1">

@@ -9,9 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { SectionContainer } from "@/components/layout/section-container";
 import {
-  BarChart3,
-  ArrowRight,
-  MoveUpRight,
   CornerRightUp,
 } from "lucide-react";
 import Image from "next/image";

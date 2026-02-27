@@ -5,7 +5,9 @@ import type { SearchDriverOptions } from "@elastic/search-ui";
 import { useSearchParams } from "next/navigation";
 import runConfig from "./run-search-config";
 import { ActiveFiltersHeader } from "../shared/active-filters-header";
-import { FlaskConical, Database, X } from "lucide-react";
+import { Database, X } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ENTITY_ICONS } from "@/constants/entityIcons";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { entityColors } from "@/constants/entityColors";
@@ -71,9 +73,14 @@ export function RunsSearchPage() {
           <div className="container mx-auto px-4 py-8 sm:px-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
-                <FlaskConical
-                  className="h-8 w-8"
-                  style={{ color: entityColors.run, fill: entityColors.run }}
+                <FontAwesomeIcon
+                  icon={ENTITY_ICONS.run}
+                  className="h-4 w-4"
+                  style={{
+                    color: entityColors.run,
+                    width: "32px",
+                    height: "32px",
+                  }}
                   aria-hidden="true"
                 />
                 <div className="space-y-0">
@@ -107,7 +114,7 @@ export function RunsSearchPage() {
         </div>
 
         {/* Search Container */}
-        <div className="mx-auto w-full flex-1 px-1.5 py-6">
+        <div className="mx-auto w-full flex-1 px-1.5 pb-6">
           <RunsSearchContainer />
         </div>
       </div>

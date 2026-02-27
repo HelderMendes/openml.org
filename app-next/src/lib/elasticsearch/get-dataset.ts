@@ -73,8 +73,8 @@ export async function getDatasets(ids: number[]): Promise<Dataset[]> {
     const data = await response.json();
 
     return data.docs
-      .filter((doc: any) => doc.found)
-      .map((doc: any) => doc._source as Dataset);
+      .filter((doc: { found: boolean }) => doc.found)
+      .map((doc: { _source: Dataset }) => doc._source);
   } catch (error) {
     console.error("Error fetching multiple datasets:", error);
     throw error;

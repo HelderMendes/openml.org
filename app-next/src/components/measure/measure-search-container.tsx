@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
-  Gauge,
   Search,
   Loader2,
   List,
@@ -26,8 +26,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { entityColors } from "@/constants/entityColors";
+import { entityColors, ENTITY_ICONS } from "@/constants";
 import { Card, CardContent } from "@/components/ui/card";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface Measure {
   quality_id?: number;
@@ -55,20 +56,32 @@ const SORT_OPTIONS = [
 export function MeasureSearchContainer({
   measureType,
 }: MeasureSearchContainerProps) {
+  const searchParams = useSearchParams();
+  const urlQuery = searchParams.get("q") || "";
+
   const [measures, setMeasures] = useState<Measure[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState(urlQuery);
+  const [searchQuery, setSearchQuery] = useState(urlQuery);
   const [view, setView] = useState("list");
   const [sortId, setSortId] = useState("date_desc");
   const [currentPage, setCurrentPage] = useState(1);
   const [resultsPerPage] = useState(20);
 
+  // Sync URL ?q= changes into local search state (e.g. from the header search bar)
+  useEffect(() => {
+    setSearchInput(urlQuery);
+    setSearchQuery(urlQuery);
+    setCurrentPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlQuery]);
+
   const fetchMeasures = useCallback(async () => {
     setLoading(true);
     try {
-      const sortOpt = SORT_OPTIONS.find((s) => s.id === sortId) || SORT_OPTIONS[0];
+      const sortOpt =
+        SORT_OPTIONS.find((s) => s.id === sortId) || SORT_OPTIONS[0];
 
       // Build ES query matching the original MeasureList pattern
       const esQuery: {
@@ -86,7 +99,7 @@ export function MeasureSearchContainer({
         };
         size: number;
         from: number;
-        sort?: Array<{ [key: string]: { order: string} }>;
+        sort?: Array<{ [key: string]: { order: string } }>;
       } = {
         query: {
           bool: {
@@ -114,7 +127,10 @@ export function MeasureSearchContainer({
         esQuery.sort = [{ [sortOpt.field]: { order: sortOpt.dir } }];
       }
 
-      console.log("[MeasureSearchContainer] ES Query:", JSON.stringify(esQuery, null, 2));
+      console.log(
+        "[MeasureSearchContainer] ES Query:",
+        JSON.stringify(esQuery, null, 2),
+      );
 
       // Use the /api/search proxy (now uses fetch instead of axios)
       const res = await fetch("/api/search", {
@@ -142,24 +158,39 @@ export function MeasureSearchContainer({
           }),
         );
 
-        console.log("[MeasureSearchContainer] Received measures:", measures.length);
+        console.log(
+          "[MeasureSearchContainer] Received measures:",
+          measures.length,
+        );
         setMeasures(measures);
 
         // Set total count for pagination
-        const totalValue = typeof data.hits?.total === 'object'
-          ? data.hits.total.value
-          : data.hits?.total || 0;
+        const totalValue =
+          typeof data.hits?.total === "object"
+            ? data.hits.total.value
+            : data.hits?.total || 0;
         setTotal(totalValue);
       } else {
         const responseText = await res.text();
-        console.error("[MeasureSearchContainer] Error response status:", res.status);
-        console.error("[MeasureSearchContainer] Error response text:", responseText);
+        console.error(
+          "[MeasureSearchContainer] Error response status:",
+          res.status,
+        );
+        console.error(
+          "[MeasureSearchContainer] Error response text:",
+          responseText,
+        );
 
         try {
           const errorData = JSON.parse(responseText);
-          console.error("[MeasureSearchContainer] Error data parsed:", errorData);
+          console.error(
+            "[MeasureSearchContainer] Error data parsed:",
+            errorData,
+          );
         } catch (parseErr) {
-          console.error("[MeasureSearchContainer] Could not parse error as JSON");
+          console.error(
+            "[MeasureSearchContainer] Could not parse error as JSON",
+          );
         }
       }
     } catch (err) {
@@ -198,12 +229,18 @@ export function MeasureSearchContainer({
             className="block transition-transform hover:scale-[1.01]"
           >
             <Card className="hover:border-primary/30 transition-colors">
-              <CardContent className="pb-4 pt-5">
+              <CardContent className="pt-5 pb-4">
                 <div className="flex items-start gap-3">
-                  <Gauge
-                    className="mt-0.5 h-5 w-5 shrink-0"
-                    style={{ color: entityColors.measures }}
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.measures}
+                    className="h-3 w-3"
+                    style={{
+                      color: entityColors.measures,
+                      width: "18px",
+                      height: "18px",
+                    }}
                   />
+
                   <div className="min-w-0 flex-1">
                     <h3 className="mb-1 font-semibold">{measure.name}</h3>
                     {measure.description && (
@@ -330,12 +367,18 @@ export function MeasureSearchContainer({
             className="block transition-transform hover:scale-[1.02]"
           >
             <Card className="hover:border-primary/30 h-full transition-colors">
-              <CardContent className="pb-4 pt-5">
+              <CardContent className="pt-5 pb-4">
                 <div className="mb-2 flex items-start justify-between gap-2">
-                  <Gauge
-                    className="h-5 w-5 shrink-0"
-                    style={{ color: entityColors.measures }}
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.measures}
+                    className="h-3 w-3"
+                    style={{
+                      color: entityColors.measures,
+                      width: "18px",
+                      height: "18px",
+                    }}
                   />
+
                   <Badge
                     variant="secondary"
                     className="flex items-center gap-0.5 text-xs"
@@ -384,7 +427,10 @@ export function MeasureSearchContainer({
   if (loading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: entityColors.measures }} />
+        <Loader2
+          className="h-8 w-8 animate-spin"
+          style={{ color: entityColors.measures }}
+        />
       </div>
     );
   }
@@ -475,7 +521,7 @@ export function MeasureSearchContainer({
       {measures.length === 0 && searchQuery && (
         <div className="py-12 text-center">
           <p className="text-muted-foreground mb-2">
-            No measures match "{searchQuery}"
+            No measures match &quot;{searchQuery}&quot;
           </p>
           <Button
             variant="outline"
@@ -518,7 +564,10 @@ export function MeasureSearchContainer({
               const pages = [];
               const maxVisible = 5;
 
-              let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+              let startPage = Math.max(
+                1,
+                currentPage - Math.floor(maxVisible / 2),
+              );
               const endPage = Math.min(totalPages, startPage + maxVisible - 1);
 
               if (endPage - startPage < maxVisible - 1) {
@@ -532,13 +581,21 @@ export function MeasureSearchContainer({
                     variant={currentPage === 1 ? "default" : "outline"}
                     size="sm"
                     onClick={() => setCurrentPage(1)}
-                    style={currentPage === 1 ? { backgroundColor: entityColors.measures } : undefined}
+                    style={
+                      currentPage === 1
+                        ? { backgroundColor: entityColors.measures }
+                        : undefined
+                    }
                   >
                     1
-                  </Button>
+                  </Button>,
                 );
                 if (startPage > 2) {
-                  pages.push(<span key="start-ellipsis" className="px-2">...</span>);
+                  pages.push(
+                    <span key="start-ellipsis" className="px-2">
+                      ...
+                    </span>,
+                  );
                 }
               }
 
@@ -550,17 +607,25 @@ export function MeasureSearchContainer({
                       variant={currentPage === i ? "default" : "outline"}
                       size="sm"
                       onClick={() => setCurrentPage(i)}
-                      style={currentPage === i ? { backgroundColor: entityColors.measures } : undefined}
+                      style={
+                        currentPage === i
+                          ? { backgroundColor: entityColors.measures }
+                          : undefined
+                      }
                     >
                       {i}
-                    </Button>
+                    </Button>,
                   );
                 }
               }
 
               if (endPage < totalPages) {
                 if (endPage < totalPages - 1) {
-                  pages.push(<span key="end-ellipsis" className="px-2">...</span>);
+                  pages.push(
+                    <span key="end-ellipsis" className="px-2">
+                      ...
+                    </span>,
+                  );
                 }
                 pages.push(
                   <Button
@@ -568,10 +633,14 @@ export function MeasureSearchContainer({
                     variant={currentPage === totalPages ? "default" : "outline"}
                     size="sm"
                     onClick={() => setCurrentPage(totalPages)}
-                    style={currentPage === totalPages ? { backgroundColor: entityColors.measures } : undefined}
+                    style={
+                      currentPage === totalPages
+                        ? { backgroundColor: entityColors.measures }
+                        : undefined
+                    }
                   >
                     {totalPages}
-                  </Button>
+                  </Button>,
                 );
               }
 
@@ -582,7 +651,11 @@ export function MeasureSearchContainer({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage((p) => Math.min(Math.ceil(total / resultsPerPage), p + 1))}
+            onClick={() =>
+              setCurrentPage((p) =>
+                Math.min(Math.ceil(total / resultsPerPage), p + 1),
+              )
+            }
             disabled={currentPage >= Math.ceil(total / resultsPerPage)}
           >
             Next

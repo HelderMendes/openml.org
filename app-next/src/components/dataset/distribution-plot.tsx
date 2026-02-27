@@ -190,8 +190,8 @@ function generateTraces(
   feature: DatasetFeature,
   targetFeature: DatasetFeature | undefined,
   colorMode: ColorMode,
-  stackMode: StackMode,
-): Plotly.Data[] {
+  _stackMode: StackMode,
+): PlotlyData[] {
   // Use distribution data if available, otherwise generate placeholder
   const distr = feature.distr || [];
 
@@ -231,14 +231,12 @@ function generateTraces(
 }
 
 // Type declaration for Plotly (minimal)
-declare namespace Plotly {
-  interface Data {
-    type?: string;
-    x?: (string | number)[];
-    y?: (string | number)[];
-    name?: string;
-    marker?: {
-      color?: string | string[];
-    };
-  }
-}
+type PlotlyData = {
+  type?: string;
+  x?: (string | number)[];
+  y?: (string | number)[];
+  name?: string;
+  marker?: {
+    color?: string | string[];
+  };
+};

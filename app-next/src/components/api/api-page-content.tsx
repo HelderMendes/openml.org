@@ -11,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ENTITY_ICONS } from "@/constants/entityIcons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Code,
   Database,
@@ -20,7 +22,6 @@ import {
   BookOpen,
   ExternalLink,
   Cpu,
-  FlaskConical,
   BarChart3,
   GitBranch,
 } from "lucide-react";
@@ -375,7 +376,7 @@ export function APIPageContent() {
                   description: "Access curated ML datasets with rich metadata",
                 },
                 {
-                  icon: FlaskConical,
+                  icon: (props: any) => <FontAwesomeIcon icon={ENTITY_ICONS.run} {...props} />,
                   title: "50,000+ Tasks",
                   description:
                     "Pre-defined ML tasks with standardized evaluation",
@@ -823,7 +824,7 @@ openml.config.apikey = "your_api_key_here"`}
                   href: "/datasets",
                 },
                 {
-                  icon: FlaskConical,
+                  icon: (props: any) => <FontAwesomeIcon icon={ENTITY_ICONS.run} {...props} />,
                   title: "Browse Tasks",
                   description: "Find ML tasks to solve",
                   href: "/tasks",

@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { DatasetUploadForm } from "@/components/dataset/dataset-upload-form";
 
 export default async function DatasetUploadPage({
   params,
@@ -12,15 +13,23 @@ export default async function DatasetUploadPage({
 
   if (!session) {
     redirect(
-      `/${locale}/auth/sign-in?reason=uploadDataset&callbackUrl=/${locale}/datasets/upload`
+      `/${locale}/auth/sign-in?reason=uploadDataset&callbackUrl=/${locale}/datasets/upload`,
     );
   }
 
-  // TODO: Implement dataset upload form
   return (
-    <div className="container mx-auto px-4 py-16">
-      <h1 className="text-3xl font-bold">Upload Dataset</h1>
-      <p className="text-muted-foreground mt-2">Coming soon.</p>
+    <div className="container mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mb-8 text-center">
+        <h1 className="text-primary text-3xl font-bold tracking-tight sm:text-4xl">
+          Upload Dataset
+        </h1>
+        <p className="text-muted-foreground mt-4 text-lg">
+          Contribute data to the OpenML community. Make sure your data is
+          machine-readable and properly formatted.
+        </p>
+      </div>
+
+      <DatasetUploadForm />
     </div>
   );
 }

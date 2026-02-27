@@ -3,25 +3,24 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Cog,
   ArrowLeft,
-  Grid3x3,
   Menu,
   X,
   ChevronRight,
   ChevronLeft,
   FileText,
-  Activity,
-  Tag,
-  FlaskConical,
-  BarChart3,
   Settings2,
   History,
-  Play,
+  BarChart3,
+  Network,
+  Cpu,
+  LucideIcon,
 } from "lucide-react";
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ENTITY_ICONS, entityColors } from "@/constants";
 interface FlowNavigationMenuProps {
   runCount?: number;
   parametersCount?: number;
@@ -29,6 +28,24 @@ interface FlowNavigationMenuProps {
   versionsCount?: number;
   hasDependencies?: boolean;
 }
+
+type NavItem =
+  | {
+      id: string;
+      label: string;
+      icon: LucideIcon;
+      type: "lucide";
+      count?: number;
+      href?: string;
+    }
+  | {
+      id: string;
+      label: string;
+      icon: IconDefinition;
+      type: "fontawesome";
+      count?: number;
+      href?: string;
+    };
 
 export function FlowNavigationMenu({
   runCount = 0,
@@ -41,14 +58,20 @@ export function FlowNavigationMenu({
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Navigation items for "On This Page"
-  const pageNavItems = [
-    { id: "description", label: "Description", icon: FileText },
+  const pageNavItems: NavItem[] = [
+    {
+      id: "description",
+      label: "Description",
+      icon: FileText,
+      type: "lucide" as const,
+    },
     ...(runCount > 0
       ? [
           {
             id: "analysis",
             label: "Analyse",
             icon: BarChart3,
+            type: "lucide" as const,
           },
         ]
       : []),
@@ -57,7 +80,8 @@ export function FlowNavigationMenu({
           {
             id: "dependencies",
             label: "Dependencies",
-            icon: Cog,
+            icon: Network, // Better than Cog
+            type: "lucide" as const,
           },
         ]
       : []),
@@ -67,6 +91,7 @@ export function FlowNavigationMenu({
             id: "parameters",
             label: `Parameters (${parametersCount})`,
             icon: Settings2,
+            type: "lucide" as const,
           },
         ]
       : []),
@@ -75,7 +100,8 @@ export function FlowNavigationMenu({
           {
             id: "components",
             label: `Components (${componentsCount})`,
-            icon: Cog,
+            icon: Cpu, // Better than Cog
+            type: "lucide" as const,
           },
         ]
       : []),
@@ -85,18 +111,25 @@ export function FlowNavigationMenu({
             id: "versions",
             label: `Versions (${versionsCount})`,
             icon: History,
+            type: "lucide" as const,
           },
         ]
       : []),
-    { id: "runs", label: "Runs", icon: Play },
+    {
+      id: "runs",
+      label: "Runs",
+      icon: ENTITY_ICONS.run,
+      type: "fontawesome" as const,
+    },
   ];
 
   // Additional sections
-  const sectionNavItems = [
+  const sectionNavItems: NavItem[] = [
     {
       id: "all-runs",
       label: "All Runs",
-      icon: FlaskConical,
+      icon: ENTITY_ICONS.run,
+      type: "fontawesome" as const,
       count: runCount,
       href: "#runs",
     },
@@ -109,7 +142,8 @@ export function FlowNavigationMenu({
         <Button
           onClick={() => setIsOpen(!isOpen)}
           size="lg"
-          className="bg-blue-600 text-white shadow-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+          className="text-white shadow-lg transition-opacity hover:opacity-90"
+          style={{ backgroundColor: entityColors.flow }}
         >
           {isOpen ? (
             <X className="mr-2 h-5 w-5" />
@@ -145,8 +179,17 @@ export function FlowNavigationMenu({
 
               <div className="space-y-4">
                 {/* Table of Contents */}
-                <div className="bg-card rounded-lg border p-4 shadow-sm">
-                  <h3 className="mb-3 text-sm font-semibold text-blue-600 dark:text-blue-400">
+                <div
+                  className="rounded-lg border p-4 shadow-sm transition-colors"
+                  style={{
+                    borderColor: `${entityColors.flow}40`,
+                    backgroundColor: `${entityColors.flow}10`,
+                  }}
+                >
+                  <h3
+                    className="mb-3 text-sm font-semibold"
+                    style={{ color: entityColors.flow }}
+                  >
                     On This Page
                   </h3>
                   <nav className="space-y-1">
@@ -155,9 +198,18 @@ export function FlowNavigationMenu({
                         key={item.id}
                         href={`#${item.id}`}
                         onClick={() => setIsOpen(false)}
-                        className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
+                        className="text-foreground/80 hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                       >
-                        <item.icon className="h-4 w-4" />
+                        <span>
+                          {item.type === "fontawesome" ? (
+                            <FontAwesomeIcon
+                              icon={item.icon}
+                              className="h-4 w-4"
+                            />
+                          ) : (
+                            <item.icon className="h-4 w-4" />
+                          )}
+                        </span>
                         {item.label}
                       </a>
                     ))}
@@ -173,10 +225,19 @@ export function FlowNavigationMenu({
                         key={item.id}
                         href={item.href}
                         onClick={() => setIsOpen(false)}
-                        className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
+                        className="text-foreground/80 hover:text-foreground flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                       >
                         <span className="flex items-center gap-2">
-                          <item.icon className="h-4 w-4" />
+                          <span>
+                            {item.type === "fontawesome" ? (
+                              <FontAwesomeIcon
+                                icon={item.icon}
+                                className="h-4 w-4"
+                              />
+                            ) : (
+                              <item.icon className="h-4 w-4" />
+                            )}
+                          </span>
                           {item.label}
                         </span>
                         {item.count !== undefined && item.count > 0 && (
@@ -190,7 +251,13 @@ export function FlowNavigationMenu({
                 </div>
 
                 {/* Navigation Links */}
-                <div className="bg-card rounded-lg border p-4 shadow-sm">
+                <div
+                  className="rounded-lg border p-4 shadow-sm"
+                  style={{
+                    borderColor: `${entityColors.flow}40`,
+                    backgroundColor: `${entityColors.flow}05`, // very light
+                  }}
+                >
                   <h3 className="text-foreground mb-3 text-sm font-semibold">
                     Quick Links
                   </h3>
@@ -198,7 +265,7 @@ export function FlowNavigationMenu({
                     <Link
                       href="/flows"
                       onClick={() => setIsOpen(false)}
-                      className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
+                      className="text-muted-foreground hover:bg-accent hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
                     >
                       <ArrowLeft className="h-4 w-4" />
                       Back to Search
@@ -206,9 +273,14 @@ export function FlowNavigationMenu({
                     <Link
                       href="/flows"
                       onClick={() => setIsOpen(false)}
-                      className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
+                      className="text-muted-foreground hover:bg-accent hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
                     >
-                      <Cog className="h-4 w-4" />
+                      <span>
+                        <FontAwesomeIcon
+                          icon={ENTITY_ICONS.flow}
+                          className="h-4 w-4"
+                        />
+                      </span>
                       All Flows
                     </Link>
                   </nav>
@@ -221,9 +293,9 @@ export function FlowNavigationMenu({
 
       {/* Desktop: Fixed Navigation with Collapse/Expand */}
       <aside
-        className={`hidden transition-all duration-300 xl:block ${
+        className={`hidden shrink-0 transition-all duration-300 xl:block ${
           isCollapsed ? "w-12" : "w-72"
-        } shrink-0`}
+        }`}
       >
         {isCollapsed ? (
           // Collapsed: Show only expand button
@@ -240,7 +312,7 @@ export function FlowNavigationMenu({
           </div>
         ) : (
           // Expanded: Show full navigation
-          <div className="absolute top-8 right-0 max-h-[calc(100vh-12rem)] w-72 space-y-4 overflow-y-auto">
+          <div className="absolute top-8 right-0 max-h-[calc(100vh-12rem)] w-72 space-y-4 overflow-y-auto pr-4">
             {/* Collapse Button */}
             <div className="flex justify-end">
               <Button
@@ -256,8 +328,17 @@ export function FlowNavigationMenu({
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-card rounded-lg border p-4 shadow-sm">
-              <h3 className="mb-3 text-sm font-semibold text-blue-600 dark:text-blue-400">
+            <div
+              className="rounded-lg border p-4 shadow-sm transition-colors"
+              style={{
+                borderColor: `${entityColors.flow}40`,
+                backgroundColor: `${entityColors.flow}10`,
+              }}
+            >
+              <h3
+                className="mb-3 text-sm font-semibold"
+                style={{ color: entityColors.flow }}
+              >
                 On This Page
               </h3>
               <nav className="space-y-1">
@@ -265,9 +346,15 @@ export function FlowNavigationMenu({
                   <a
                     key={item.id}
                     href={`#${item.id}`}
-                    className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
+                    className="text-foreground/80 hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                   >
-                    <item.icon className="h-4 w-4" />
+                    <span>
+                      {item.type === "fontawesome" ? (
+                        <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
+                      ) : (
+                        <item.icon className="h-4 w-4" />
+                      )}
+                    </span>
                     {item.label}
                   </a>
                 ))}
@@ -282,10 +369,19 @@ export function FlowNavigationMenu({
                   <a
                     key={item.id}
                     href={item.href}
-                    className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
+                    className="text-foreground/80 hover:text-foreground flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                   >
                     <span className="flex items-center gap-2">
-                      <item.icon className="h-4 w-4" />
+                      <span>
+                        {item.type === "fontawesome" ? (
+                          <FontAwesomeIcon
+                            icon={item.icon}
+                            className="h-4 w-4"
+                          />
+                        ) : (
+                          <item.icon className="h-4 w-4" />
+                        )}
+                      </span>
                       {item.label}
                     </span>
                     {item.count !== undefined && item.count > 0 && (
@@ -299,23 +395,34 @@ export function FlowNavigationMenu({
             </div>
 
             {/* Navigation Links */}
-            <div className="bg-card rounded-lg border p-4 shadow-sm">
-              <h3 className="text-foreground mb-3 text-sm font-semibold">
+            <div
+              className="rounded-lg border p-4 shadow-sm"
+              style={{
+                borderColor: `${entityColors.flow}40`,
+                backgroundColor: `${entityColors.flow}05`,
+              }}
+            >
+              <h3 className="mb-3 text-sm font-semibold text-[#2f65cb]">
                 Navigation
               </h3>
               <nav className="space-y-1">
                 <Link
                   href="/flows"
-                  className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
+                  className="text-muted-foreground hover:bg-accent hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   Back to Search
                 </Link>
                 <Link
                   href="/flows"
-                  className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
+                  className="text-muted-foreground hover:bg-accent hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
                 >
-                  <Cog className="h-4 w-4" />
+                  <span>
+                    <FontAwesomeIcon
+                      icon={ENTITY_ICONS.flow}
+                      className="h-4 w-4"
+                    />
+                  </span>
                   All Flows
                 </Link>
               </nav>

@@ -1,4 +1,63 @@
 {
+  "userProfile": {
+    "loading": "Loading profile...",
+    "joined": "Joined {date}",
+    "notFound": {
+      "title": "User Not Found",
+      "description": "The user you're looking for doesn't exist."
+    },
+    "stats": {
+      "uploads": "Uploads",
+      "downloads": "Downloads",
+      "likes": "Likes"
+    },
+    "contributions": {
+      "title": "Contributions",
+      "datasets": "Datasets",
+      "flows": "Flows",
+      "tasks": "Tasks",
+      "runs": "Runs",
+      "mlChallenges": "ML challenges",
+      "experiments": "Experiments"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "datasets": "Datasets",
+      "flows": "Flows",
+      "tasks": "Tasks"
+    },
+    "overview": {
+      "recentActivity": "Recent Activity",
+      "recentUploads": "Recent Uploads",
+      "mostDownloaded": "Most Downloaded Content",
+      "mostLiked": "Most Liked Content",
+      "noUploads": "No recent uploads found"
+    },
+    "listing": {
+      "showing": "Showing {start}-{end} of {total}",
+      "sortBy": "Sort by",
+      "sortOptions": {
+        "recent": "Most Recent",
+        "runs": "Most Runs",
+        "likes": "Most Likes",
+        "downloads": "Most Downloads",
+        "name": "Name (A–Z)"
+      },
+      "runs": "{count} runs",
+      "noDatasets": "No datasets found",
+      "noFlows": "No flows found",
+      "noTasks": "No tasks found",
+      "taskName": "{taskType} on {dataset}",
+      "unknownDataset": "Unknown dataset",
+      "unknownTask": "Task",
+      "target": "Target: {target}"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {totalPages}"
+    }
+  },
   "sidebar": {
     "explore": "EXPLORE",
     "datasets": "Datasets",

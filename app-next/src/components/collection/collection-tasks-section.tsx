@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { ENTITY_ICONS, entityColors } from "@/constants";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   ChevronLeft,
   Search,
   Flag,
-  FlaskConical,
   Heart,
   Hash,
   Loader2,
@@ -35,7 +36,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { entityColors } from "@/constants/entityColors";
 
 const TASK_TYPE_NAMES: Record<number, string> = {
   1: "Supervised Classification",
@@ -284,7 +284,11 @@ export function CollectionTasksSection({
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <span className="flex items-center gap-1.5">
-                              <FlaskConical className="h-4 w-4 fill-red-500 text-red-500" />
+                              <FontAwesomeIcon
+                                icon={ENTITY_ICONS.run}
+                                className="h-4 w-4"
+                                style={{ color: entityColors.run }}
+                              />
                               {Number(t.runs || 0).toLocaleString()}
                             </span>
                           </TooltipTrigger>
@@ -429,7 +433,11 @@ export function CollectionTasksSection({
                     )}
                     <div className="mt-auto flex flex-wrap gap-x-3 gap-y-1 text-xs">
                       <span className="flex items-center gap-1">
-                        <FlaskConical className="h-3 w-3 fill-red-500 text-red-500" />
+                        <FontAwesomeIcon
+                          icon={ENTITY_ICONS.run}
+                          className="h-3 w-3"
+                          style={{ color: entityColors.run }}
+                        />
                         {Number(t.runs || 0).toLocaleString()}
                       </span>
                     </div>
@@ -478,7 +486,11 @@ export function CollectionTasksSection({
                             {getTypeName(t)}
                           </span>
                           <span className="flex items-center gap-1">
-                            <FlaskConical className="h-3 w-3 fill-red-500 text-red-500" />
+                            <FontAwesomeIcon
+                              icon={ENTITY_ICONS.run}
+                              className="h-3 w-3"
+                              style={{ color: entityColors.run }}
+                            />
                             {Number(t.runs || 0).toLocaleString()}
                           </span>
                         </div>
@@ -537,7 +549,11 @@ export function CollectionTasksSection({
                     )}
                     <div className="mb-4 flex gap-4 text-sm">
                       <span className="flex items-center gap-1.5">
-                        <FlaskConical className="h-4 w-4 fill-red-500 text-red-500" />
+                        <FontAwesomeIcon
+                          icon={ENTITY_ICONS.run}
+                          className="h-4 w-4"
+                          style={{ color: entityColors.run }}
+                        />
                         {Number(selectedTask.runs || 0).toLocaleString()} runs
                       </span>
                       <span className="flex items-center gap-1.5">

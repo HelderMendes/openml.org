@@ -3,6 +3,7 @@
  */
 export const entityColors = {
   data: "#66bb6a", // green-400 - Datasets
+  dataset: "#66bb6a", // Alias for data
   task: "#ffa726", // User specified task color
   flow: "#2f65cb", // blue-600 - Flows
   run: "#ef5350", // red-400 - Runs

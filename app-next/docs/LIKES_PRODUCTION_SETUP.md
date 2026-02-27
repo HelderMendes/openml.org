@@ -39,11 +39,11 @@ Where `type` is: `d` (dataset), `f` (flow), `t` (task), `r` (run)
 
 **Likes only work when the API key exists in the OpenML production database.**
 
-| User Type | Database | Likes Work? | Reason |
-| --- | --- | --- | --- |
-| OpenML.org user (email/password) | MySQL (shared) | ✅ | API key recognized by OpenML REST API |
-| OAuth/Passkey user (local Docker) | MySQL (local) | ❌ | API key not in OpenML production DB |
-| OAuth/Passkey user (Vercel + MySQL) | MySQL (shared) | ✅ | API key stored in shared DB |
+| User Type                           | Database       | Likes Work? | Reason                                |
+| ----------------------------------- | -------------- | ----------- | ------------------------------------- |
+| OpenML.org user (email/password)    | MySQL (shared) | ✅          | API key recognized by OpenML REST API |
+| OAuth/Passkey user (local Docker)   | MySQL (local)  | ❌          | API key not in OpenML production DB   |
+| OAuth/Passkey user (Vercel + MySQL) | MySQL (shared) | ✅          | API key stored in shared DB           |
 
 ## Production Deployment Requirements
 
@@ -71,12 +71,12 @@ With this configuration:
 
 ## Files Involved
 
-| File | Purpose |
-| --- | --- |
+| File                                      | Purpose                                      |
+| ----------------------------------------- | -------------------------------------------- |
 | `src/app/api/auth/[...nextauth]/route.ts` | Stores `session_hash` as `apikey` in session |
-| `src/services/likes.ts` | API calls to OpenML for like/unlike |
-| `src/components/ui/like-button.tsx` | UI component using session API key |
-| `src/types/next-auth.d.ts` | TypeScript types for session.apikey |
+| `src/services/likes.ts`                   | API calls to OpenML for like/unlike          |
+| `src/components/ui/like-button.tsx`       | UI component using session API key           |
+| `src/types/next-auth.d.ts`                | TypeScript types for session.apikey          |
 
 ## Troubleshooting
 
@@ -115,8 +115,8 @@ After successful authentication:
 
 ## Environment Variables
 
-| Variable | Required | Description |
-| --- | --- | --- |
-| `DATABASE_URL` | Yes (for likes) | MySQL connection string to shared database |
-| `NEXT_PUBLIC_ENABLE_LIKES` | No | Set to `false` to disable likes feature |
-| `NEXT_PUBLIC_OPENML_API_URL` | No | Override OpenML REST API URL (default: `https://www.openml.org`) |
+| Variable                     | Required        | Description                                                      |
+| ---------------------------- | --------------- | ---------------------------------------------------------------- |
+| `DATABASE_URL`               | Yes (for likes) | MySQL connection string to shared database                       |
+| `NEXT_PUBLIC_ENABLE_LIKES`   | No              | Set to `false` to disable likes feature                          |
+| `NEXT_PUBLIC_OPENML_API_URL` | No              | Override OpenML REST API URL (default: `https://www.openml.org`) |

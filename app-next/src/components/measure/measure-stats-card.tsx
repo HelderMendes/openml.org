@@ -12,7 +12,7 @@ interface MeasureStatsCardProps {
 interface Stats {
   total: number;
   dateRange: { first: string; last: string } | null;
-  typeSpecific: Record<string, any>;
+  typeSpecific: Record<string, number>;
 }
 
 export function MeasureStatsCard({ measureType }: MeasureStatsCardProps) {
@@ -44,28 +44,29 @@ export function MeasureStatsCard({ measureType }: MeasureStatsCardProps) {
 
         if (res.ok) {
           const data = await res.json();
-          const measures = data.hits?.hits?.map((hit: any) => hit._source) || [];
+          type MeasureDoc = { date?: string; higherIsBetter?: string | number; stratified_sampling?: string };
+          const measures: MeasureDoc[] = data.hits?.hits?.map((hit: { _source: MeasureDoc }) => hit._source) || [];
 
           // Compute stats
           const total = measures.length;
           const dates = measures
-            .map((m: any) => m.date)
+            .map((m) => m.date)
             .filter(Boolean)
-            .sort();
+            .sort() as string[];
           const dateRange =
             dates.length > 0
               ? { first: dates[0], last: dates[dates.length - 1] }
               : null;
 
           // Type-specific stats
-          let typeSpecific: Record<string, any> = {};
+          let typeSpecific: Record<string, number> = {};
 
           if (measureType === "evaluation_measure") {
             const higher = measures.filter(
-              (m: any) => m.higherIsBetter === "1" || m.higherIsBetter === 1
+              (m) => m.higherIsBetter === "1" || m.higherIsBetter === 1
             ).length;
             const lower = measures.filter(
-              (m: any) => m.higherIsBetter === "0" || m.higherIsBetter === 0
+              (m) => m.higherIsBetter === "0" || m.higherIsBetter === 0
             ).length;
             typeSpecific = {
               higherIsBetter: higher,
@@ -73,7 +74,7 @@ export function MeasureStatsCard({ measureType }: MeasureStatsCardProps) {
             };
           } else if (measureType === "estimation_procedure") {
             const stratified = measures.filter(
-              (m: any) => m.stratified_sampling === "true"
+              (m) => m.stratified_sampling === "true"
             ).length;
             typeSpecific = {
               stratified,

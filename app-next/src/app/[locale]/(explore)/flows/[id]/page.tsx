@@ -1,13 +1,8 @@
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import {
-  FileText,
-  Settings2,
-  List,
-  Cog,
-  History,
-  BarChart3,
-} from "lucide-react";
+import { FileText, Settings2, List, History, BarChart3 } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ENTITY_ICONS } from "@/constants/entityIcons";
 import { getFlow, fetchFlowRunCount, fetchFlowVersions } from "@/lib/api/flow";
 import { FlowHeader } from "@/components/flow/flow-header";
 import { FlowDescriptionSection } from "@/components/flow/flow-description-section";
@@ -90,7 +85,12 @@ export default async function FlowDetailPage({
                 id="dependencies"
                 title="Dependencies"
                 description="Libraries and requirements"
-                icon={<Cog className="h-4 w-4 text-gray-500" />}
+                icon={
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.flow}
+                    className="h-4 w-4 text-gray-500"
+                  />
+                }
                 defaultOpen={true}
               >
                 <FlowDependenciesSection flow={flow} />
@@ -117,7 +117,12 @@ export default async function FlowDetailPage({
                 id="components"
                 title="Components"
                 description="Sub-flows and nested components"
-                icon={<Cog className="h-4 w-4 text-gray-500" />}
+                icon={
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.flow}
+                    className="h-4 w-4 text-gray-500"
+                  />
+                }
                 badge={componentsCount}
                 defaultOpen={true}
               >

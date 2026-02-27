@@ -24,6 +24,75 @@ interface CollectionNavigationMenuProps {
   accentColor?: string;
 }
 
+type NavItem = {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  count?: number;
+  color?: string;
+};
+
+function NavContent({
+  navItems,
+  color,
+  basePath,
+  onClose,
+}: {
+  navItems: NavItem[];
+  color: string;
+  basePath: string;
+  onClose: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="bg-card rounded-lg border p-4 shadow-sm">
+        <h3 className="mb-3 text-sm font-semibold" style={{ color }}>
+          On This Page
+        </h3>
+        <nav className="space-y-1">
+          {navItems.map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              onClick={onClose}
+              className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <item.icon
+                  className="h-4 w-4"
+                  style={item.color ? { color: item.color } : undefined}
+                />
+                {item.label}
+              </span>
+              {item.count !== undefined && item.count > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {item.count.toLocaleString()}
+                </Badge>
+              )}
+            </a>
+          ))}
+        </nav>
+      </div>
+
+      <div className="bg-card rounded-lg border p-4 shadow-sm">
+        <h3 className="mb-3 text-sm font-semibold" style={{ color }}>
+          Navigation
+        </h3>
+        <nav className="space-y-1">
+          <Link
+            href={basePath}
+            onClick={onClose}
+            className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Search
+          </Link>
+        </nav>
+      </div>
+    </div>
+  );
+}
+
 export function CollectionNavigationMenu({
   datasetsCount,
   tasksCount,
@@ -33,7 +102,7 @@ export function CollectionNavigationMenu({
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { id: "description", label: "Description", icon: FileText },
     ...(datasetsCount > 0
       ? [
@@ -60,61 +129,6 @@ export function CollectionNavigationMenu({
   ];
 
   const color = accentColor || entityColors.collections;
-
-  const NavContent = () => (
-    <div className="space-y-4">
-      <div className="bg-card rounded-lg border p-4 shadow-sm">
-        <h3
-          className="mb-3 text-sm font-semibold"
-          style={{ color }}
-        >
-          On This Page
-        </h3>
-        <nav className="space-y-1">
-          {navItems.map((item) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              onClick={() => setIsOpen(false)}
-              className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <item.icon
-                  className="h-4 w-4"
-                  style={"color" in item ? { color: item.color } : undefined}
-                />
-                {item.label}
-              </span>
-              {"count" in item && item.count !== undefined && item.count > 0 && (
-                <Badge variant="secondary" className="text-xs">
-                  {item.count.toLocaleString()}
-                </Badge>
-              )}
-            </a>
-          ))}
-        </nav>
-      </div>
-
-      <div className="bg-card rounded-lg border p-4 shadow-sm">
-        <h3
-          className="mb-3 text-sm font-semibold"
-          style={{ color }}
-        >
-          Navigation
-        </h3>
-        <nav className="space-y-1">
-          <Link
-            href={basePath}
-            onClick={() => setIsOpen(false)}
-            className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Search
-          </Link>
-        </nav>
-      </div>
-    </div>
-  );
 
   return (
     <>
@@ -145,7 +159,9 @@ export function CollectionNavigationMenu({
           <div className="bg-background fixed top-0 right-0 bottom-0 z-50 w-80 shadow-2xl xl:hidden">
             <div className="flex h-full flex-col overflow-y-auto p-6">
               <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-lg font-semibold" style={{ color }}>Navigation</h2>
+                <h2 className="text-lg font-semibold" style={{ color }}>
+                  Navigation
+                </h2>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -154,7 +170,12 @@ export function CollectionNavigationMenu({
                   <X className="h-5 w-5" />
                 </Button>
               </div>
-              <NavContent />
+              <NavContent
+                navItems={navItems}
+                color={color}
+                basePath={basePath}
+                onClose={() => setIsOpen(false)}
+              />
             </div>
           </div>
         </>
@@ -167,7 +188,7 @@ export function CollectionNavigationMenu({
         } shrink-0`}
       >
         {isCollapsed ? (
-          <div className="absolute top-8 right-0">
+          <div className="sticky top-24">
             <Button
               onClick={() => setIsCollapsed(false)}
               variant="outline"
@@ -179,7 +200,7 @@ export function CollectionNavigationMenu({
             </Button>
           </div>
         ) : (
-          <div className="absolute top-8 right-0 max-h-[calc(100vh-12rem)] w-72 space-y-4 overflow-y-auto">
+          <div className="sticky top-24 max-h-[calc(100vh-8rem)] w-72 space-y-4 overflow-y-auto">
             <div className="flex justify-end">
               <Button
                 onClick={() => setIsCollapsed(true)}
@@ -192,7 +213,12 @@ export function CollectionNavigationMenu({
                 Hide
               </Button>
             </div>
-            <NavContent />
+            <NavContent
+              navItems={navItems}
+              color={color}
+              basePath={basePath}
+              onClose={() => setIsOpen(false)}
+            />
           </div>
         )}
       </aside>

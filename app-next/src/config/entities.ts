@@ -1,15 +1,12 @@
 import {
-  FlaskConical,
-  Heart,
-  CloudDownload,
-  BarChart3,
-  Info,
-  Database,
-  Trophy,
-  Cog,
-  Play,
   type LucideIcon,
+  Info, // Keeping generic icons
+  BarChart3,
+  CloudDownload,
+  Heart,
 } from "lucide-react";
+import { type IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { ENTITY_ICONS, entityColors } from "@/constants";
 // import { Icon } from "next/dist/lib/metadata/types/metadata-types";
 
 export type EntityType =
@@ -32,7 +29,7 @@ export interface EntityConfig {
   idField: string;
 
   // Display
-  icon: LucideIcon; // Lucide icon component
+  icon: IconDefinition; // FontAwesome icon
   color: string;
 
   // Routes
@@ -47,7 +44,7 @@ export interface EntityConfig {
   stats: Array<{
     field: string;
     label: string;
-    icon: LucideIcon;
+    icon: LucideIcon | IconDefinition; // Support both for now or migrate stats too
     color: string;
   }>;
 
@@ -62,7 +59,7 @@ export interface EntityConfig {
   sections: Array<{
     id: string;
     label: string;
-    icon: LucideIcon;
+    icon: LucideIcon | IconDefinition;
     component?: string; // Optional override component
   }>;
 }
@@ -77,20 +74,30 @@ export const entityConfigs: Record<EntityType, EntityConfig> = {
     plural: "Datasets",
     elasticIndex: "data",
     idField: "data_id",
-    icon: Database,
-    color: "#66BB6A",
+    icon: ENTITY_ICONS.dataset,
+    color: entityColors.data,
     listPath: "/datasets",
     detailPath: (id) => `/datasets/${id}`,
     nameField: "name",
     descriptionField: "description",
     stats: [
-      { field: "runs", label: "Runs", icon: FlaskConical, color: "#EF5350" },
-      { field: "nr_of_likes", label: "Likes", icon: Heart, color: "#AB47BC" },
+      {
+        field: "runs",
+        label: "Runs",
+        icon: ENTITY_ICONS.run,
+        color: entityColors.run,
+      },
+      {
+        field: "nr_of_likes",
+        label: "Likes",
+        icon: Heart,
+        color: entityColors.collections,
+      }, // Using collections/pink for generic heart/like or stick to lucide Heart? Let's check user request "use the icons... from the left menubar". Like is a generic concept, but run is an entity. Run should use ENTITY_ICONS.run. Heart is generic.
       {
         field: "nr_of_downloads",
         label: "Downloads",
         icon: CloudDownload,
-        color: "#42A5F5",
+        color: entityColors.terms, // Blue/Terms color for downloads? Original was #42A5F5 which matches entityColors.terms #42a5f5 (blue-400).
       },
       {
         field: "NumberOfInstances",
@@ -112,7 +119,7 @@ export const entityConfigs: Record<EntityType, EntityConfig> = {
       { field: "NumberOfFeatures", label: "Features", type: "range" },
     ],
     sections: [
-      { id: "description", label: "Description", icon: Database },
+      { id: "description", label: "Description", icon: ENTITY_ICONS.dataset },
       { id: "information", label: "Information", icon: Info },
       {
         id: "features",
@@ -135,20 +142,30 @@ export const entityConfigs: Record<EntityType, EntityConfig> = {
     plural: "Tasks",
     elasticIndex: "task",
     idField: "task_id",
-    icon: Trophy,
-    color: "#FFA726",
+    icon: ENTITY_ICONS.task,
+    color: entityColors.task,
     listPath: "/tasks",
     detailPath: (id) => `/tasks/${id}`,
     nameField: "source_data.name", // Tasks use dataset name
     descriptionField: "tasktype.name",
     stats: [
-      { field: "runs", label: "Runs", icon: FlaskConical, color: "#EF5350" },
-      { field: "nr_of_likes", label: "Likes", icon: Heart, color: "#AB47BC" },
+      {
+        field: "runs",
+        label: "Runs",
+        icon: ENTITY_ICONS.run,
+        color: entityColors.run,
+      },
+      {
+        field: "nr_of_likes",
+        label: "Likes",
+        icon: Heart,
+        color: entityColors.collections,
+      },
       {
         field: "nr_of_downloads",
         label: "Downloads",
         icon: CloudDownload,
-        color: "#42A5F5",
+        color: entityColors.terms,
       },
     ],
     facets: [
@@ -165,9 +182,9 @@ export const entityConfigs: Record<EntityType, EntityConfig> = {
       },
     ],
     sections: [
-      { id: "description", label: "Description", icon: Trophy },
+      { id: "description", label: "Description", icon: ENTITY_ICONS.task },
       { id: "information", label: "Information", icon: Info },
-      { id: "dataset", label: "Source Dataset", icon: Database },
+      { id: "dataset", label: "Source Dataset", icon: ENTITY_ICONS.dataset },
       { id: "evaluation", label: "Evaluation Setup", icon: BarChart3 },
     ],
   },
@@ -178,25 +195,35 @@ export const entityConfigs: Record<EntityType, EntityConfig> = {
     plural: "Flows",
     elasticIndex: "flow",
     idField: "flow_id",
-    icon: Cog,
-    color: "#5C6BC0",
+    icon: ENTITY_ICONS.flow,
+    color: entityColors.flow,
     listPath: "/flows",
     detailPath: (id) => `/flows/${id}`,
     nameField: "name",
     descriptionField: "description",
     stats: [
-      { field: "runs", label: "Runs", icon: FlaskConical, color: "#EF5350" },
-      { field: "nr_of_likes", label: "Likes", icon: Heart, color: "#AB47BC" },
+      {
+        field: "runs",
+        label: "Runs",
+        icon: ENTITY_ICONS.run,
+        color: entityColors.run,
+      },
+      {
+        field: "nr_of_likes",
+        label: "Likes",
+        icon: Heart,
+        color: entityColors.collections,
+      },
       {
         field: "nr_of_downloads",
         label: "Downloads",
         icon: CloudDownload,
-        color: "#42A5F5",
+        color: entityColors.terms,
       },
     ],
     facets: [{ field: "licence", label: "License", type: "value" }],
     sections: [
-      { id: "description", label: "Description", icon: Cog },
+      { id: "description", label: "Description", icon: ENTITY_ICONS.flow },
       { id: "information", label: "Information", icon: Info },
       { id: "parameters", label: "Parameters", icon: BarChart3 },
       { id: "dependencies", label: "Dependencies", icon: BarChart3 },
@@ -209,29 +236,34 @@ export const entityConfigs: Record<EntityType, EntityConfig> = {
     plural: "Runs",
     elasticIndex: "run",
     idField: "run_id",
-    icon: Play,
-    color: "#EF5350",
+    icon: ENTITY_ICONS.run,
+    color: entityColors.run,
     listPath: "/runs",
     detailPath: (id) => `/runs/${id}`,
     nameField: "run_flow.name",
     descriptionField: "run_task.source_data.name",
     stats: [
-      { field: "nr_of_likes", label: "Likes", icon: Heart, color: "#AB47BC" },
+      {
+        field: "nr_of_likes",
+        label: "Likes",
+        icon: Heart,
+        color: entityColors.collections,
+      },
       {
         field: "nr_of_downloads",
         label: "Downloads",
         icon: CloudDownload,
-        color: "#42A5F5",
+        color: entityColors.terms,
       },
     ],
     facets: [
       { field: "run_task.tasktype.name", label: "Task Type", type: "value" },
     ],
     sections: [
-      { id: "description", label: "Description", icon: Play },
+      { id: "description", label: "Description", icon: ENTITY_ICONS.run },
       { id: "information", label: "Information", icon: Info },
-      { id: "task", label: "Task", icon: Trophy },
-      { id: "flow", label: "Flow", icon: Cog },
+      { id: "task", label: "Task", icon: ENTITY_ICONS.task },
+      { id: "flow", label: "Flow", icon: ENTITY_ICONS.flow },
       { id: "results", label: "Results", icon: BarChart3 },
     ],
   },
@@ -242,8 +274,8 @@ export const entityConfigs: Record<EntityType, EntityConfig> = {
     plural: "Collections",
     elasticIndex: "study",
     idField: "study_id",
-    icon: Database,
-    color: "#26A69A",
+    icon: ENTITY_ICONS.collection,
+    color: entityColors.collections,
     listPath: "/collections",
     detailPath: (id) => `/collections/${id}`,
     nameField: "name",
@@ -252,26 +284,35 @@ export const entityConfigs: Record<EntityType, EntityConfig> = {
       {
         field: "datasets_included",
         label: "Datasets",
-        icon: Database,
-        color: "#66BB6A",
+        icon: ENTITY_ICONS.dataset,
+        color: entityColors.data,
       },
       {
         field: "tasks_included",
         label: "Tasks",
-        icon: Trophy,
-        color: "#FFA726",
+        icon: ENTITY_ICONS.task,
+        color: entityColors.task,
       },
-      { field: "flows_included", label: "Flows", icon: Cog, color: "#5C6BC0" },
+      {
+        field: "flows_included",
+        label: "Flows",
+        icon: ENTITY_ICONS.flow,
+        color: entityColors.flow,
+      },
       {
         field: "runs_included",
         label: "Runs",
-        icon: FlaskConical,
-        color: "#EF5350",
+        icon: ENTITY_ICONS.run,
+        color: entityColors.run,
       },
     ],
     facets: [{ field: "study_type", label: "Collection Type", type: "value" }],
     sections: [
-      { id: "description", label: "Description", icon: Database },
+      {
+        id: "description",
+        label: "Description",
+        icon: ENTITY_ICONS.collection,
+      },
       { id: "information", label: "Information", icon: Info },
       { id: "contents", label: "Contents", icon: BarChart3 },
     ],
@@ -283,8 +324,8 @@ export const entityConfigs: Record<EntityType, EntityConfig> = {
     plural: "Benchmarks",
     elasticIndex: "study",
     idField: "study_id",
-    icon: Trophy,
-    color: "#FF7043",
+    icon: ENTITY_ICONS.benchmark,
+    color: entityColors.benchmarks,
     listPath: "/benchmarks",
     detailPath: (id) => `/benchmarks/${id}`,
     nameField: "name",
@@ -293,19 +334,19 @@ export const entityConfigs: Record<EntityType, EntityConfig> = {
       {
         field: "tasks_included",
         label: "Tasks",
-        icon: Trophy,
-        color: "#FFA726",
+        icon: ENTITY_ICONS.task,
+        color: entityColors.task,
       },
       {
         field: "runs_included",
         label: "Runs",
-        icon: FlaskConical,
-        color: "#EF5350",
+        icon: ENTITY_ICONS.run,
+        color: entityColors.run,
       },
     ],
     facets: [],
     sections: [
-      { id: "description", label: "Description", icon: Trophy },
+      { id: "description", label: "Description", icon: ENTITY_ICONS.benchmark },
       { id: "information", label: "Information", icon: Info },
       { id: "results", label: "Results", icon: BarChart3 },
     ],
@@ -317,8 +358,8 @@ export const entityConfigs: Record<EntityType, EntityConfig> = {
     plural: "Measures",
     elasticIndex: "measure",
     idField: "measure_id",
-    icon: BarChart3,
-    color: "#78909C",
+    icon: ENTITY_ICONS.measure,
+    color: entityColors.measures,
     listPath: "/measures",
     detailPath: (id) => `/measures/${id}`,
     nameField: "name",
@@ -326,7 +367,7 @@ export const entityConfigs: Record<EntityType, EntityConfig> = {
     stats: [],
     facets: [],
     sections: [
-      { id: "description", label: "Description", icon: BarChart3 },
+      { id: "description", label: "Description", icon: ENTITY_ICONS.measure },
       { id: "information", label: "Information", icon: Info },
     ],
   },

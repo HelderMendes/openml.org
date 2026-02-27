@@ -993,5 +993,64 @@
       "title": "Dataset Gedeactiveerd",
       "message": "Deze dataset is gedeactiveerd en niet meer beschikbaar."
     }
+  },
+  "userProfile": {
+    "loading": "Profiel laden...",
+    "joined": "Lid geworden op {date}",
+    "notFound": {
+      "title": "Gebruiker niet gevonden",
+      "description": "De gebruiker die u zoekt bestaat niet."
+    },
+    "stats": {
+      "uploads": "Uploads",
+      "downloads": "Downloads",
+      "likes": "Likes"
+    },
+    "contributions": {
+      "title": "Bijdragen",
+      "datasets": "Datasets",
+      "flows": "Flows",
+      "tasks": "Taken",
+      "runs": "Runs",
+      "mlChallenges": "ML-uitdagingen",
+      "experiments": "Experimenten"
+    },
+    "tabs": {
+      "overview": "Overzicht",
+      "datasets": "Datasets",
+      "flows": "Flows",
+      "tasks": "Taken"
+    },
+    "overview": {
+      "recentActivity": "Recente activiteit",
+      "recentUploads": "Recente uploads",
+      "mostDownloaded": "Meest gedownloade inhoud",
+      "mostLiked": "Meest gelikete inhoud",
+      "noUploads": "Geen recente uploads gevonden"
+    },
+    "listing": {
+      "showing": "Toont {start}-{end} van {total}",
+      "sortBy": "Sorteer op",
+      "sortOptions": {
+        "recent": "Meest recent",
+        "runs": "Meeste runs",
+        "likes": "Meeste likes",
+        "downloads": "Meeste downloads",
+        "name": "Naam (A–Z)"
+      },
+      "runs": "{count} runs",
+      "noDatasets": "Geen datasets gevonden",
+      "noFlows": "Geen flows gevonden",
+      "noTasks": "Geen taken gevonden",
+      "taskName": "{taskType} op {dataset}",
+      "unknownDataset": "Onbekende dataset",
+      "unknownTask": "Taak",
+      "target": "Doel: {target}"
+    },
+    "pagination": {
+      "previous": "Vorige",
+      "next": "Volgende",
+      "pageOf": "Pagina {page} van {totalPages}"
+    }
   }
 }

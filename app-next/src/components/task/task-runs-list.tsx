@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { ENTITY_ICONS, entityColors } from "@/constants";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  FlaskConical,
   Clock,
   AlertCircle,
   Loader2,
@@ -16,9 +17,12 @@ import type { Task } from "@/types/task";
 import { searchRuns } from "@/app/actions/runs";
 
 // Helper to get metric value from array
-function getMetric(evaluations: any[] = [], name: string): number | undefined {
+function getMetric(
+  evaluations: { evaluation_measure: string; value?: number }[] = [],
+  name: string,
+): number | undefined {
   const metric = evaluations.find((e) => e.evaluation_measure === name);
-  return metric ? metric.value : undefined;
+  return metric?.value;
 }
 
 interface TaskRun {
@@ -135,7 +139,11 @@ export function TaskRunsList({ task, runCount }: TaskRunsListProps) {
   if (totalItems === 0) {
     return (
       <div className="py-12 text-center">
-        <FlaskConical className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+        <FontAwesomeIcon
+          icon={ENTITY_ICONS.run}
+          className="text-muted-foreground mx-auto mb-4 h-12 w-12"
+          style={{ color: entityColors.run }}
+        />
         <h3 className="text-lg font-semibold">No Runs Yet</h3>
         <p className="text-muted-foreground mt-2">
           This task has no runs.{" "}
@@ -251,7 +259,11 @@ function RunListItem({
     >
       {/* Flow Name + Dataset */}
       <div className="flex items-start gap-2">
-        <FlaskConical className="mt-1 h-4 w-4 shrink-0 text-[#ffa726]" />
+        <FontAwesomeIcon
+          icon={ENTITY_ICONS.run}
+          className="mt-1 h-4 w-4 shrink-0"
+          style={{ color: entityColors.run }}
+        />
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-semibold text-slate-900 dark:text-slate-100">
             {flowName.split("(")[0]} on {datasetName}

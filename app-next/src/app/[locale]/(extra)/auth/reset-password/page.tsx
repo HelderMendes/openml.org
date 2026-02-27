@@ -25,7 +25,9 @@ function ResetPasswordContent() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,7 +104,7 @@ function ResetPasswordContent() {
             <CardDescription className="mt-2">{message}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-center text-sm">
               {t("redirecting")}
             </p>
           </CardContent>
@@ -121,14 +123,12 @@ function ResetPasswordContent() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mb-4 flex justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-950">
-              <Lock className="h-8 w-8 text-blue-500" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-950">
+              <Lock className="h-8 w-8 text-slate-500" />
             </div>
           </div>
           <CardTitle className="text-2xl">{t("title")}</CardTitle>
-          <CardDescription className="mt-2">
-            {t("subtitle")}
-          </CardDescription>
+          <CardDescription className="mt-2">{t("subtitle")}</CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
@@ -158,7 +158,7 @@ function ResetPasswordContent() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -167,7 +167,7 @@ function ResetPasswordContent() {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {t("newPasswordHint")}
               </p>
             </div>
@@ -191,7 +191,7 @@ function ResetPasswordContent() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -238,7 +238,7 @@ export default function ResetPasswordPage() {
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
               <div className="mb-4 flex justify-center">
-                <Loader2 className="h-16 w-16 animate-spin text-blue-500" />
+                <Loader2 className="h-16 w-16 animate-spin text-slate-300" />
               </div>
               <CardTitle className="text-2xl">{t("loading")}</CardTitle>
             </CardHeader>

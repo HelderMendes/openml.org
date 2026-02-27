@@ -44,7 +44,7 @@ const USE_MYSQL =
   process.env.MYSQL_HOST !== undefined;
 ```
 
-- If `DATABASE_URL` or `MYSQL_HOST` is set → **MySQL**
+- If `DATABASE_URL` or ` ` is set → **MySQL**
 - Otherwise → **SQLite** fallback (`server/openml.db`)
 
 ### Local Development (Docker MySQL)
@@ -206,7 +206,7 @@ SMTP_FROM=OpenML <your-email@example.com>
 
 | Route                       | Method | Description                      |
 | --------------------------- | ------ | -------------------------------- |
-| `/api/auth/[...nextauth]`   | *      | NextAuth.js handler              |
+| `/api/auth/[...nextauth]`   | \*     | NextAuth.js handler              |
 | `/api/auth/register`        | POST   | Email/password registration      |
 | `/api/auth/confirm-email`   | GET    | Email confirmation (token-based) |
 | `/api/auth/check-email`     | GET    | Check if email is already taken  |
@@ -251,18 +251,18 @@ function MyComponent() {
 ### Session Access
 
 ```typescript
-import { useSession } from 'next-auth/react';
+import { useSession } from "next-auth/react";
 
 function MyComponent() {
-    const { data: session, status } = useSession();
+  const { data: session, status } = useSession();
 
-    // session.user.id
-    // session.user.email
-    // session.user.username
-    // session.user.firstName
-    // session.user.lastName
-    // session.user.image
-    // session.apikey  // For OpenML REST API calls (from session_hash)
+  // session.user.id
+  // session.user.email
+  // session.user.username
+  // session.user.firstName
+  // session.user.lastName
+  // session.user.image
+  // session.apikey  // For OpenML REST API calls (from session_hash)
 }
 ```
 
@@ -306,7 +306,7 @@ function MyComponent() {
 Passwords are hashed using **Argon2i** (memory-hard, GPU-resistant) with parameters matching the legacy Flask backend:
 
 ```typescript
-import argon2 from 'argon2';
+import argon2 from "argon2";
 
 // Hash password (same params used in register + reset-password)
 const hash = await argon2.hash(password, {
@@ -344,13 +344,13 @@ The auth system is designed to work with any existing OpenML database:
 
 ## Deployment Environments
 
-| Environment               | Database     | Auth Works?    |
-| ------------------------- | ------------ | -------------- |
-| **Local dev (Docker)**    | MySQL        | ✅ All methods |
-| **Local dev (no Docker)** | SQLite       | ✅ All methods |
-| **Vercel (no MySQL)**     | None         | ⚠️ OAuth only  |
-| **Vercel + MySQL**        | TU/e MySQL   | ✅ All methods |
-| **k8s Production**        | TU/e MySQL   | ✅ All methods |
+| Environment               | Database   | Auth Works?    |
+| ------------------------- | ---------- | -------------- |
+| **Local dev (Docker)**    | MySQL      | ✅ All methods |
+| **Local dev (no Docker)** | SQLite     | ✅ All methods |
+| **Vercel (no MySQL)**     | None       | ⚠️ OAuth only  |
+| **Vercel + MySQL**        | TU/e MySQL | ✅ All methods |
+| **k8s Production**        | TU/e MySQL | ✅ All methods |
 
 ## Troubleshooting
 

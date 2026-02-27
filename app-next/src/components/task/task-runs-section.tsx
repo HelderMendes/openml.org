@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { ENTITY_ICONS, entityColors } from "@/constants";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Play,
   Clock,
@@ -10,7 +12,6 @@ import {
   ChevronRight,
   AlertCircle,
   SortDesc,
-  FlaskConical,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -191,7 +192,11 @@ export function TaskRunsSection({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FlaskConical className="h-5 w-5 text-red-500" />
+              <FontAwesomeIcon
+                icon={ENTITY_ICONS.run}
+                className="h-5 w-5"
+                style={{ color: entityColors.run }}
+              />
               Recent Runs
             </CardTitle>
           </CardHeader>
@@ -221,7 +226,11 @@ export function TaskRunsSection({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FlaskConical className="h-5 w-5 text-red-500" />
+              <FontAwesomeIcon
+                icon={ENTITY_ICONS.run}
+                className="h-5 w-5"
+                style={{ color: entityColors.run }}
+              />
               Recent Runs
             </CardTitle>
           </CardHeader>
@@ -246,7 +255,11 @@ export function TaskRunsSection({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FlaskConical className="h-5 w-5 text-red-500" />
+              <FontAwesomeIcon
+                icon={ENTITY_ICONS.run}
+                className="h-5 w-5"
+                style={{ color: entityColors.run }}
+              />
               Recent Runs
             </CardTitle>
           </CardHeader>
@@ -274,7 +287,11 @@ export function TaskRunsSection({
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-xl font-semibold">
-              <FlaskConical className="h-5 w-5 text-red-500" />
+              <FontAwesomeIcon
+                icon={ENTITY_ICONS.run}
+                className="h-5 w-5"
+                style={{ color: entityColors.run }}
+              />
               Runs
             </CardTitle>
             <div className="flex items-center gap-2">

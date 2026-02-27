@@ -614,7 +614,7 @@ function FeatureDistributionPlots({
   isTooLarge?: boolean;
   isHugeDataset?: boolean;
   datasetId?: number;
-  statsData?: Record<string, any>;
+  statsData?: Record<string, unknown>;
   isLoadingStats?: boolean;
 }) {
   // Whether parquet data is unavailable (too large to load in browser)
@@ -926,17 +926,17 @@ function DistributionPlot({
 
   // For numeric: use histogram with raw data OR bar chart with binned data
   // For nominal: use bar chart with category counts
-  const barLabels = distribution?.categories?.map((c: any) => c.value) || [];
-  const barValues = distribution?.categories?.map((c: any) => c.count) || [];
+  const barLabels = distribution?.categories?.map((c: { value: string }) => c.value) || [];
+  const barValues = distribution?.categories?.map((c: { count: number }) => c.count) || [];
 
   // For binned numeric data, create bar chart labels from bin ranges
   const binnedLabels = hasBinnedData
     ? distribution.bins.map(
-        (bin: any) => `${bin.min.toFixed(1)}-${bin.max.toFixed(1)}`,
+        (bin: { min: number; max: number }) => `${bin.min.toFixed(1)}-${bin.max.toFixed(1)}`,
       )
     : [];
   const binnedValues = hasBinnedData
-    ? distribution.bins.map((bin: any) => bin.count)
+    ? distribution.bins.map((bin: { count: number }) => bin.count)
     : [];
 
   return (

@@ -1,12 +1,10 @@
 "use client";
 
-import * as React from "react";
 import {
   Download,
   FileJson,
   FileCode,
   Croissant,
-  Edit,
   ChevronDown,
   ExternalLink,
 } from "lucide-react";
@@ -47,7 +45,6 @@ export function DatasetDownloadMenu({
   const jsonUrl = `https://www.openml.org/api/v1/json/data/${datasetId}`;
   const xmlUrl = `https://www.openml.org/api/v1/data/${datasetId}`;
   const croissantUrl = `https://www.openml.org/croissant/dataset/${datasetId}`;
-  const editUrl = `/datasets/${datasetId}/edit`;
 
   const handleCroissantDownload = () => {
     const link = document.createElement("a");
@@ -77,16 +74,6 @@ export function DatasetDownloadMenu({
         {/* <DropdownMenuLabel>Download & Export</DropdownMenuLabel>
         <DropdownMenuSeparator /> */}
 
-        {/* Edit */}
-        <DropdownMenuItem asChild className="cursor-pointer">
-          <a href={editUrl}>
-            <Edit className="mr-2 h-4 w-4" />
-            <span>Edit Dataset</span>
-          </a>
-        </DropdownMenuItem>
-
-        <DropdownMenuSeparator />
-
         {/* Download Dataset File */}
         <DropdownMenuItem asChild className="cursor-pointer">
           <a href={datasetUrl} download>
@@ -97,7 +84,7 @@ export function DatasetDownloadMenu({
 
         <DropdownMenuSeparator />
         <DropdownMenuLabel className="text-muted-foreground text-xs">
-          API Formats
+          Metadata
         </DropdownMenuLabel>
 
         {/* JSON */}

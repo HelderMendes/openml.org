@@ -134,10 +134,10 @@ export default async function ContributePage({
       description:
         "OpenML helps your team discover machine learning assets and automate processes. You can encourage your developers to help out, host a coding sprint, become an official sponsor, or partner with us. Legendary.",
       icon: Briefcase,
-      color: "from-blue-500 to-indigo-600",
-      borderColor: "border-blue-400",
-      bgColor: "bg-blue-50 dark:bg-blue-950/20",
-      textColor: "text-blue-600 dark:text-blue-400",
+      color: "from-slate-500 to-indigo-600",
+      borderColor: "border-slate-400",
+      bgColor: "bg-slate-50 dark:bg-slate-950/20",
+      textColor: "text-slate-600 dark:text-slate-200",
       cta: { label: "Become a sponsor", href: "#sponsor" },
     },
     {
@@ -167,7 +167,7 @@ export default async function ContributePage({
               <h1 className="gradient-text my-4 text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
                 {t("title")}
               </h1>
-              <div className="mx-auto max-w-2xl space-y-1 text-lg leading-relaxed text-slate-700 dark:text-slate-300 md:text-xl">
+              <div className="mx-auto max-w-2xl space-y-1 text-lg leading-relaxed text-slate-700 md:text-xl dark:text-slate-300">
                 <p>Here&apos;s to the crazy ones.</p>
                 <p>The ones who want to set machine learning free.</p>
                 <p>They&apos;re not fond of hype, or irreproducible claims.</p>
@@ -240,18 +240,16 @@ export default async function ContributePage({
           <section id="contribute" className="mb-16 scroll-mt-20">
             <h2 className="mb-6 text-3xl font-bold">Contribute to OpenML</h2>
 
-            {/* Code — Blue */}
+            {/* Code — Slate */}
             <div id="code" className="mb-5 scroll-mt-20">
-              <Card className="overflow-hidden border-l-4 border-l-blue-500 transition-shadow hover:shadow-md">
+              <Card className="overflow-hidden border-l-4 border-l-slate-500 transition-shadow hover:shadow-md">
                 <CardContent className="pt-6">
                   <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-950/50">
-                      <Code className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-950/50">
+                      <Code className="h-6 w-6 text-slate-600 dark:text-slate-400" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold">
-                        Good at coding?
-                      </h3>
+                      <h3 className="text-xl font-semibold">Good at coding?</h3>
                       <p className="text-muted-foreground text-sm">
                         Please see the issue trackers of the different OpenML
                         components that you can contribute to.
@@ -291,15 +289,11 @@ export default async function ContributePage({
                         icon: BookOpen,
                       },
                     ].map((item) => (
-                      <Link
-                        key={item.label}
-                        href={item.href}
-                        target="_blank"
-                      >
+                      <Link key={item.label} href={item.href} target="_blank">
                         <Button
                           size="sm"
                           variant="outline"
-                          className="gap-1.5 border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30"
+                          className="gap-1.5 border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-950/30"
                         >
                           <item.icon className="h-3.5 w-3.5" />
                           {item.label}
@@ -485,10 +479,7 @@ export default async function ContributePage({
                         <ExternalLink className="h-3 w-3" />
                       </Button>
                     </Link>
-                    <Link
-                      href="https://twitter.com/open_ml"
-                      target="_blank"
-                    >
+                    <Link href="https://twitter.com/open_ml" target="_blank">
                       <Button
                         size="sm"
                         variant="outline"
@@ -521,8 +512,8 @@ export default async function ContributePage({
                   sprints and outreach activities, keep our community happy and
                   engaged, and ensure that we have the basic infrastructure to
                   keep the platform free for everyone. You can sponsor us via
-                  OpenCollective or GitHub. All donors are celebrated in our hall
-                  of fame, and we are fully transparent on how your
+                  OpenCollective or GitHub. All donors are celebrated in our
+                  hall of fame, and we are fully transparent on how your
                   contributions are used.
                 </p>
                 <div className="flex flex-wrap gap-3">
@@ -578,10 +569,10 @@ export default async function ContributePage({
                   able to make all its resources and services available for free
                   to the entire world. By donating to OpenML you further the
                   project&apos;s mission to democratize machine learning
-                  research. Your donations will be used to run engaging community
-                  events (which require venues, food, and swag), support our
-                  community manager and developer, and run our infrastructure
-                  (including servers and storage).
+                  research. Your donations will be used to run engaging
+                  community events (which require venues, food, and swag),
+                  support our community manager and developer, and run our
+                  infrastructure (including servers and storage).
                 </p>
               </CardContent>
             </Card>
@@ -732,10 +723,7 @@ export default async function ContributePage({
                   Ask Questions
                 </Button>
               </Link>
-              <Link
-                href="https://opencollective.com/openml"
-                target="_blank"
-              >
+              <Link href="https://opencollective.com/openml" target="_blank">
                 <Button
                   size="lg"
                   variant="outline"

@@ -19,7 +19,7 @@ export default async function GalleryPage() {
 
   return (
     <div className="grid grid-cols-3 gap-4">
-      {photos.map((photo: any) => {
+      {photos.map((photo: { id: string; server: string; secret: string; title: string }) => {
         // Construct Flickr Image URL: https://farm{farm}.staticflickr.com/{server}/{id}_{secret}_{size}.jpg
         const src = `https://live.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_z.jpg`;
 

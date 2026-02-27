@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
  */
 export function NotificationsBell() {
   const { toast } = useToast();
-  const [hasUnread, setHasUnread] = React.useState(true);
+  const [hasUnread] = React.useState(true);
   const [notifications] = React.useState([
     {
       id: 1,

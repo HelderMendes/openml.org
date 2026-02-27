@@ -8,15 +8,14 @@ import { FilterBar } from "../shared/filter-bar";
 import { ControlsBar, runSortOptions } from "../shared/controls-bar";
 import { Badge } from "@/components/ui/badge";
 import { entityColors } from "@/constants/entityColors";
+import { ENTITY_ICONS } from "@/constants/entityIcons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { truncateName } from "@/lib/utils";
 import {
-  FlaskConical,
   Calendar,
   User,
   Hash,
   Database,
-  Cog,
-  Trophy,
   XCircle,
   Heart,
   CloudDownload,
@@ -279,8 +278,8 @@ function EnrichedRunsView({
 
   useEffect(() => {
     if (!results || results.length === 0) {
-      setEnrichedResults([]);
-      setLastResultsKey("");
+      setEnrichedResults((prev) => (prev.length === 0 ? prev : []));
+      setLastResultsKey((prev) => (prev === "" ? prev : ""));
       return;
     }
 
@@ -628,7 +627,11 @@ function RunListView({ results }: { results: EnhancedRunResult[] }) {
             <div className="min-w-0 flex-1">
               <div className="mb-1 flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <FlaskConical className="mt-1 h-5 w-5 shrink-0 fill-red-500 text-red-500" />
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.run}
+                    className="mt-1 h-5 w-5 shrink-0"
+                    style={{ color: entityColors.run }}
+                  />
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="text-base font-semibold">{flowName}</h3>
@@ -672,7 +675,11 @@ function RunListView({ results }: { results: EnhancedRunResult[] }) {
                     className="flex items-center gap-1 hover:underline"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Cog className="h-3 w-3 text-[#3b82f6]" />
+                    <FontAwesomeIcon
+                      icon={ENTITY_ICONS.flow}
+                      className="h-3 w-3"
+                      style={{ color: entityColors.flow }}
+                    />
                     Flow #{flowId}
                   </Link>
                 )}
@@ -692,7 +699,11 @@ function RunListView({ results }: { results: EnhancedRunResult[] }) {
                     className="flex items-center gap-1 hover:underline"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Trophy className="h-3 w-3 text-[#FFA726]" />
+                    <FontAwesomeIcon
+                      icon={ENTITY_ICONS.task}
+                      className="h-3 w-3"
+                      style={{ color: entityColors.task }}
+                    />
                     Task #{taskId}
                   </Link>
                 )}
@@ -774,7 +785,11 @@ function RunGridView({ results }: { results: EnhancedRunResult[] }) {
             className="bg-card block rounded-lg border p-4 transition-colors hover:bg-red-50 dark:hover:bg-red-900/15"
           >
             <div className="mb-2 flex items-start justify-between">
-              <FlaskConical className="h-8 w-8 fill-red-500 text-red-500" />
+              <FontAwesomeIcon
+                icon={ENTITY_ICONS.run}
+                className="h-8 w-8"
+                style={{ color: entityColors.run }}
+              />
               <Badge variant="openml" className="bg-red-500 text-white">
                 #{runId}
               </Badge>
@@ -923,7 +938,9 @@ function RunTableView({ results }: { results: EnhancedRunResult[] }) {
                   const hasError = !!(
                     result.error_message?.raw || result.error?.raw
                   );
-                  const flowName = truncateName(result._flowName || getFlowName(result));
+                  const flowName = truncateName(
+                    result._flowName || getFlowName(result),
+                  );
                   const datasetName =
                     result._datasetName || getDatasetName(result);
                   const taskId = getTaskId(result);
@@ -1014,7 +1031,9 @@ function RunSplitView({
           const isSelected = result.run_id?.raw === runId;
 
           // Use helper functions for list item
-          const resultFlowName = truncateName(result._flowName || getFlowName(result));
+          const resultFlowName = truncateName(
+            result._flowName || getFlowName(result),
+          );
           const resultDatasetName =
             result._datasetName || getDatasetName(result);
           const resultTaskId = getTaskId(result);

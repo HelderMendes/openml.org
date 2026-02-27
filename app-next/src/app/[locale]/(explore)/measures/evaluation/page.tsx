@@ -1,9 +1,16 @@
+import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import { MeasureSearchContainer, MeasureStatsCard } from "@/components/measure";
+import { SearchTabs } from "@/components/search/shared/search-tabs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ENTITY_ICONS } from "@/constants/entityIcons";
-import { entityColors } from "@/constants/entityColors";
+import { ENTITY_ICONS, entityColors } from "@/constants";
 import type { Metadata } from "next";
+
+const MEASURE_TABS = [
+  { label: "Evaluation Measures", path: "/measures/evaluation" },
+  { label: "Data Quality", path: "/measures/data" },
+  { label: "Estimation Procedures", path: "/measures/procedures" },
+];
 
 export const metadata: Metadata = {
   title: "Model Evaluation - OpenML Performance Metrics",
@@ -42,9 +49,13 @@ export default async function ModelEvaluationPage({
         <div className="container mx-auto px-4 py-8 sm:px-6">
           <div className="flex items-start gap-3">
             <FontAwesomeIcon
-              icon={ENTITY_ICONS.measure}
-              className="h-8 w-8"
-              style={{ color: entityColors.measures }}
+              icon={ENTITY_ICONS.measures}
+              className="h-4 w-4"
+              style={{
+                color: entityColors.measures,
+                width: "32px",
+                height: "32px",
+              }}
               aria-hidden="true"
             />
             <div>
@@ -58,6 +69,9 @@ export default async function ModelEvaluationPage({
           </div>
         </div>
       </div>
+      <Suspense fallback={<div className="h-12 border-b" />}>
+        <SearchTabs tabs={MEASURE_TABS} accentColor={entityColors.measures} />
+      </Suspense>
       <div className="container mx-auto max-w-[1400px] px-4 py-8 sm:px-6">
         <MeasureStatsCard measureType="evaluation_measure" />
         <MeasureSearchContainer measureType="evaluation_measure" />

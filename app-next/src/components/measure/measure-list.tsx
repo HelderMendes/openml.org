@@ -1,6 +1,8 @@
 import { getElasticsearchUrl } from "@/lib/elasticsearch";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowUp, ArrowDown, Gauge } from "lucide-react";
+import { ArrowUp, ArrowDown } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ENTITY_ICONS, entityColors } from "@/constants";
 
 interface Measure {
   quality_id?: number;
@@ -63,10 +65,23 @@ export async function MeasureList({ measureType }: MeasureListProps) {
         const id = measure.eval_id || measure.proc_id || measure.quality_id;
 
         return (
-          <Card key={id || index} className="hover:border-primary/30 transition-colors">
+          <Card
+            key={id || index}
+            className="hover:border-primary/30 transition-colors"
+          >
             <CardContent className="pt-5 pb-4">
               <div className="flex items-start gap-3">
-                <Gauge className="mt-0.5 h-5 w-5 shrink-0 text-sky-600" />
+                <FontAwesomeIcon
+                  icon={ENTITY_ICONS.measures}
+                  className="h-3 w-3"
+                  style={{
+                    color: entityColors.measures,
+                    width: "18px",
+                    height: "18px",
+                  }}
+                  aria-hidden="true"
+                />
+
                 <div className="min-w-0 flex-1">
                   <h3 className="mb-1 font-semibold">{measure.name}</h3>
                   {measure.description && (

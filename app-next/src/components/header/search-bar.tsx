@@ -58,6 +58,18 @@ export function SearchBar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlQuery]);
 
+  // When already on an entity's sub-page (e.g. /collections/runs), preserve that
+  // sub-path so searching stays on the same tab. When navigating from a different
+  // entity, fall back to the root route (which redirects to the default sub-page).
+  const getRoute = useCallback(
+    (indexKey: string): string => {
+      const index = searchIndices.find((i) => i.key === indexKey);
+      if (!index) return "/";
+      return effectivePath.startsWith(index.route) ? effectivePath : index.route;
+    },
+    [effectivePath],
+  );
+
   // Debounced navigation - centralized and predictable
   const debouncedNavigate = useDebouncedCallback(
     (value: string, route: string) => {
@@ -65,7 +77,7 @@ export function SearchBar() {
       // Use replace to avoid polluting history while typing
       router.replace(`${route}?q=${encodeURIComponent(value)}`);
     },
-    300,
+    700,
   );
 
   // Handle input change - update local state immediately, navigate after debounce
@@ -73,14 +85,11 @@ export function SearchBar() {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
       setInputValue(newValue);
-
-      // Get current route for navigation
-      const currentIndex = searchIndices.find((i) => i.key === selectedIndex);
-      if (currentIndex && newValue.trim()) {
-        debouncedNavigate(newValue, currentIndex.route);
+      if (newValue.trim()) {
+        debouncedNavigate(newValue, getRoute(selectedIndex));
       }
     },
-    [selectedIndex, debouncedNavigate],
+    [selectedIndex, getRoute, debouncedNavigate],
   );
 
   // Handle form submit (Enter key) - navigate immediately
@@ -88,30 +97,23 @@ export function SearchBar() {
     (e: React.FormEvent) => {
       e.preventDefault();
       if (inputValue.trim()) {
-        const currentIndex = searchIndices.find((i) => i.key === selectedIndex);
-        if (currentIndex) {
-          router.push(
-            `${currentIndex.route}?q=${encodeURIComponent(inputValue)}`,
-          );
-        }
+        router.push(`${getRoute(selectedIndex)}?q=${encodeURIComponent(inputValue)}`);
       }
     },
-    [inputValue, selectedIndex, router],
+    [inputValue, selectedIndex, getRoute, router],
   );
 
   // Handle index (entity type) change
   const handleIndexChange = useCallback(
     (value: string) => {
-      const newIndex = searchIndices.find((i) => i.key === value);
-      if (newIndex) {
-        if (inputValue.trim()) {
-          router.push(`${newIndex.route}?q=${encodeURIComponent(inputValue)}`);
-        } else {
-          router.push(newIndex.route);
-        }
+      const route = getRoute(value);
+      if (inputValue.trim()) {
+        router.push(`${route}?q=${encodeURIComponent(inputValue)}`);
+      } else {
+        router.push(route);
       }
     },
-    [inputValue, router],
+    [inputValue, getRoute, router],
   );
 
   return (

@@ -114,7 +114,10 @@ export default async function DocumentationPage({
           </div>
 
           {/* Prominent docs banner */}
-          <div id="docs-banner" className="relative mb-10 overflow-hidden rounded-2xl bg-linear-to-r from-blue-600 to-indigo-600 px-6 py-6 text-white shadow-lg sm:px-8 sm:py-8">
+          <div
+            id="docs-banner"
+            className="gradient-bg relative mb-10 overflow-hidden rounded-2xl px-6 py-6 text-white shadow-lg sm:px-8 sm:py-8"
+          >
             <div
               className="pointer-events-none absolute inset-0 opacity-10"
               style={{

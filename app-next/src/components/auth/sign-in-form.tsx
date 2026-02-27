@@ -56,7 +56,7 @@ export default function SignInForm() {
         router.push("/dashboard");
         router.refresh();
       }
-    } catch (err) {
+    } catch (_err) {
       setError(t("signIn.error"));
     } finally {
       setIsLoading(false);
@@ -69,7 +69,7 @@ export default function SignInForm() {
 
     try {
       await signIn(provider, { callbackUrl: "/dashboard" });
-    } catch (err) {
+    } catch (_err) {
       setError(t("signIn.oauthError"));
       setIsLoading(false);
     }

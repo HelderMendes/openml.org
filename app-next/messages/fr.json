@@ -993,5 +993,64 @@
       "title": "Dataset Désactivé",
       "message": "Ce dataset a été désactivé et n'est plus disponible."
     }
+  },
+  "userProfile": {
+    "loading": "Chargement du profil...",
+    "joined": "Rejoint le {date}",
+    "notFound": {
+      "title": "Utilisateur introuvable",
+      "description": "L'utilisateur que vous recherchez n'existe pas."
+    },
+    "stats": {
+      "uploads": "Téléversements",
+      "downloads": "Téléchargements",
+      "likes": "J'aime"
+    },
+    "contributions": {
+      "title": "Contributions",
+      "datasets": "Ensembles de données",
+      "flows": "Flux",
+      "tasks": "Tâches",
+      "runs": "Exécutions",
+      "mlChallenges": "Défis ML",
+      "experiments": "Expériences"
+    },
+    "tabs": {
+      "overview": "Aperçu",
+      "datasets": "Ensembles de données",
+      "flows": "Flux",
+      "tasks": "Tâches"
+    },
+    "overview": {
+      "recentActivity": "Activité récente",
+      "recentUploads": "Téléversements récents",
+      "mostDownloaded": "Contenu le plus téléchargé",
+      "mostLiked": "Contenu le plus apprécié",
+      "noUploads": "Aucun téléversement récent trouvé"
+    },
+    "listing": {
+      "showing": "Affichage de {start}-{end} sur {total}",
+      "sortBy": "Trier par",
+      "sortOptions": {
+        "recent": "Plus récents",
+        "runs": "Plus d'exécutions",
+        "likes": "Plus de J'aime",
+        "downloads": "Plus de téléchargements",
+        "name": "Nom (A–Z)"
+      },
+      "runs": "{count} exécutions",
+      "noDatasets": "Aucun ensemble de données trouvé",
+      "noFlows": "Aucun flux trouvé",
+      "noTasks": "Aucune tâche trouvée",
+      "taskName": "{taskType} sur {dataset}",
+      "unknownDataset": "Dataset inconnu",
+      "unknownTask": "Tâche",
+      "target": "Cible : {target}"
+    },
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "pageOf": "Page {page} de {totalPages}"
+    }
   }
 }

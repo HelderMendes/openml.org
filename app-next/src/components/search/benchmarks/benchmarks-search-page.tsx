@@ -1,17 +1,16 @@
 "use client";
 
-import { SearchProvider } from "@elastic/react-search-ui";
-import type { SearchDriverOptions } from "@elastic/search-ui";
-import { useSearchParams } from "next/navigation";
-import { createBenchmarkConfig } from "./benchmark-search-config";
-import { CollectionsSearchContainer } from "../collections/collections-search-container";
-import { ActiveFiltersHeader } from "../shared/active-filters-header";
-import { BarChart3 } from "lucide-react";
+import { ENTITY_ICONS } from "@/constants/entityIcons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { entityColors } from "@/constants/entityColors";
+import { createBenchmarkConfig } from "./benchmark-search-config";
+import { StudySearchPage } from "../shared/study-search-page";
+import type { SearchTab } from "../shared/search-tabs";
 
-const facetLabels: Record<string, string> = {
-  "uploader.keyword": "Uploader",
-};
+const TABS: SearchTab[] = [
+  { label: "Task Suites", path: "/benchmarks/tasks" },
+  { label: "Run Studies", path: "/benchmarks/runs" },
+];
 
 interface BenchmarksSearchPageProps {
   studyType: "task" | "run";
@@ -19,53 +18,25 @@ interface BenchmarksSearchPageProps {
   description: string;
 }
 
+const BenchmarkIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <FontAwesomeIcon icon={ENTITY_ICONS.benchmark} {...props} />
+);
+
 export function BenchmarksSearchPage({
   studyType,
   title,
   description,
 }: BenchmarksSearchPageProps) {
-  const searchParams = useSearchParams();
-  const initialQuery = searchParams.get("q") || "";
-  const config = createBenchmarkConfig(studyType);
-
   return (
-    <SearchProvider
-      config={
-        {
-          ...config,
-          initialState: {
-            ...config.initialState,
-            searchTerm: initialQuery,
-          },
-        } as SearchDriverOptions
-      }
-    >
-      <div className="flex min-h-screen flex-col">
-        {/* Page Header */}
-        <div className="bg-muted/40 border-b">
-          <div className="container mx-auto px-4 py-8 sm:px-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-start gap-3">
-                <BarChart3
-                  className="h-8 w-8"
-                  style={{ color: entityColors.benchmarks }}
-                  aria-hidden="true"
-                />
-                <div className="space-y-0">
-                  <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-                  <p className="text-muted-foreground">{description}</p>
-                </div>
-              </div>
-              <ActiveFiltersHeader facetLabels={facetLabels} />
-            </div>
-          </div>
-        </div>
-
-        {/* Reuse collection search container with benchmark path */}
-        <div className="mx-auto w-full flex-1 px-1.5 py-6">
-          <CollectionsSearchContainer basePath="/benchmarks" entityColor={entityColors.benchmarks} />
-        </div>
-      </div>
-    </SearchProvider>
+    <StudySearchPage
+      studyType={studyType}
+      title={title}
+      description={description}
+      basePath="/benchmarks"
+      icon={BenchmarkIcon}
+      entityColor={entityColors.benchmarks}
+      tabs={TABS}
+      createConfig={createBenchmarkConfig}
+    />
   );
 }

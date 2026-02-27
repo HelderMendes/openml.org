@@ -6,22 +6,17 @@ import {
   CloudDownload,
   ThumbsDown,
   AlertCircle,
-  FlaskConical,
   GitBranch,
-  User,
-  Users,
-  Cog,
   Tag as TagIcon,
-  Play,
 } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ENTITY_ICONS, entityColors } from "@/constants";
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { LikeButton } from "@/components/ui/like-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Flow } from "@/types/flow";
 
@@ -75,7 +70,11 @@ export function FlowHeader({ flow, runCount }: FlowHeaderProps) {
             className="flex h-10 w-10 shrink-0 items-center justify-center p-0"
             aria-hidden="true"
           >
-            <Cog className="h-10 w-10 text-[#3b82f6]" strokeWidth={1.5} />
+            <FontAwesomeIcon
+              icon={ENTITY_ICONS.flow}
+              className="h-10 w-10"
+              style={{ color: entityColors.flow }}
+            />
           </div>
 
           <div className="mr-6 min-w-0 flex-1 space-y-1">
@@ -87,8 +86,8 @@ export function FlowHeader({ flow, runCount }: FlowHeaderProps) {
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
               {/* Flow ID Badge - using Flow color (blue) */}
               <Badge
-                variant="outline"
-                className="flex items-center gap-0.5 border-blue-200 bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 hover:bg-blue-200"
+                variant="openml"
+                className="flex items-center gap-0.5 bg-[#2f65cb] px-2 py-0.5 text-xs font-semibold text-white hover:bg-blue-800"
               >
                 <Hash className="h-3 w-3" />
                 {flow.flow_id}
@@ -161,7 +160,11 @@ export function FlowHeader({ flow, runCount }: FlowHeaderProps) {
 
               {/* Runs */}
               <div className="text-muted-foreground flex items-center gap-1">
-                <FlaskConical className="h-4 w-4 text-black dark:text-white" />
+                <FontAwesomeIcon
+                  icon={ENTITY_ICONS.run}
+                  className="h-4 w-4"
+                  style={{ color: entityColors.run }}
+                />
                 <span className="font-semibold">
                   {displayRunCount.toLocaleString()} runs
                 </span>
@@ -193,12 +196,25 @@ export function FlowHeader({ flow, runCount }: FlowHeaderProps) {
                           +{tags.length - 10} more
                         </button>
                       </PopoverTrigger>
-                      <PopoverContent className="max-h-64 w-72 overflow-y-auto p-3" align="start">
-                        <p className="text-muted-foreground mb-2 text-xs font-medium">All tags ({tags.length})</p>
+                      <PopoverContent
+                        className="max-h-64 w-72 overflow-y-auto p-3"
+                        align="start"
+                      >
+                        <p className="text-muted-foreground mb-2 text-xs font-medium">
+                          All tags ({tags.length})
+                        </p>
                         <div className="flex flex-wrap gap-1.5">
                           {tags.map((tag, idx) => (
-                            <Link key={`pop-${tag}-${idx}`} href={`/search?type=flow&tag=${encodeURIComponent(tag)}`}>
-                              <Badge variant="secondary" className="hover:bg-primary/10 hover:text-primary cursor-pointer text-xs transition-colors">{tag}</Badge>
+                            <Link
+                              key={`pop-${tag}-${idx}`}
+                              href={`/search?type=flow&tag=${encodeURIComponent(tag)}`}
+                            >
+                              <Badge
+                                variant="secondary"
+                                className="hover:bg-primary/10 hover:text-primary cursor-pointer text-xs transition-colors"
+                              >
+                                {tag}
+                              </Badge>
                             </Link>
                           ))}
                         </div>

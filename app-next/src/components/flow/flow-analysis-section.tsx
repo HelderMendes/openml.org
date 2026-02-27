@@ -216,7 +216,7 @@ export function FlowAnalysisSection({
         <Info className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
         <h3 className="text-lg font-semibold">No Runs to Analyse</h3>
         <p className="text-muted-foreground mt-2">
-          This flow hasn't been used in any runs yet.
+          This flow hasn&apos;t been used in any runs yet.
         </p>
       </div>
     );

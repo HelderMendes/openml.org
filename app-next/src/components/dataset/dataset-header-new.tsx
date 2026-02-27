@@ -14,8 +14,10 @@ import {
   CloudDownload,
   MessageCircle,
   Tag,
+  Pencil,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverTrigger,
@@ -572,6 +574,14 @@ export function DatasetHeader({
 
       {/* LINE 5: Action Buttons */}
       <div className="flex-wrap. mt-2 mb-4 flex items-center justify-end sm:gap-2 md:gap-3 lg:gap-5 xl:gap-7">
+        {/* Edit Button */}
+        <Link href={`/datasets/${dataset.data_id}/edit`}>
+          <Button variant="outline" className="gap-2">
+            <Pencil className="h-4 w-4" />
+            Edit
+          </Button>
+        </Link>
+
         {/* Download Dataset Dropdown */}
         <DatasetDownloadMenu
           datasetId={dataset.data_id}

@@ -7,8 +7,6 @@ import {
   ChevronRight,
   X,
   User as UserIcon,
-  Settings,
-  Users,
   FileText,
   LogOut,
   Bell,
@@ -84,8 +82,8 @@ export function UserActivitySidebar({ className }: UserActivitySidebarProps) {
     // console.log("🔍 [UserActivitySidebar] Session:", session);
 
     if (status === "authenticated" && session?.user) {
-      const firstName = (session.user as any).firstName || "";
-      const lastName = (session.user as any).lastName || "";
+      const firstName = session.user.firstName || "";
+      const lastName = session.user.lastName || "";
       // console.log(
       //   "👤 [UserActivitySidebar] firstName:",
       //   firstName,
@@ -96,7 +94,7 @@ export function UserActivitySidebar({ className }: UserActivitySidebarProps) {
       const name =
         session.user.name ||
         `${firstName} ${lastName}`.trim() ||
-        (session.user as any).username ||
+        session.user.username ||
         session.user.email?.split("@")[0] ||
         "User";
       const email = session.user.email || "";
@@ -110,7 +108,7 @@ export function UserActivitySidebar({ className }: UserActivitySidebarProps) {
           if (userData.image) {
             avatar = userData.image;
           }
-        } catch (e) {
+        } catch (_e) {
           // Ignore parse errors
         }
       }
@@ -192,7 +190,7 @@ export function UserActivitySidebar({ className }: UserActivitySidebarProps) {
             // Avatar changed - update state
             setUser({ ...user, avatar: userData.image });
           }
-        } catch (e) {
+        } catch (_e) {
           // Ignore parse errors
         }
       }

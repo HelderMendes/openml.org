@@ -10,8 +10,10 @@
  */
 
 import Link from "next/link";
-import { ArrowLeft, Grid3x3 } from "lucide-react";
+import { ArrowLeft, Grid3x3, type LucideIcon } from "lucide-react";
 import { EntityConfig } from "@/config/entities";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
 interface EntityTocProps {
   config: EntityConfig;
@@ -32,14 +34,39 @@ interface EntityTocProps {
   showNavigation?: boolean;
 }
 
+function isFontAwesomeIcon(
+  icon: LucideIcon | IconDefinition,
+): icon is IconDefinition {
+  return (
+    typeof icon === "object" &&
+    icon !== null &&
+    "prefix" in icon &&
+    "iconName" in icon
+  );
+}
+
 export function EntityToc({
   config,
   visibleSections,
   sectionCounts = {},
   showNavigation = true,
 }: EntityTocProps) {
-  // Get the CSS classes for the entity's color theme
-  const colorClasses = getColorClasses(config.color);
+  // Styles based on config.color
+  // approximating bg-color-50/70 and border-color-500/40
+  const containerStyle = {
+    borderColor: `${config.color}66`, // 40% opacity
+    backgroundColor: `${config.color}1a`, // ~10% opacity (light background)
+  };
+
+  const titleStyle = {
+    color: config.color,
+  };
+
+  const linkStyle = {
+    color: config.color,
+    // Note: Hover background color is tricky with inline styles.
+    // We'll rely on a generic hover class like hover:bg-black/5 or just opacity.
+  };
 
   // Filter sections to only show visible ones
   const sections = visibleSections
@@ -49,8 +76,11 @@ export function EntityToc({
   return (
     <div className="sticky top-32 space-y-4">
       {/* Table of Contents */}
-      <div className={`rounded-sm border-l-2 p-4 ${colorClasses.container}`}>
-        <h3 className={`mb-3 text-sm font-semibold ${colorClasses.title}`}>
+      <div
+        className="rounded-sm border-l-2 p-4 transition-colors"
+        style={containerStyle}
+      >
+        <h3 className="mb-3 text-sm font-semibold" style={titleStyle}>
           On This Page
         </h3>
         <nav className="space-y-1">
@@ -59,17 +89,26 @@ export function EntityToc({
             const count = sectionCounts[section.id];
             const label = count ? `${section.label} (${count})` : section.label;
 
-            // Special rotation for features icon (barChart3 rotated 90°)
+            // Special rotation moved to specific check or removed if using correct icon
+            // Assuming the icon is correct. If it needs rotation, we could check section.id === "features"
+            // But FontAwesome icons usually don't need manual rotation if picked correctly.
+
             const iconClass =
               section.id === "features" ? "h-4 w-4 rotate-90" : "h-4 w-4";
+            // If it's FontAwesome, className applies too.
 
             return (
               <a
                 key={section.id}
                 href={`#${section.id}`}
-                className={`flex items-center gap-2 rounded px-2 py-1.5 text-sm transition-colors ${colorClasses.link}`}
+                className="hover:bg-accent/50 flex items-center gap-2 rounded px-2 py-1.5 text-sm transition-colors"
+                style={linkStyle}
               >
-                <Icon className={iconClass} />
+                {isFontAwesomeIcon(Icon) ? (
+                  <FontAwesomeIcon icon={Icon} className={iconClass} />
+                ) : (
+                  <Icon className={iconClass} />
+                )}
                 {label}
               </a>
             );
@@ -103,54 +142,4 @@ export function EntityToc({
       )}
     </div>
   );
-}
-
-/**
- * Get Tailwind classes based on entity color
- * Maps hex colors to appropriate Tailwind utility classes
- */
-function getColorClasses(color: string): {
-  container: string;
-  title: string;
-  link: string;
-} {
-  // Map entity colors to Tailwind classes
-  switch (color) {
-    case "#66BB6A": // Green (datasets)
-      return {
-        container: "border-green-500/40 bg-green-50/70 dark:bg-green-950/20",
-        title: "text-green-700 dark:text-green-400",
-        link: "text-green-700 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-900/30",
-      };
-    case "#FFA726": // Orange (tasks)
-      return {
-        container: "border-orange-500/40 bg-orange-50/70 dark:bg-orange-950/20",
-        title: "text-orange-700 dark:text-orange-400",
-        link: "text-orange-700 hover:bg-orange-100 dark:text-orange-400 dark:hover:bg-orange-900/30",
-      };
-    case "#42A5F5": // Blue (flows)
-      return {
-        container: "border-blue-500/40 bg-blue-50/70 dark:bg-blue-950/20",
-        title: "text-blue-700 dark:text-blue-400",
-        link: "text-blue-700 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30",
-      };
-    case "#EF5350": // Red (runs)
-      return {
-        container: "border-red-500/40 bg-red-50/70 dark:bg-red-950/20",
-        title: "text-red-700 dark:text-red-400",
-        link: "text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/30",
-      };
-    case "#AB47BC": // Purple (collections/benchmarks)
-      return {
-        container: "border-purple-500/40 bg-purple-50/70 dark:bg-purple-950/20",
-        title: "text-purple-700 dark:text-purple-400",
-        link: "text-purple-700 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/30",
-      };
-    default: // Gray (fallback)
-      return {
-        container: "border-gray-500/40 bg-gray-50/70 dark:bg-gray-950/20",
-        title: "text-gray-700 dark:text-gray-400",
-        link: "text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900/30",
-      };
-  }
 }

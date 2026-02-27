@@ -1,13 +1,14 @@
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Award, Database, Flag, Cog, FlaskConical, Calendar, User } from "lucide-react";
+import { Award, Database, Flag, Calendar, User } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { entityColors, ENTITY_ICONS } from "@/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { BenchmarkDatasetsSection } from "@/components/benchmark/benchmark-datasets-section";
 import { BenchmarkTasksSection } from "@/components/benchmark/benchmark-tasks-section";
 import { BenchmarkNavigationMenu } from "@/components/benchmark/benchmark-navigation-menu";
-import { entityColors } from "@/constants/entityColors";
 import Link from "next/link";
 import { fetchStudy } from "@/lib/api/study";
 import type { StudyData } from "@/lib/api/study";
@@ -24,7 +25,8 @@ export async function generateMetadata({
     const typeLabel = study.study_type === "task" ? "Task Suite" : "Run Study";
 
     return {
-      title: `${study.name} - ${typeLabel} - OpenML Benchmarks`, description:
+      title: `${study.name} - ${typeLabel} - OpenML Benchmarks`,
+      description:
         study.description?.substring(0, 160) ||
         `OpenML Benchmark ${typeLabel} #${id}`,
       openGraph: {
@@ -75,13 +77,17 @@ export default async function BenchmarkDetailPage({
     {
       label: "Flows",
       count: study.flows_included || 0,
-      icon: Cog,
+      icon: (props: any) => (
+        <FontAwesomeIcon icon={ENTITY_ICONS.flow} {...props} />
+      ),
       color: entityColors.flow,
     },
     {
       label: "Runs",
       count: study.runs_included || 0,
-      icon: FlaskConical,
+      icon: (props: any) => (
+        <FontAwesomeIcon icon={ENTITY_ICONS.run} {...props} />
+      ),
       color: entityColors.run,
     },
   ];

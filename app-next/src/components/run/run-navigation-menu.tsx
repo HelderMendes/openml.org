@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ENTITY_ICONS, entityColors } from "@/constants";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   BarChart3,
   Settings2,
@@ -12,7 +14,6 @@ import {
   ChevronRight,
   ChevronLeft,
   ArrowLeft,
-  FlaskConical,
   LineChart,
   Grid3x3,
   Download,
@@ -270,7 +271,7 @@ export function RunNavigationMenu({
 
             {/* Navigation Links */}
             <div className="bg-card rounded-lg border p-4 shadow-sm">
-              <h3 className="text-foreground mb-3 text-sm font-semibold">
+              <h3 className="mb-3 text-sm font-semibold text-red-500 dark:text-red-400">
                 Navigation
               </h3>
               <nav className="space-y-1">
@@ -285,7 +286,11 @@ export function RunNavigationMenu({
                   href="/runs"
                   className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
                 >
-                  <FlaskConical className="h-4 w-4" />
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.run}
+                    className="h-4 w-4"
+                    style={{ color: entityColors.run }}
+                  />
                   All Runs
                 </Link>
               </nav>

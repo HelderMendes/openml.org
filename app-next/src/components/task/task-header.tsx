@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ENTITY_ICONS, entityColors } from "@/constants";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Calendar,
   Hash,
@@ -9,7 +11,6 @@ import {
   Settings,
   ThumbsDown,
   AlertCircle,
-  FlaskConical,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -173,7 +174,11 @@ export function TaskHeader({ task, runCount }: TaskHeaderProps) {
 
             {/* Runs */}
             <div className="text-muted-foreground flex items-center gap-1">
-              <FlaskConical className="h-4 w-4 text-black dark:text-white" />
+              <FontAwesomeIcon
+                icon={ENTITY_ICONS.run}
+                className="h-4 w-4"
+                style={{ color: entityColors.run }}
+              />
               <span className="font-semibold">
                 {displayRunCount.toLocaleString()} runs
               </span>
@@ -206,12 +211,25 @@ export function TaskHeader({ task, runCount }: TaskHeaderProps) {
                   +{tags.length - 10} more
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="max-h-64 w-72 overflow-y-auto p-3" align="start">
-                <p className="text-muted-foreground mb-2 text-xs font-medium">All tags ({tags.length})</p>
+              <PopoverContent
+                className="max-h-64 w-72 overflow-y-auto p-3"
+                align="start"
+              >
+                <p className="text-muted-foreground mb-2 text-xs font-medium">
+                  All tags ({tags.length})
+                </p>
                 <div className="flex flex-wrap gap-1.5">
                   {tags.map((tag, idx) => (
-                    <Link key={`pop-${tag}-${idx}`} href={`/search?type=task&tag=${encodeURIComponent(tag)}`}>
-                      <Badge variant="secondary" className="hover:bg-primary/10 hover:text-primary cursor-pointer text-xs transition-colors">{tag}</Badge>
+                    <Link
+                      key={`pop-${tag}-${idx}`}
+                      href={`/search?type=task&tag=${encodeURIComponent(tag)}`}
+                    >
+                      <Badge
+                        variant="secondary"
+                        className="hover:bg-primary/10 hover:text-primary cursor-pointer text-xs transition-colors"
+                      >
+                        {tag}
+                      </Badge>
                     </Link>
                   ))}
                 </div>

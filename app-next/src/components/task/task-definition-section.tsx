@@ -1,17 +1,13 @@
 "use client";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Target, Settings, Trophy, FileJson } from "lucide-react";
+import { Settings, FileJson } from "lucide-react";
 import type { Task } from "@/types/task";
+import { entityColors } from "@/constants/entityColors";
+import { ENTITY_ICONS } from "@/constants/entityIcons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFlag } from "@fortawesome/free-solid-svg-icons";
 
 interface TaskDefinitionSectionProps {
   task: Task;
@@ -52,8 +48,13 @@ export function TaskDefinitionSection({ task }: TaskDefinitionSectionProps) {
       <Card>
         <CardContent className="pt-6">
           <div className="mb-4 flex items-center gap-2">
-            <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
-              <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div
+              className="rounded-lg p-2"
+              style={{ backgroundColor: `${entityColors.task}20` }}
+            >
+              <div style={{ color: entityColors.task }}>
+                <FontAwesomeIcon icon={ENTITY_ICONS.task} className="h-5 w-5" />
+              </div>
             </div>
             <h3 className="text-lg font-semibold">Target & Type</h3>
           </div>
@@ -129,8 +130,13 @@ export function TaskDefinitionSection({ task }: TaskDefinitionSectionProps) {
       <Card className="md:col-span-2">
         <CardContent className="pt-6">
           <div className="mb-4 flex items-center gap-2">
-            <div className="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30">
-              <Trophy className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            <div
+              className="rounded-lg p-2"
+              style={{ backgroundColor: `${entityColors.measures}20` }}
+            >
+              <div style={{ color: entityColors.measures }}>
+                <FontAwesomeIcon icon={faFlag} className="h-5 w-5" />
+              </div>
             </div>
             <h3 className="text-lg font-semibold">Evaluation Metrics</h3>
           </div>

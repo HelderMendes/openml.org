@@ -80,13 +80,14 @@ export async function registerPasskey(
     let credential: RegistrationResponseJSON;
     try {
       credential = await startRegistration({ optionsJSON: options });
-    } catch (error: any) {
-      if (error.name === "NotAllowedError") {
+    } catch (error: unknown) {
+      const err = error as { name?: string; message?: string };
+      if (err.name === "NotAllowedError") {
         return { success: false, error: "Passkey registration was cancelled" };
       }
       return {
         success: false,
-        error: error.message || "Failed to create passkey",
+        error: err.message || "Failed to create passkey",
       };
     }
 
@@ -131,13 +132,14 @@ export async function authenticateWithPasskey(): Promise<PasskeyAuthResponse> {
     let credential: AuthenticationResponseJSON;
     try {
       credential = await startAuthentication({ optionsJSON: options });
-    } catch (error: any) {
-      if (error.name === "NotAllowedError") {
+    } catch (error: unknown) {
+      const err = error as { name?: string; message?: string };
+      if (err.name === "NotAllowedError") {
         return { success: false, error: "Authentication was cancelled" };
       }
       return {
         success: false,
-        error: error.message || "Authentication failed",
+        error: err.message || "Authentication failed",
       };
     }
 

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
-  Trophy,
   Medal,
   ArrowUpRight,
   AlertCircle,
@@ -27,7 +26,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/task";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ENTITY_ICONS, entityColors } from "@/constants";
 // Available evaluation measures with metadata
 const EVALUATION_MEASURES = [
   { value: "predictive_accuracy", label: "Accuracy", lowerIsBetter: false },
@@ -310,7 +310,11 @@ export function TaskLeaderboardSection({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-yellow-500" />
+              <FontAwesomeIcon
+                icon={ENTITY_ICONS.task}
+                className="h-5 w-5"
+                style={{ color: entityColors.task }}
+              />
               Leaderboard
             </CardTitle>
           </CardHeader>
@@ -340,7 +344,11 @@ export function TaskLeaderboardSection({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-yellow-500" />
+              <FontAwesomeIcon
+                icon={ENTITY_ICONS.task}
+                className="h-5 w-5"
+                style={{ color: entityColors.task }}
+              />
               Leaderboard
             </CardTitle>
           </CardHeader>
@@ -566,7 +574,11 @@ export function TaskLeaderboardSection({
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-xl font-semibold">
-              <Trophy className="h-5 w-5 text-yellow-500" />
+              <FontAwesomeIcon
+                icon={ENTITY_ICONS.task}
+                className="h-5 w-5"
+                style={{ color: entityColors.task }}
+              />
               Leaderboards
             </CardTitle>
             <Badge variant="outline" className="text-xs">

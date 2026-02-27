@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { Flow } from "@/types/flow";
 
 interface FlowDescriptionSectionProps {
@@ -7,7 +6,7 @@ interface FlowDescriptionSectionProps {
 
 export function FlowDescriptionSection({ flow }: FlowDescriptionSectionProps) {
   // Parse dependencies if it's a string
-  const dependencies = flow.dependencies
+  const _dependencies = flow.dependencies
     ? typeof flow.dependencies === "string"
       ? flow.dependencies.split(",").map((dep) => {
           const [name, version] = dep.trim().split("_");

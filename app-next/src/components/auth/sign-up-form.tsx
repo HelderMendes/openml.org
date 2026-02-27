@@ -41,8 +41,8 @@ export default function SignUpForm() {
       } else {
         setEmailError("");
       }
-    } catch (err) {
-      console.error("Error checking email:", err);
+    } catch (_err) {
+      console.error("Error checking email:", _err);
     }
   };
 
@@ -100,7 +100,7 @@ export default function SignUpForm() {
       } else {
         setError(data.message || t("signUp.registrationFailed"));
       }
-    } catch (err) {
+    } catch (_err) {
       setError(t("signUp.registrationError"));
     } finally {
       setIsLoading(false);
@@ -113,7 +113,7 @@ export default function SignUpForm() {
 
     try {
       await signIn(provider, { callbackUrl: "/dashboard" });
-    } catch (err) {
+    } catch (_err) {
       setError(t("signUp.oauthError"));
       setIsLoading(false);
     }
@@ -186,9 +186,9 @@ export default function SignUpForm() {
       } else {
         router.push("/auth/sign-in?success=account_created");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Passkey Sign-up error:", err);
-      setError(err.message || t("signUp.passkeyError"));
+      setError(err instanceof Error ? err.message : t("signUp.passkeyError"));
     } finally {
       setIsLoading(false);
     }

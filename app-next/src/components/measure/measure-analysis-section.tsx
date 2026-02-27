@@ -27,7 +27,7 @@ interface MeasureAnalysisSectionProps {
 export function MeasureAnalysisSection({
   measure,
 }: MeasureAnalysisSectionProps) {
-  const [relatedMeasures, setRelatedMeasures] = useState<any[]>([]);
+  const [relatedMeasures, setRelatedMeasures] = useState<Measure[]>([]);
   const [loading, setLoading] = useState(true);
   const { theme } = useTheme();
 
@@ -57,7 +57,7 @@ export function MeasureAnalysisSection({
         if (res.ok) {
           const data = await res.json();
           const measures =
-            data.hits?.hits?.map((hit: any) => hit._source) || [];
+            data.hits?.hits?.map((hit: { _source: Measure }) => hit._source) || [];
           setRelatedMeasures(measures);
         }
       } catch (error) {
@@ -93,10 +93,10 @@ export function MeasureAnalysisSection({
   const stats = useMemo(() => {
     if (measure.measure_type === "evaluation_measure") {
       const higher = relatedMeasures.filter(
-        (m) => m.higherIsBetter === "1" || m.higherIsBetter === 1,
+        (m) => m.higherIsBetter === true,
       ).length;
       const lower = relatedMeasures.filter(
-        (m) => m.higherIsBetter === "0" || m.higherIsBetter === 0,
+        (m) => m.higherIsBetter === false,
       ).length;
 
       return {
@@ -285,7 +285,7 @@ export function MeasureAnalysisSection({
                   margin: { l: 50, r: 20, t: 20, b: 50 },
                   plot_bgcolor: "transparent",
                   paper_bgcolor: "transparent",
-                } as any
+                } as object
               }
               config={{
                 responsive: true,

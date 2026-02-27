@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { entityColors } from "@/constants/entityColors";
+import { ENTITY_ICONS } from "@/constants/entityIcons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Database,
   ChevronRight,
   ChevronLeft,
   Search,
-  FlaskConical,
   Heart,
   CloudDownload,
   BarChart3,
@@ -37,7 +39,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { entityColors } from "@/constants/entityColors";
 import { truncateName } from "@/lib/utils";
 
 interface DatasetResult {
@@ -154,8 +155,10 @@ export function CollectionDatasetsSection({
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="flex items-center gap-1.5">
-              <FlaskConical
-                className={`${iconSize} fill-red-500 text-red-500`}
+              <FontAwesomeIcon
+                icon={ENTITY_ICONS.run}
+                className={iconSize}
+                style={{ color: entityColors.run }}
               />
               {Number(d.runs || 0).toLocaleString()}
             </span>
@@ -486,7 +489,11 @@ export function CollectionDatasetsSection({
                     )}
                     <div className="mt-auto flex flex-wrap gap-x-3 gap-y-1 text-xs">
                       <span className="flex items-center gap-1">
-                        <FlaskConical className="h-3 w-3 fill-red-500 text-red-500" />
+                        <FontAwesomeIcon
+                          icon={ENTITY_ICONS.run}
+                          className="h-3 w-3"
+                          style={{ color: entityColors.run }}
+                        />
                         {Number(d.runs || 0).toLocaleString()}
                       </span>
                       <span className="flex items-center gap-1">
@@ -543,7 +550,11 @@ export function CollectionDatasetsSection({
                         </div>
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                           <span className="flex items-center gap-1">
-                            <FlaskConical className="h-3 w-3 fill-red-500 text-red-500" />
+                            <FontAwesomeIcon
+                              icon={ENTITY_ICONS.run}
+                              className="h-3 w-3"
+                              style={{ color: entityColors.run }}
+                            />
                             {Number(d.runs || 0).toLocaleString()}
                           </span>
                           <span className="flex items-center gap-1">

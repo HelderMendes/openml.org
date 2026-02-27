@@ -6,10 +6,11 @@ import { useSearchParams } from "next/navigation";
 import taskConfig from "./task-search-config";
 import { ActiveFiltersHeader } from "../shared/active-filters-header";
 import { TaskSearchContainer } from "@/components/search/tasks/task-search-container";
-import { Trophy, Database, X } from "lucide-react";
+import { Database, X } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ENTITY_ICONS, entityColors } from "@/constants";
 export function TasksSearchPage() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
@@ -52,9 +53,14 @@ export function TasksSearchPage() {
           <div className="container mx-auto px-4 py-8 sm:px-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
-                <Trophy
-                  className="h-8 w-8"
-                  style={{ color: "#FFA726" }}
+                <FontAwesomeIcon
+                  icon={ENTITY_ICONS.task}
+                  className="mt-1"
+                  style={{
+                    color: entityColors.task,
+                    width: "32px",
+                    height: "32px",
+                  }}
                   aria-hidden="true"
                 />
                 <div className="space-y-0">
@@ -88,7 +94,7 @@ export function TasksSearchPage() {
         </div>
 
         {/* Search Container */}
-        <div className="mx-auto w-full flex-1 px-1.5 py-6">
+        <div className="mx-auto w-full flex-1 px-1.5 pb-6">
           <TaskSearchContainer />
         </div>
       </div>

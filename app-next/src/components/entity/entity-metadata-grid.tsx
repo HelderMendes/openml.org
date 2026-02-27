@@ -27,7 +27,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Link } from "@/config/routing";
 import type { EntityConfig } from "@/config/entities";
 
 /**
@@ -99,8 +98,8 @@ function formatDate(dateString: string | undefined): string {
  * Renders metadata in card format with configurable items.
  */
 export function EntityMetadataGrid({
-  entity,
-  config,
+  entity: _entity,
+  config: _config,
   cards,
 }: EntityMetadataGridProps) {
   return (

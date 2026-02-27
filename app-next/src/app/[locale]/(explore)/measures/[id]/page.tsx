@@ -1,14 +1,15 @@
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import Link from "next/link";
-import { FileText, Flag, Hash, FlaskConical, Database, BarChart3 } from "lucide-react";
+import { FileText, Flag, Hash, Database, BarChart3 } from "lucide-react";
+import { ENTITY_ICONS, entityColors } from "@/constants";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { fetchMeasure, fetchRelatedTasks } from "@/lib/api/measure";
 import { MeasureHeader, MeasureAnalysisSection } from "@/components/measure";
 import { MeasureDescriptionSection } from "@/components/measure/measure-description-section";
 import { MeasureNavigationMenu } from "@/components/measure/measure-navigation-menu";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { Badge } from "@/components/ui/badge";
-import { entityColors } from "@/constants/entityColors";
 import {
   Tooltip,
   TooltipContent,
@@ -26,8 +27,7 @@ export async function generateMetadata({
     const measure = await fetchMeasure(id);
     return {
       title: `${measure.name} - OpenML Measure`,
-      description:
-        measure.description || `OpenML Measure: ${measure.name}`,
+      description: measure.description || `OpenML Measure: ${measure.name}`,
       openGraph: {
         title: `${measure.name} - OpenML Measure`,
         description:
@@ -98,11 +98,14 @@ export default async function MeasureDetailPage({
             <CollapsibleSection
               id="related-tasks"
               title="Related Tasks"
-              description="Tasks that use this measure for evaluation"
+              description=""
               icon={
                 <Flag
                   className="h-4 w-4"
-                  style={{ color: entityColors.task }}
+                  style={{
+                    color: entityColors.task,
+                    fill: entityColors.task,
+                  }}
                 />
               }
               badge={tasks.length}
@@ -146,7 +149,11 @@ export default async function MeasureDetailPage({
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="flex items-center gap-1.5">
-                                  <FlaskConical className="h-4 w-4 fill-red-500 text-red-500" />
+                                  <FontAwesomeIcon
+                                    icon={ENTITY_ICONS.run}
+                                    className="h-4 w-4"
+                                    style={{ color: entityColors.run }}
+                                  />
                                   {Number(t.runs).toLocaleString()}
                                 </span>
                               </TooltipTrigger>

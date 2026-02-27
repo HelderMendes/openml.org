@@ -28,6 +28,7 @@ export function LanguageSwitcher() {
   const pathname = usePathname();
 
   const handleLanguageChange = (langCode: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     router.replace(pathname as any, { locale: langCode });
   };
 

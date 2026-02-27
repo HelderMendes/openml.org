@@ -993,5 +993,64 @@
       "title": "Datensatz Deaktiviert",
       "message": "Dieser Datensatz wurde deaktiviert und ist nicht mehr verfügbar."
     }
+  },
+  "userProfile": {
+    "loading": "Profil wird geladen...",
+    "joined": "Beigetreten am {date}",
+    "notFound": {
+      "title": "Benutzer nicht gefunden",
+      "description": "Der gesuchte Benutzer existiert nicht."
+    },
+    "stats": {
+      "uploads": "Uploads",
+      "downloads": "Downloads",
+      "likes": "Likes"
+    },
+    "contributions": {
+      "title": "Beiträge",
+      "datasets": "Datensätze",
+      "flows": "Flows",
+      "tasks": "Aufgaben",
+      "runs": "Runs",
+      "mlChallenges": "ML-Herausforderungen",
+      "experiments": "Experimente"
+    },
+    "tabs": {
+      "overview": "Übersicht",
+      "datasets": "Datensätze",
+      "flows": "Flows",
+      "tasks": "Aufgaben"
+    },
+    "overview": {
+      "recentActivity": "Kürzliche Aktivität",
+      "recentUploads": "Kürzliche Uploads",
+      "mostDownloaded": "Meistgeladene Inhalte",
+      "mostLiked": "Beliebteste Inhalte",
+      "noUploads": "Keine kürzlichen Uploads gefunden"
+    },
+    "listing": {
+      "showing": "Zeige {start}-{end} von {total}",
+      "sortBy": "Sortieren nach",
+      "sortOptions": {
+        "recent": "Neueste",
+        "runs": "Meiste Runs",
+        "likes": "Meiste Likes",
+        "downloads": "Meiste Downloads",
+        "name": "Name (A–Z)"
+      },
+      "runs": "{count} Runs",
+      "noDatasets": "Keine Datensätze gefunden",
+      "noFlows": "Keine Flows gefunden",
+      "noTasks": "Keine Aufgaben gefunden",
+      "taskName": "{taskType} auf {dataset}",
+      "unknownDataset": "Unbekannter Datensatz",
+      "unknownTask": "Aufgabe",
+      "target": "Ziel: {target}"
+    },
+    "pagination": {
+      "previous": "Vorherige",
+      "next": "Nächste",
+      "pageOf": "Seite {page} von {totalPages}"
+    }
   }
 }

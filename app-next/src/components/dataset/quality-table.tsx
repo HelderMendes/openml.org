@@ -179,7 +179,7 @@ export function QualityTable({ qualities }: QualityTableProps) {
                     colSpan={2}
                     className="text-muted-foreground text-center"
                   >
-                    No quality metrics found matching "{searchTerm}"
+                    No quality metrics found matching &quot;{searchTerm}&quot;
                   </TableCell>
                 </TableRow>
               )}
