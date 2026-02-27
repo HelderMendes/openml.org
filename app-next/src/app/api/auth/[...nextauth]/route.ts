@@ -309,7 +309,7 @@ export const authOptions: NextAuthOptions = {
             user.session_hash = dbUser.session_hash || null;
           }
           // Mark as local user (OAuth users don't exist on openml.org)
-          (user as any).isLocalUser = true;
+          user.isLocalUser = true;
           return true;
         } catch (error) {
           console.error("SignIn Callback Error:", error);
@@ -336,7 +336,7 @@ export const authOptions: NextAuthOptions = {
         token.firstName = user.firstName;
         token.lastName = user.lastName;
         token.picture = user.image;
-        token.isLocalUser = (user as any).isLocalUser || false;
+        token.isLocalUser = user.isLocalUser || false;
       }
 
       return token;
@@ -352,14 +352,14 @@ export const authOptions: NextAuthOptions = {
         session.user.lastName = token.lastName;
         // Add API key to session for likes/votes
         if (token.apikey) {
-          session.apikey = token.apikey as string;
+          session.apikey = token.apikey;
         }
         // Add profile image to session
         if (token.picture) {
-          session.user.image = token.picture as string;
+          session.user.image = token.picture;
         }
         // Mark if user is local-only (not from openml.org)
-        (session.user as any).isLocalUser = token.isLocalUser || false;
+        session.user.isLocalUser = token.isLocalUser || false;
       }
       return session;
     },
