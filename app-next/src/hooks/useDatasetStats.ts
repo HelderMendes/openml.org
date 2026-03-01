@@ -90,9 +90,11 @@ export function useDatasetStats(
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.error || `Failed to fetch stats: ${response.statusText}`,
-          );
+          const msg = errorData.error || `Failed to fetch stats: ${response.statusText}`;
+          console.warn("Dataset stats unavailable:", msg);
+          if (cancelled) return;
+          setState({ stats: null, isLoading: false, error: msg, cached: false });
+          return;
         }
 
         const data: DatasetStatsResponse = await response.json();

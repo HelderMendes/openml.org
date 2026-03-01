@@ -193,7 +193,7 @@ export function DatasetUploadForm() {
               <Textarea
                 id="description"
                 placeholder="Describe your dataset, its origin, and any preprocessing..."
-                className="min-h-[120px]"
+                className="min-h-40"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />

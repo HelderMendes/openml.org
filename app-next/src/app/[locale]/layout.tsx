@@ -12,6 +12,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { MainContent } from "@/components/layout/main-content";
 import { SidebarProvider } from "@/contexts/sidebar-context";
 import { Toaster } from "@/components/ui/toaster";
+import { PerformanceMonitor } from "@/components/performance-monitor";
 import { locales, type Locale } from "@/i18n";
 import { cn } from "@/lib/utils";
 
@@ -124,6 +125,7 @@ export default async function LocaleLayout({
               </QueryProvider>
             </AuthProvider>
             <Toaster />
+            {process.env.NODE_ENV === "development" && <PerformanceMonitor />}
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

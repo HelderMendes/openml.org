@@ -131,8 +131,11 @@ export function Sidebar() {
       {/* Overlay when menu is open */}
       {homeMenuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-700/20"
+          className="fixed inset-0 z-40 bg-white/10 dark:bg-slate-950/20"
           onClick={() => setHomeMenuOpen(false)}
+          style={{
+            filter: "contrast(1.75)",
+          }}
         />
       )}
 

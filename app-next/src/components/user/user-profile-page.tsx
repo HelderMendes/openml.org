@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useTranslations, useFormatter } from "next-intl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -946,7 +945,7 @@ export function UserProfilePage({ userId }: { userId: string }) {
                                 />
                                 <div className="min-w-0 flex-1">
                                   <div
-                                    className="max-w-[200px] truncate font-medium transition-colors group-hover:text-[var(--hover-color)] sm:max-w-[300px] md:max-w-[400px]"
+                                    className="max-w-[200px] truncate font-medium transition-colors group-hover:text-[(--hover-color)] sm:max-w-[300px] md:max-w-[400px]"
                                     style={
                                       {
                                         "--hover-color":
@@ -1019,7 +1018,7 @@ export function UserProfilePage({ userId }: { userId: string }) {
                                   />
                                   <div className="min-w-0 flex-1">
                                     <div
-                                      className="truncate font-medium transition-colors group-hover:text-[var(--hover-color)]"
+                                      className="truncate font-medium transition-colors group-hover:text-[(--hover-color)]"
                                       style={
                                         {
                                           "--hover-color":
@@ -1090,7 +1089,7 @@ export function UserProfilePage({ userId }: { userId: string }) {
                                   />
                                   <div className="min-w-0 flex-1">
                                     <div
-                                      className="truncate font-medium transition-colors group-hover:text-[var(--hover-color)]"
+                                      className="truncate font-medium transition-colors group-hover:text-[(--hover-color)]"
                                       style={
                                         {
                                           "--hover-color":
@@ -1212,7 +1211,7 @@ export function UserProfilePage({ userId }: { userId: string }) {
                                     title={dataset.name}
                                   >
                                     <span
-                                      className="group-hover:text-[var(--hover-color)]"
+                                      className="group-hover:text-[(--hover-color)]"
                                       style={
                                         {
                                           "--hover-color": entityColors.data,
@@ -1360,7 +1359,7 @@ export function UserProfilePage({ userId }: { userId: string }) {
                                     title={flow.name}
                                   >
                                     <span
-                                      className="group-hover:text-[var(--hover-color)]"
+                                      className="group-hover:text-[(--hover-color)]"
                                       style={
                                         {
                                           "--hover-color": entityColors.flow,
@@ -1505,7 +1504,7 @@ export function UserProfilePage({ userId }: { userId: string }) {
                                     title={task.name}
                                   >
                                     <span
-                                      className="group-hover:text-[var(--hover-color)]"
+                                      className="group-hover:text-[(--hover-color)]"
                                       style={
                                         {
                                           "--hover-color": entityColors.task,
