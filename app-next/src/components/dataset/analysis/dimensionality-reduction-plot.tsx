@@ -3,11 +3,11 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState, useMemo } from "react";
 import { Loader2, Info } from "lucide-react";
-// @ts-ignore
 import PCA from "pca-js";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DatasetFeature } from "@/types/dataset";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePlotlyTheme } from "@/hooks/usePlotlyTheme";
 
 // Dynamic import for Plotly
 const Plot = dynamic(() => import("react-plotly.js"), {
@@ -15,10 +15,27 @@ const Plot = dynamic(() => import("react-plotly.js"), {
   loading: () => <Skeleton className="h-[400px] w-full" />,
 });
 
+interface DatasetPreview {
+  columns: string[];
+  rows: (string | number | null)[][];
+}
+
+interface PCAVector {
+  eigenvalue: number;
+}
+
+interface PCAResult {
+  x: number[];
+  y: number[];
+  labels: (string | number)[];
+  hoverText: string[];
+  variance: number[];
+}
+
 interface DimensionalityReductionPlotProps {
   datasetId: number | string;
   features: DatasetFeature[];
-  preview: { columns: string[]; rows: any[][] } | null;
+  preview: DatasetPreview | null;
   isLoading: boolean;
 }
 
@@ -27,13 +44,8 @@ export function DimensionalityReductionPlot({
   preview,
   isLoading,
 }: DimensionalityReductionPlotProps) {
-  const [pcaResult, setPcaResult] = useState<{
-    x: number[];
-    y: number[];
-    labels: any[];
-    hoverText: string[];
-    variance: number[];
-  } | null>(null);
+  const plotTheme = usePlotlyTheme();
+  const [pcaResult, setPcaResult] = useState<PCAResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Identify numeric features vs target (usually the class/label)
@@ -143,21 +155,37 @@ export function DimensionalityReductionPlot({
           throw new Error("PCA computation returned invalid data structure");
         }
 
-        // Extract variance explained if available, otherwise use defaults
-        const varianceExplained = adData.formattedEigenValues
-          ? [adData.formattedEigenValues[0], adData.formattedEigenValues[1]]
-          : [0.5, 0.3]; // Fallback if property missing
+        // Extract variance explained from eigenvalues
+        // Calculate total variance by summing all eigenvalues
+        // Note: PCA.getEigenVectors returns all eigenvectors sorted by eigenvalue
+        const eigenVectors = vectors as unknown as PCAVector[];
+        const totalVariance = eigenVectors.reduce(
+          (sum, v) => sum + (v.eigenvalue || 0),
+          0,
+        );
+
+        const varianceExplained =
+          totalVariance > 0
+            ? [
+                eigenVectors[0].eigenvalue / totalVariance,
+                eigenVectors[1].eigenvalue / totalVariance,
+              ]
+            : [0.5, 0.3];
 
         // adData.adjustedData[0] is PC1 values for all samples
         // adData.adjustedData[1] is PC2 values for all samples
 
         // 3. Get labels for coloring (if target exists) and construct hover text
-        let labels = [];
-        let hoverText = []; // Store richer hover information
+        let labels: (string | number)[] = [];
+        let hoverText: string[] = []; // Store richer hover information
         if (targetFeature) {
           const targetIdx = preview.columns.indexOf(targetFeature.name);
           if (targetIdx !== -1) {
-            labels = cleanRows.map((row) => row[targetIdx]);
+            labels = cleanRows.map((row) =>
+              row[targetIdx] === null
+                ? "Unknown"
+                : (row[targetIdx] as string | number),
+            );
             hoverText = cleanRows.map((row, i) => {
               const targetVal = row[targetIdx];
               return `<b>Row ${i + 1}</b><br>${targetFeature.name}: ${targetVal}`;
@@ -260,28 +288,31 @@ export function DimensionalityReductionPlot({
                         },
                       ]
                     : undefined,
-              },
+              } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
             ]}
             layout={{
               autosize: true,
               height: 500,
               hovermode: "closest",
-              margin: { l: 50, r: 20, t: 30, b: 50 },
+              margin: { l: 60, r: 20, t: 30, b: 60 },
+              font: plotTheme.font,
               xaxis: {
-                title: `Principal Component 1`,
-                zeroline: false,
-                gridcolor: "rgba(128,128,128,0.2)",
+                title: { text: "Principal Component 1" },
+                automargin: true,
+                gridcolor: plotTheme.gridcolor,
+                zerolinecolor: plotTheme.zerolinecolor,
               },
               yaxis: {
-                title: `Principal Component 2`,
-                zeroline: false,
-                gridcolor: "rgba(128,128,128,0.2)",
+                title: { text: "Principal Component 2" },
+                automargin: true,
+                gridcolor: plotTheme.gridcolor,
+                zerolinecolor: plotTheme.zerolinecolor,
               },
-              paper_bgcolor: "transparent",
-              plot_bgcolor: "transparent",
-              // @ts-ignore
+              paper_bgcolor: plotTheme.paper_bgcolor,
+              plot_bgcolor: plotTheme.plot_bgcolor,
+              hoverlabel: plotTheme.hoverlabel,
               legend: { orientation: "h", y: -0.2 },
-            }}
+            } as object}
             useResizeHandler
             className="w-full"
             config={{ displayModeBar: false }}

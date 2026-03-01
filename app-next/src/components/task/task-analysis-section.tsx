@@ -24,6 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { Task } from "@/types/task";
 import { searchRuns, fetchTopRuns } from "@/app/actions/runs";
+import { usePlotlyTheme } from "@/hooks/usePlotlyTheme";
 
 // Dynamic import for Plotly (required for SSR compatibility)
 const Plot = dynamic(() => import("react-plotly.js"), {
@@ -138,6 +139,7 @@ export function TaskAnalysisSection({
   runCount,
 }: TaskAnalysisSectionProps) {
   // Default metric based on task type
+  const plotTheme = usePlotlyTheme();
   const defaultMetric =
     task.task_type_id === 1 || task.task_type_id === 2
       ? "area_under_roc_curve"
@@ -569,27 +571,24 @@ export function TaskAnalysisSection({
                     height: Math.max(400, flowsData.length * 35),
                     margin: { l: 280, r: 40, t: 40, b: 60 },
                     showlegend: false,
-                    font: { color: "#9ca3af" },
+                    font: plotTheme.font,
                     xaxis: {
                       title: selectedMetric.replace(/_/g, " ").toUpperCase(),
-                      gridcolor: "rgba(128,128,128,0.2)",
+                      gridcolor: plotTheme.gridcolor,
                       zeroline: false,
                       side: "top",
-                      tickfont: { color: "#9ca3af" },
-                      titlefont: { color: "#9ca3af" },
+                      tickfont: plotTheme.font,
+                      titlefont: plotTheme.font,
                     },
                     yaxis: {
                       automargin: true,
-                      gridcolor: "rgba(128,128,128,0.2)",
-                      tickfont: { color: "#9ca3af" },
+                      gridcolor: plotTheme.gridcolor,
+                      tickfont: plotTheme.font,
                     },
                     hovermode: "closest",
-                    hoverlabel: {
-                      font: { color: "white" },
-                      bordercolor: "white",
-                    },
-                    paper_bgcolor: "transparent",
-                    plot_bgcolor: "transparent",
+                    hoverlabel: plotTheme.hoverlabel,
+                    paper_bgcolor: plotTheme.paper_bgcolor,
+                    plot_bgcolor: plotTheme.plot_bgcolor,
                   } as object)}
                   config={{
                     displayModeBar: true,
@@ -646,28 +645,25 @@ export function TaskAnalysisSection({
                     height: 450,
                     margin: { l: 80, r: 40, t: 40, b: 60 },
                     showlegend: false,
-                    font: { color: "#9ca3af" },
+                    font: plotTheme.font,
                     xaxis: {
                       title: "upload_time",
-                      gridcolor: "rgba(128,128,128,0.2)",
+                      gridcolor: plotTheme.gridcolor,
                       type: "date",
-                      tickfont: { color: "#9ca3af" },
-                      titlefont: { color: "#9ca3af" },
+                      tickfont: plotTheme.font,
+                      titlefont: plotTheme.font,
                     },
                     yaxis: {
                       title: selectedMetric,
-                      gridcolor: "rgba(128,128,128,0.2)",
+                      gridcolor: plotTheme.gridcolor,
                       autorange: isLowerBetter ? "reversed" : true,
-                      tickfont: { color: "#9ca3af" },
-                      titlefont: { color: "#9ca3af" },
+                      tickfont: plotTheme.font,
+                      titlefont: plotTheme.font,
                     },
                     hovermode: "closest",
-                    hoverlabel: {
-                      font: { color: "white" },
-                      bordercolor: "white",
-                    },
-                    paper_bgcolor: "transparent",
-                    plot_bgcolor: "transparent",
+                    hoverlabel: plotTheme.hoverlabel,
+                    paper_bgcolor: plotTheme.paper_bgcolor,
+                    plot_bgcolor: plotTheme.plot_bgcolor,
                   } as object)}
                   config={{
                     displayModeBar: true,

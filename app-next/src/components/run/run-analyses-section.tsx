@@ -160,6 +160,13 @@ export function RunAnalysesSection({ runId }: RunAnalysesSectionProps) {
     });
 
     const uniqueClasses = Array.from(classSet).sort();
+
+    // If there are too many unique values this is likely a regression task —
+    // building an N² matrix would crash the browser.
+    if (uniqueClasses.length > 50) {
+      return { matrix: [], uniqueClasses: [] };
+    }
+
     const matrix: ConfusionMatrixData[] = [];
 
     uniqueClasses.forEach((actual) => {

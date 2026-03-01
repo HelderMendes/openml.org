@@ -6,7 +6,7 @@ import { Loader2, TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useTheme } from "next-themes";
+import { usePlotlyTheme } from "@/hooks/usePlotlyTheme";
 import { entityColors } from "@/constants/entityColors";
 import type { Measure } from "@/types/measure";
 
@@ -29,7 +29,7 @@ export function MeasureAnalysisSection({
 }: MeasureAnalysisSectionProps) {
   const [relatedMeasures, setRelatedMeasures] = useState<Measure[]>([]);
   const [loading, setLoading] = useState(true);
-  const { theme } = useTheme();
+  const plotTheme = usePlotlyTheme();
 
   useEffect(() => {
     const fetchRelatedMeasures = async () => {
@@ -230,61 +230,25 @@ export function MeasureAnalysisSection({
               ]}
               layout={
                 {
+                  font: plotTheme.font,
                   xaxis: {
-                    title: {
-                      text: "Year",
-                      font: {
-                        color:
-                          theme === "dark"
-                            ? "rgba(255,255,255,0.5)"
-                            : "rgba(0,0,0,0.5)",
-                      },
-                    },
-                    tickfont: {
-                      color:
-                        theme === "dark"
-                          ? "rgba(255,255,255,0.5)"
-                          : "rgba(0,0,0,0.5)",
-                    },
-                    gridcolor:
-                      theme === "dark"
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.1)",
-                    linecolor:
-                      theme === "dark"
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.1)",
+                    title: { text: "Year" },
+                    tickfont: plotTheme.font,
+                    gridcolor: plotTheme.gridcolor,
+                    linecolor: plotTheme.gridcolor,
                   },
                   yaxis: {
-                    title: {
-                      text: "Count",
-                      font: {
-                        color:
-                          theme === "dark"
-                            ? "rgba(255,255,255,0.5)"
-                            : "rgba(0,0,0,0.5)",
-                      },
-                    },
-                    tickfont: {
-                      color:
-                        theme === "dark"
-                          ? "rgba(255,255,255,0.5)"
-                          : "rgba(0,0,0,0.5)",
-                    },
-                    gridcolor:
-                      theme === "dark"
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.1)",
-                    linecolor:
-                      theme === "dark"
-                        ? "rgba(255,255,255,0.1)"
-                        : "rgba(0,0,0,0.1)",
+                    title: { text: "Count" },
+                    tickfont: plotTheme.font,
+                    gridcolor: plotTheme.gridcolor,
+                    linecolor: plotTheme.gridcolor,
                   },
                   hovermode: "closest",
+                  hoverlabel: plotTheme.hoverlabel,
                   height: 300,
                   margin: { l: 50, r: 20, t: 20, b: 50 },
-                  plot_bgcolor: "transparent",
-                  paper_bgcolor: "transparent",
+                  plot_bgcolor: plotTheme.plot_bgcolor,
+                  paper_bgcolor: plotTheme.paper_bgcolor,
                 } as object
               }
               config={{

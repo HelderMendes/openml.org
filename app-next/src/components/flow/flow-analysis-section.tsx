@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { Flow } from "@/types/flow";
 import { searchRuns } from "@/app/actions/runs";
+import { usePlotlyTheme } from "@/hooks/usePlotlyTheme";
 
 // ──────────────────────────────────────────────────────────────
 // Types for Elasticsearch response
@@ -104,6 +105,7 @@ export function FlowAnalysisSection({
   flow,
   runCount,
 }: FlowAnalysisSectionProps) {
+  const plotTheme = usePlotlyTheme();
   const [selectedMetric, setSelectedMetric] = useState("area_under_roc_curve");
   const [selectedTaskType, setSelectedTaskType] = useState("all");
   const [selectedComponent, setSelectedComponent] = useState(flow.name);
@@ -313,7 +315,7 @@ export function FlowAnalysisSection({
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="rounded-lg border bg-white p-4 dark:bg-slate-900">
+          <div className="rounded-lg border bg-transparent p-4">
             <div className="plotly-chart-container">
               <Plot
                 data={chartData.map((task, idx) => ({
@@ -342,19 +344,21 @@ export function FlowAnalysisSection({
                   height: Math.max(500, chartData.length * 35),
                   margin: { l: 250, r: 50, t: 30, b: 50 },
                   showlegend: false,
+                  font: plotTheme.font,
                   xaxis: {
                     title: selectedMetric.replace(/_/g, " ").toUpperCase(),
-                    gridcolor: "#f3f4f6",
+                    gridcolor: plotTheme.gridcolor,
                     zeroline: false,
                   },
                   yaxis: {
                     automargin: true,
-                    gridcolor: "#f3f4f6",
+                    gridcolor: plotTheme.gridcolor,
                   },
                   hovermode: "closest",
-                  paper_bgcolor: "transparent",
-                  plot_bgcolor: "transparent",
-                }}
+                  hoverlabel: plotTheme.hoverlabel,
+                  paper_bgcolor: plotTheme.paper_bgcolor,
+                  plot_bgcolor: plotTheme.plot_bgcolor,
+                } as object}
                 config={{
                   displayModeBar: true,
                   responsive: true,

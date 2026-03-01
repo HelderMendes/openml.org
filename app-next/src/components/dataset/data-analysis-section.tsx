@@ -45,8 +45,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { usePlotlyTheme } from "@/hooks/usePlotlyTheme";
 import type { Dataset, DatasetFeature } from "@/types/dataset";
 import { useParquetData, computeDistribution } from "@/hooks/useParquetData";
 import { useDatasetStats } from "@/hooks/useDatasetStats";
@@ -983,8 +983,7 @@ function DistributionPlot({
   dataUnavailable?: boolean;
   statsData?: Record<string, unknown>;
 }) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  const plotTheme = usePlotlyTheme();
   const isNumeric = feature.type === "numeric";
 
   // Compute distribution from stats API first, then fall back to parquet data or feature.distr
@@ -1155,22 +1154,21 @@ function DistributionPlot({
           layout={{
             height: 200,
             margin: { l: 40, r: 20, t: 10, b: 40 },
-            font: {
-              color: isDark ? "rgba(250,250,250,0.6)" : "rgba(0,0,0,0.6)",
-            },
+            font: plotTheme.font,
             xaxis: {
               tickangle: isNumeric ? 0 : -45,
               automargin: true,
-              gridcolor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+              gridcolor: plotTheme.gridcolor,
             },
             yaxis: {
               title: "Count",
-              gridcolor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+              gridcolor: plotTheme.gridcolor,
             },
             bargap: 0.1,
-            paper_bgcolor: "transparent",
-            plot_bgcolor: "transparent",
-          }}
+            paper_bgcolor: plotTheme.paper_bgcolor,
+            plot_bgcolor: plotTheme.plot_bgcolor,
+            hoverlabel: plotTheme.hoverlabel,
+          } as object}
           config={{
             displayModeBar: true,
             responsive: true,
@@ -1200,8 +1198,7 @@ function CorrelationHeatmap({
   statsData?: { features: string[]; matrix: number[][] } | null;
   isLoadingStats?: boolean;
 }) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  const plotTheme = usePlotlyTheme();
 
   // Limit to first 20 numeric features for heatmap
   const MAX_FEATURES = 20;
@@ -1308,21 +1305,20 @@ function CorrelationHeatmap({
         layout={{
           height: Math.max(400, featureNames.length * 25),
           margin: { l: 120, r: 20, t: 20, b: 120 },
-          font: {
-            color: isDark ? "rgba(250,250,250,0.6)" : "rgba(0,0,0,0.6)",
-          },
+          font: plotTheme.font,
           xaxis: {
             tickangle: -45,
             automargin: true,
-            gridcolor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+            gridcolor: plotTheme.gridcolor,
           },
           yaxis: {
             automargin: true,
-            gridcolor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+            gridcolor: plotTheme.gridcolor,
           },
-          paper_bgcolor: "transparent",
-          plot_bgcolor: "transparent",
-        }}
+          paper_bgcolor: plotTheme.paper_bgcolor,
+          plot_bgcolor: plotTheme.plot_bgcolor,
+          hoverlabel: plotTheme.hoverlabel,
+        } as object}
         config={{
           displayModeBar: true,
           modeBarButtonsToRemove: ["select2d", "lasso2d"],
@@ -1786,8 +1782,7 @@ function ScatterCorrelationPlot({
   preview: DatasetPreview | null;
   isLoading: boolean;
 }) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  const plotTheme = usePlotlyTheme();
 
   const numericFeatures = useMemo(
     () => features.filter((f) => f.type === "numeric"),
@@ -1826,6 +1821,7 @@ function ScatterCorrelationPlot({
           x: preview.rows.map((r) => r[xIdx]),
           y: preview.rows.map((r) => r[yIdx]),
           marker: { color: PX_COLORS[0], size: 6, opacity: 0.7 },
+          hovertemplate: "%{x}, %{y}<extra></extra>",
           showlegend: false,
         },
       ];
@@ -1849,6 +1845,8 @@ function ScatterCorrelationPlot({
       name: cat,
       x: pts.x,
       y: pts.y,
+      // Category name is already shown in the legend — keep tooltip to coords only
+      hovertemplate: "%{x}, %{y}<extra></extra>",
       marker: {
         color: PX_COLORS[i % PX_COLORS.length],
         size: 6,
@@ -1956,28 +1954,18 @@ function ScatterCorrelationPlot({
             {
               height: 420,
               margin: { l: 60, r: 180, t: 20, b: 60 },
-              font: {
-                color: isDark ? "rgba(250,250,250,0.7)" : "rgba(0,0,0,0.7)",
-              },
+              font: plotTheme.font,
               xaxis: {
                 title: { text: xFeature },
                 automargin: true,
-                gridcolor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.08)",
-                zerolinecolor: isDark
-                  ? "rgba(255,255,255,0.2)"
-                  : "rgba(0,0,0,0.2)",
+                gridcolor: plotTheme.gridcolor,
+                zerolinecolor: plotTheme.zerolinecolor,
               },
               yaxis: {
                 title: { text: yFeature },
                 automargin: true,
-                gridcolor: isDark
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.08)",
-                zerolinecolor: isDark
-                  ? "rgba(255,255,255,0.2)"
-                  : "rgba(0,0,0,0.2)",
+                gridcolor: plotTheme.gridcolor,
+                zerolinecolor: plotTheme.zerolinecolor,
               },
               legend: {
                 title: { text: colorFeature || "" },
@@ -1986,10 +1974,9 @@ function ScatterCorrelationPlot({
                 bgcolor: "transparent",
               },
               showlegend: !!colorFeature,
-              paper_bgcolor: "transparent",
-              plot_bgcolor: isDark
-                ? "rgba(255,255,255,0.03)"
-                : "rgba(0,0,0,0.02)",
+              hoverlabel: plotTheme.hoverlabel,
+              paper_bgcolor: plotTheme.paper_bgcolor,
+              plot_bgcolor: plotTheme.plot_bgcolor,
             } as object
           }
           config={{
