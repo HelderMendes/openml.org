@@ -290,29 +290,31 @@ export function DimensionalityReductionPlot({
                     : undefined,
               } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
             ]}
-            layout={{
-              autosize: true,
-              height: 500,
-              hovermode: "closest",
-              margin: { l: 60, r: 20, t: 30, b: 60 },
-              font: plotTheme.font,
-              xaxis: {
-                title: { text: "Principal Component 1" },
-                automargin: true,
-                gridcolor: plotTheme.gridcolor,
-                zerolinecolor: plotTheme.zerolinecolor,
-              },
-              yaxis: {
-                title: { text: "Principal Component 2" },
-                automargin: true,
-                gridcolor: plotTheme.gridcolor,
-                zerolinecolor: plotTheme.zerolinecolor,
-              },
-              paper_bgcolor: plotTheme.paper_bgcolor,
-              plot_bgcolor: plotTheme.plot_bgcolor,
-              hoverlabel: plotTheme.hoverlabel,
-              legend: { orientation: "h", y: -0.2 },
-            } as object}
+            layout={
+              {
+                autosize: true,
+                height: 500,
+                hovermode: "closest",
+                margin: { l: 60, r: 20, t: 30, b: 60 },
+                font: plotTheme.font,
+                xaxis: {
+                  title: { text: "Principal Component 1" },
+                  automargin: true,
+                  gridcolor: plotTheme.gridcolor,
+                  zerolinecolor: plotTheme.zerolinecolor,
+                },
+                yaxis: {
+                  title: { text: "Principal Component 2" },
+                  automargin: true,
+                  gridcolor: plotTheme.gridcolor,
+                  zerolinecolor: plotTheme.zerolinecolor,
+                },
+                paper_bgcolor: plotTheme.paper_bgcolor,
+                plot_bgcolor: plotTheme.plot_bgcolor,
+                hoverlabel: plotTheme.hoverlabel,
+                legend: { orientation: "h", y: -0.2 },
+              } as object
+            }
             useResizeHandler
             className="w-full"
             config={{ displayModeBar: false }}
