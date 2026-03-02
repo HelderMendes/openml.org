@@ -17,6 +17,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import { ClickableTagList } from "@/components/ui/clickable-tag-list";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Flow } from "@/types/flow";
 
@@ -175,53 +176,32 @@ export function FlowHeader({ flow, runCount }: FlowHeaderProps) {
             {tags.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 pt-4">
                 <TagIcon className="text-muted-foreground h-4 w-4" />
-                <div className="flex flex-wrap gap-2">
-                  {tags.slice(0, 10).map((tag, idx) => (
-                    <Link
-                      key={`${tag}-${idx}`}
-                      href={`/search?type=flow&tag=${encodeURIComponent(tag)}`}
+                <ClickableTagList
+                  tags={tags.slice(0, 10)}
+                  getHref={(tag) => `/flows?tag=${encodeURIComponent(tag)}`}
+                />
+                {tags.length > 10 && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="text-muted-foreground hover:text-foreground cursor-pointer text-xs font-medium transition-colors">
+                        +{tags.length - 10} more
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="max-h-64 w-72 overflow-y-auto p-3"
+                      align="start"
                     >
-                      <Badge
-                        variant="secondary"
-                        className="border-accent hover:bg-primary/10 hover:text-primary cursor-pointer border text-xs transition-colors"
-                      >
-                        {tag}
-                      </Badge>
-                    </Link>
-                  ))}
-                  {tags.length > 10 && (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button className="text-muted-foreground hover:text-foreground cursor-pointer text-xs font-medium transition-colors">
-                          +{tags.length - 10} more
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="max-h-64 w-72 overflow-y-auto p-3"
-                        align="start"
-                      >
-                        <p className="text-muted-foreground mb-2 text-xs font-medium">
-                          All tags ({tags.length})
-                        </p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {tags.map((tag, idx) => (
-                            <Link
-                              key={`pop-${tag}-${idx}`}
-                              href={`/search?type=flow&tag=${encodeURIComponent(tag)}`}
-                            >
-                              <Badge
-                                variant="secondary"
-                                className="hover:bg-primary/10 hover:text-primary cursor-pointer text-xs transition-colors"
-                              >
-                                {tag}
-                              </Badge>
-                            </Link>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                </div>
+                      <p className="text-muted-foreground mb-2 text-xs font-medium">
+                        All tags ({tags.length})
+                      </p>
+                      <ClickableTagList
+                        tags={tags}
+                        getHref={(tag) => `/flows?tag=${encodeURIComponent(tag)}`}
+                        className="gap-1.5"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
             )}
           </div>

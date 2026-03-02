@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import { ClickableTagList } from "@/components/ui/clickable-tag-list";
 import type { Task } from "@/types/task";
 import { ExperimentMenu } from "@/components/ui/experiment-menu";
 
@@ -50,8 +51,13 @@ export function TaskHeader({ task, runCount }: TaskHeaderProps) {
       })
     : null;
 
-  // Tags
-  const tags = task.tag ?? [];
+  // Tags — API may return a single string instead of string[]
+  const rawTags = task.tag;
+  const tags = Array.isArray(rawTags)
+    ? rawTags
+    : typeof rawTags === "string"
+      ? [rawTags]
+      : [];
 
   // Stats
   const likes = task.nr_of_likes ?? 0;
@@ -191,19 +197,10 @@ export function TaskHeader({ task, runCount }: TaskHeaderProps) {
       {tags.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 pl-12">
           <Tag className="text-muted-foreground h-4 w-4" />
-          {tags.slice(0, 10).map((tag, idx) => (
-            <Link
-              key={`${tag}-${idx}`}
-              href={`/search?type=task&tag=${encodeURIComponent(tag)}`}
-            >
-              <Badge
-                variant="secondary"
-                className="hover:bg-primary/10 hover:text-primary cursor-pointer text-xs transition-colors"
-              >
-                {tag}
-              </Badge>
-            </Link>
-          ))}
+          <ClickableTagList
+            tags={tags.slice(0, 10)}
+            getHref={(tag) => `/tasks?tag=${encodeURIComponent(tag)}`}
+          />
           {tags.length > 10 && (
             <Popover>
               <PopoverTrigger asChild>
@@ -218,21 +215,11 @@ export function TaskHeader({ task, runCount }: TaskHeaderProps) {
                 <p className="text-muted-foreground mb-2 text-xs font-medium">
                   All tags ({tags.length})
                 </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {tags.map((tag, idx) => (
-                    <Link
-                      key={`pop-${tag}-${idx}`}
-                      href={`/search?type=task&tag=${encodeURIComponent(tag)}`}
-                    >
-                      <Badge
-                        variant="secondary"
-                        className="hover:bg-primary/10 hover:text-primary cursor-pointer text-xs transition-colors"
-                      >
-                        {tag}
-                      </Badge>
-                    </Link>
-                  ))}
-                </div>
+                <ClickableTagList
+                  tags={tags}
+                  getHref={(tag) => `/tasks?tag=${encodeURIComponent(tag)}`}
+                  className="gap-1.5"
+                />
               </PopoverContent>
             </Popover>
           )}

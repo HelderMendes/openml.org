@@ -95,7 +95,10 @@ const LOWER_IS_BETTER = [
 ];
 
 // Helper to get metric value from array
-function getMetric(evaluations: { evaluation_measure: string; value?: number }[] = [], name: string): number | undefined {
+function getMetric(
+  evaluations: { evaluation_measure: string; value?: number }[] = [],
+  name: string,
+): number | undefined {
   const metric = evaluations.find((e) => e.evaluation_measure === name);
   return metric?.value;
 }
@@ -118,7 +121,6 @@ interface EvaluationRun {
   value: number;
   date: string;
 }
-
 
 interface TaskAnalysisSectionProps {
   task: Task;
@@ -543,53 +545,54 @@ export function TaskAnalysisSection({
             <div className="rounded-xl border bg-transparent p-4 shadow-sm">
               <div className="plotly-chart-container">
                 <Plot
-                  data={
-                    flowsData.map((group) => {
-                      return {
-                        type: "scatter",
-                        mode: "markers",
-                        name: group.name,
-                        y: group.runs.map(() => group.name),
-                        x: group.runs.map((r) => r.value),
-                        text: group.runs.map(
-                          (r) =>
-                            `Run ${r.run_id}<br>Uploader: ${r.uploader}<br>Score: ${r.value.toFixed(6)}`,
+                  data={flowsData.map((group) => {
+                    return {
+                      type: "scatter",
+                      mode: "markers",
+                      name: group.name,
+                      y: group.runs.map(() => group.name),
+                      x: group.runs.map((r) => r.value),
+                      text: group.runs.map(
+                        (r) =>
+                          `Run ${r.run_id}<br>Uploader: ${r.uploader}<br>Score: ${r.value.toFixed(6)}`,
+                      ),
+                      hoverinfo: "text",
+                      marker: {
+                        color: group.runs.map(
+                          (r) => uploaderColors.get(r.uploader) || "#000",
                         ),
-                        hoverinfo: "text",
-                        marker: {
-                          color: group.runs.map(
-                            (r) => uploaderColors.get(r.uploader) || "#000",
-                          ),
-                          size: 9,
-                          opacity: 0.7,
-                          line: { width: 0.5, color: "rgba(128,128,128,0.3)" },
-                        },
-                        customdata: group.runs.map((r) => r.run_id),
-                      };
-                    })}
-                  layout={({
-                    height: Math.max(400, flowsData.length * 35),
-                    margin: { l: 280, r: 40, t: 40, b: 60 },
-                    showlegend: false,
-                    font: plotTheme.font,
-                    xaxis: {
-                      title: selectedMetric.replace(/_/g, " ").toUpperCase(),
-                      gridcolor: plotTheme.gridcolor,
-                      zeroline: false,
-                      side: "top",
-                      tickfont: plotTheme.font,
-                      titlefont: plotTheme.font,
-                    },
-                    yaxis: {
-                      automargin: true,
-                      gridcolor: plotTheme.gridcolor,
-                      tickfont: plotTheme.font,
-                    },
-                    hovermode: "closest",
-                    hoverlabel: plotTheme.hoverlabel,
-                    paper_bgcolor: plotTheme.paper_bgcolor,
-                    plot_bgcolor: plotTheme.plot_bgcolor,
-                  } as object)}
+                        size: 9,
+                        opacity: 0.7,
+                        line: { width: 0.5, color: "rgba(128,128,128,0.3)" },
+                      },
+                      customdata: group.runs.map((r) => r.run_id),
+                    };
+                  })}
+                  layout={
+                    {
+                      height: Math.max(400, flowsData.length * 35),
+                      margin: { l: 280, r: 40, t: 40, b: 60 },
+                      showlegend: false,
+                      font: plotTheme.font,
+                      xaxis: {
+                        title: selectedMetric.replace(/_/g, " ").toUpperCase(),
+                        gridcolor: plotTheme.gridcolor,
+                        zeroline: false,
+                        side: "top",
+                        tickfont: plotTheme.font,
+                        titlefont: plotTheme.font,
+                      },
+                      yaxis: {
+                        automargin: true,
+                        gridcolor: plotTheme.gridcolor,
+                        tickfont: plotTheme.font,
+                      },
+                      hovermode: "closest",
+                      hoverlabel: plotTheme.hoverlabel,
+                      paper_bgcolor: plotTheme.paper_bgcolor,
+                      plot_bgcolor: plotTheme.plot_bgcolor,
+                    } as object
+                  }
                   config={{
                     displayModeBar: true,
                     responsive: true,
@@ -599,7 +602,8 @@ export function TaskAnalysisSection({
                   style={{ width: "100%" }}
                   onClick={(event) => {
                     if (event.points && event.points[0]) {
-                      const runId = (event.points[0] as { customdata?: number }).customdata;
+                      const runId = (event.points[0] as { customdata?: number })
+                        .customdata;
                       if (runId) window.open(`/runs/${runId}`, "_blank");
                     }
                   }}
@@ -624,14 +628,13 @@ export function TaskAnalysisSection({
                       name: uploader,
                       x: uploaderRuns.map((r) => r.date),
                       y: uploaderRuns.map((r) => r.value),
-                      text: uploaderRuns.map(
-                        (r) => {
-                          const flowLabel = r.flow_name.length > 60
+                      text: uploaderRuns.map((r) => {
+                        const flowLabel =
+                          r.flow_name.length > 60
                             ? r.flow_name.substring(0, 60) + "..."
                             : r.flow_name;
-                          return `Run ${r.run_id}<br>Flow: ${flowLabel}<br>Score: ${r.value.toFixed(6)}<br>Date: ${new Date(r.date).toLocaleDateString()}`;
-                        },
-                      ),
+                        return `Run ${r.run_id}<br>Flow: ${flowLabel}<br>Score: ${r.value.toFixed(6)}<br>Date: ${new Date(r.date).toLocaleDateString()}`;
+                      }),
                       hoverinfo: "text",
                       marker: {
                         color: uploaderColors.get(uploader) || "#000",
@@ -641,30 +644,32 @@ export function TaskAnalysisSection({
                       customdata: uploaderRuns.map((r) => r.run_id),
                     };
                   })}
-                  layout={({
-                    height: 450,
-                    margin: { l: 80, r: 40, t: 40, b: 60 },
-                    showlegend: false,
-                    font: plotTheme.font,
-                    xaxis: {
-                      title: "upload_time",
-                      gridcolor: plotTheme.gridcolor,
-                      type: "date",
-                      tickfont: plotTheme.font,
-                      titlefont: plotTheme.font,
-                    },
-                    yaxis: {
-                      title: selectedMetric,
-                      gridcolor: plotTheme.gridcolor,
-                      autorange: isLowerBetter ? "reversed" : true,
-                      tickfont: plotTheme.font,
-                      titlefont: plotTheme.font,
-                    },
-                    hovermode: "closest",
-                    hoverlabel: plotTheme.hoverlabel,
-                    paper_bgcolor: plotTheme.paper_bgcolor,
-                    plot_bgcolor: plotTheme.plot_bgcolor,
-                  } as object)}
+                  layout={
+                    {
+                      height: 450,
+                      margin: { l: 80, r: 40, t: 40, b: 60 },
+                      showlegend: false,
+                      font: plotTheme.font,
+                      xaxis: {
+                        title: "upload_time",
+                        gridcolor: plotTheme.gridcolor,
+                        type: "date",
+                        tickfont: plotTheme.font,
+                        titlefont: plotTheme.font,
+                      },
+                      yaxis: {
+                        title: selectedMetric,
+                        gridcolor: plotTheme.gridcolor,
+                        autorange: isLowerBetter ? "reversed" : true,
+                        tickfont: plotTheme.font,
+                        titlefont: plotTheme.font,
+                      },
+                      hovermode: "closest",
+                      hoverlabel: plotTheme.hoverlabel,
+                      paper_bgcolor: plotTheme.paper_bgcolor,
+                      plot_bgcolor: plotTheme.plot_bgcolor,
+                    } as object
+                  }
                   config={{
                     displayModeBar: true,
                     responsive: true,
@@ -673,7 +678,8 @@ export function TaskAnalysisSection({
                   style={{ width: "100%" }}
                   onClick={(event) => {
                     if (event.points && event.points[0]) {
-                      const runId = (event.points[0] as { customdata?: number }).customdata;
+                      const runId = (event.points[0] as { customdata?: number })
+                        .customdata;
                       if (runId) window.open(`/runs/${runId}`, "_blank");
                     }
                   }}

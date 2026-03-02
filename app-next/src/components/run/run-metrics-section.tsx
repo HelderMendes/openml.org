@@ -44,11 +44,79 @@ const COLORS = [
   "#f97316", // orange
 ];
 
+interface ChartEntry {
+  fill: string;
+  name: string;
+  rank?: number;
+  total?: number;
+  deviation?: number;
+}
+
+// Custom tooltip: background = bar color, white text, rank + deviation from mean
+function ColoredTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: { value: number; payload: ChartEntry }[];
+}) {
+  if (!active || !payload?.length) return null;
+  const { fill, name, rank, total, deviation } = payload[0].payload;
+  const val = payload[0].value;
+  return (
+    <div
+      style={{
+        backgroundColor: fill,
+        padding: "4px 7px",
+        borderRadius: 4,
+        border: "1px solid white",
+        minWidth: 110,
+      }}
+    >
+      <p style={{ color: "white", margin: 0, fontSize: 13, fontWeight: 600 }}>
+        {name}
+      </p>
+      <p style={{ color: "white", margin: 0, fontSize: 13 }}>
+        {isNaN(val) ? "N/A" : val.toFixed(4)}
+      </p>
+      {rank !== undefined && total !== undefined && (
+        <p
+          style={{
+            color: "rgba(255,255,255,0.75)",
+            margin: "1px 0 0",
+            fontSize: 12,
+          }}
+        >
+          Rank #{rank} of {total}
+        </p>
+      )}
+      {deviation !== undefined && !isNaN(deviation) && (
+        <p style={{ color: "rgba(255,255,255,0.75)", margin: 0, fontSize: 12 }}>
+          {deviation >= 0 ? "+" : ""}
+          {deviation.toFixed(4)} vs avg
+        </p>
+      )}
+    </div>
+  );
+}
+
 const ITEMS_PER_PAGE = 20;
 
 export function RunMetricsSection({ run }: RunMetricsSectionProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [collapsedMetrics, setCollapsedMetrics] = useState<Set<string>>(
+    new Set(),
+  );
+
+  const toggleMetric = (name: string) => {
+    setCollapsedMetrics((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  };
 
   // Memoize evaluations to prevent unnecessary re-renders
   const evaluations = useMemo(
@@ -105,20 +173,43 @@ export function RunMetricsSection({ run }: RunMetricsSectionProps) {
     );
   };
 
-  // Convert array_data to chart format
+  // Convert array_data to chart format — sorted by value desc, with rank + deviation
   const getPerClassChartData = (arrayData: Record<string, string | number>) => {
-    return Object.entries(arrayData).map(([key, val]) => ({
-      name: key,
-      value: typeof val === "number" ? val : parseFloat(val),
+    const entries = Object.entries(arrayData)
+      .map(([key, val], idx) => {
+        const numeric = typeof val === "number" ? val : parseFloat(String(val));
+        return { name: key, value: numeric, fill: COLORS[idx % COLORS.length] };
+      })
+      .filter((d) => !isNaN(d.value));
+    if (entries.length === 0) return [];
+    const mean = entries.reduce((s, e) => s + e.value, 0) / entries.length;
+    const sorted = [...entries].sort((a, b) => b.value - a.value);
+    return sorted.map((entry, idx) => ({
+      ...entry,
+      rank: idx + 1,
+      total: entries.length,
+      deviation: entry.value - mean,
     }));
   };
 
-  // Convert per_fold to chart format
+  // Convert per_fold to chart format — with rank + deviation from fold mean
   const getPerFoldChartData = (perFold: Array<number | number[]>) => {
     const flatValues = perFold.flat();
-    return flatValues.map((val, idx) => ({
+    const valid = flatValues.filter((v) => !isNaN(v));
+    const mean = valid.length
+      ? valid.reduce((a, b) => a + b, 0) / valid.length
+      : 0;
+    const entries = flatValues.map((val, idx) => ({
       name: `Fold ${idx + 1}`,
       value: val,
+      fill: "#6b7280",
+      deviation: val - mean,
+    }));
+    const ranked = [...entries].sort((a, b) => b.value - a.value);
+    return entries.map((entry) => ({
+      ...entry,
+      rank: ranked.findIndex((e) => e.name === entry.name) + 1,
+      total: entries.length,
     }));
   };
 
@@ -188,13 +279,47 @@ export function RunMetricsSection({ run }: RunMetricsSectionProps) {
         const perClassData = arrayData ? getPerClassChartData(arrayData) : null;
         const perFoldData = perFold ? getPerFoldChartData(perFold) : null;
 
+        const hasCharts =
+          (perClassData && perClassData.length > 0) ||
+          (perFoldData && perFoldData.length > 0);
+        const bothCharts =
+          perClassData &&
+          perClassData.length > 0 &&
+          perFoldData &&
+          perFoldData.length > 0;
+        const isCollapsed = collapsedMetrics.has(evaluation.name);
+
         return (
-          <div key={index} className="rounded-lg border p-4">
-            <div className="mb-2 flex items-baseline justify-between">
-              <h3 className="text-muted-foreground text-sm font-medium">
-                {formatMetricName(evaluation.name)}
-              </h3>
-              <div className="text-right">
+          <div
+            key={index}
+            className={`rounded-lg border px-4 pt-3 pb-2 transition-all duration-150 ${
+              hasCharts
+                ? "hover:border-slate-400 hover:bg-slate-100/35 hover:shadow-sm"
+                : ""
+            }`}
+          >
+            {/* Header row: [chevron] name | value — whole row clickable when charts exist */}
+            <div
+              className={`flex items-center justify-between gap-3 ${hasCharts ? "cursor-pointer select-none" : ""}`}
+              onClick={
+                hasCharts ? () => toggleMetric(evaluation.name) : undefined
+              }
+            >
+              {/* Left: rotating chevron indicator + metric name */}
+              <div className="flex min-w-0 items-center gap-1.5">
+                {hasCharts ? (
+                  <ChevronRight
+                    className={`text-muted-foreground h-3.5 w-3.5 shrink-0 transition-transform duration-150 ${!isCollapsed ? "rotate-90" : ""}`}
+                  />
+                ) : (
+                  <span className="w-3.5 shrink-0" />
+                )}
+                <h3 className="text-muted-foreground truncate text-sm font-medium">
+                  {formatMetricName(evaluation.name)}
+                </h3>
+              </div>
+              {/* Right: value only — clean, no button */}
+              <div className="shrink-0 text-right">
                 <span className="text-2xl font-bold">
                   {!isNaN(value) ? value.toFixed(4) : evaluation.value}
                 </span>
@@ -206,89 +331,106 @@ export function RunMetricsSection({ run }: RunMetricsSectionProps) {
               </div>
             </div>
 
-            {/* Charts row */}
-            <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
-              {/* Per-class chart */}
-              {perClassData && perClassData.length > 0 && (
-                <div>
-                  <h4 className="text-muted-foreground mb-2 text-xs font-medium">
-                    Per Class
-                  </h4>
-                  <div className="h-32">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={perClassData} layout="vertical">
-                        <XAxis
-                          type="number"
-                          domain={[0, 1]}
-                          tick={{ fontSize: 10 }}
-                        />
-                        <YAxis
-                          type="category"
-                          dataKey="name"
-                          tick={{ fontSize: 10 }}
-                          width={80}
-                        />
-                        <Tooltip
-                          formatter={(val: number) => val.toFixed(4)}
-                          contentStyle={{ fontSize: 12 }}
-                        />
-                        <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                          {perClassData.map((_, idx) => (
-                            <Cell
-                              key={`cell-${idx}`}
-                              fill={COLORS[idx % COLORS.length]}
+            {/* Charts — hidden when collapsed */}
+            {!isCollapsed && (
+              <>
+                {/* Charts row: full-width when only one chart, split when both */}
+                <div
+                  className={`mt-2 grid grid-cols-1 gap-4 ${bothCharts ? "md:grid-cols-2" : ""}`}
+                >
+                  {/* Per-class chart */}
+                  {perClassData && perClassData.length > 0 && (
+                    <div>
+                      <h4 className="text-muted-foreground mb-1 text-xs font-medium">
+                        Per Class
+                      </h4>
+                      <div
+                        style={{
+                          height: Math.max(80, perClassData.length * 18),
+                        }}
+                      >
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={perClassData}
+                            layout="vertical"
+                            barSize={10}
+                          >
+                            <XAxis
+                              type="number"
+                              domain={[0, "dataMax"]}
+                              tick={{ fontSize: 10 }}
                             />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              )}
-
-              {/* Per-fold chart */}
-              {perFoldData && perFoldData.length > 0 && (
-                <div>
-                  <h4 className="text-muted-foreground mb-2 text-xs font-medium">
-                    Per Fold
-                  </h4>
-                  <div className="h-32">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={perFoldData}>
-                        <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                        <YAxis tick={{ fontSize: 10 }} domain={[0, "auto"]} />
-                        <Tooltip
-                          formatter={(val: number) => val.toFixed(4)}
-                          contentStyle={{ fontSize: 12 }}
-                        />
-                        <Bar
-                          dataKey="value"
-                          fill="#6b7280"
-                          radius={[4, 4, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Fallback text display if no charts */}
-            {!perClassData && !perFoldData && arrayData && (
-              <div className="mt-2 space-y-1 border-t pt-2 text-xs">
-                {Object.entries(arrayData).map(
-                  ([key, val]: [string, string | number]) => (
-                    <div key={key} className="flex justify-between">
-                      <span className="text-muted-foreground">{key}:</span>
-                      <span className="font-mono">
-                        {typeof val === "number"
-                          ? val.toFixed(4)
-                          : parseFloat(val).toFixed(4)}
-                      </span>
+                            <YAxis
+                              type="category"
+                              dataKey="name"
+                              tick={{ fontSize: 10 }}
+                              width={60}
+                            />
+                            <Tooltip content={<ColoredTooltip />} />
+                            <Bar dataKey="value" radius={[0, 3, 3, 0]}>
+                              {perClassData.map((entry, idx) => (
+                                <Cell key={`cell-${idx}`} fill={entry.fill} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
-                  ),
+                  )}
+
+                  {/* Per-fold chart */}
+                  {perFoldData && perFoldData.length > 0 && (
+                    <div>
+                      <h4 className="text-muted-foreground mb-1 text-xs font-medium">
+                        Per Fold
+                      </h4>
+                      <div
+                        style={{
+                          height: Math.max(100, perFoldData.length * 14 + 40),
+                        }}
+                      >
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={perFoldData}
+                            barSize={14}
+                            barCategoryGap={6}
+                          >
+                            <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                            <YAxis
+                              tick={{ fontSize: 10 }}
+                              domain={[0, "auto"]}
+                            />
+                            <Tooltip content={<ColoredTooltip />} />
+                            <Bar dataKey="value" radius={[3, 3, 0, 0]}>
+                              {perFoldData.map((entry, idx) => (
+                                <Cell key={`cell-${idx}`} fill={entry.fill} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Fallback text display if no charts */}
+                {!perClassData && !perFoldData && arrayData && (
+                  <div className="mt-2 space-y-1 border-t pt-2 text-xs">
+                    {Object.entries(arrayData).map(
+                      ([key, val]: [string, string | number]) => (
+                        <div key={key} className="flex justify-between">
+                          <span className="text-muted-foreground">{key}:</span>
+                          <span className="font-mono">
+                            {typeof val === "number"
+                              ? val.toFixed(4)
+                              : parseFloat(val).toFixed(4)}
+                          </span>
+                        </div>
+                      ),
+                    )}
+                  </div>
                 )}
-              </div>
+              </>
             )}
           </div>
         );

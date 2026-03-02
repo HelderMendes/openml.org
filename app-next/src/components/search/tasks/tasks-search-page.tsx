@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import taskConfig from "./task-search-config";
 import { ActiveFiltersHeader } from "../shared/active-filters-header";
 import { TaskSearchContainer } from "@/components/search/tasks/task-search-container";
-import { Database, X } from "lucide-react";
+import { Database, Tag, X } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -15,24 +15,31 @@ export function TasksSearchPage() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
   const dataIdFilter = searchParams.get("data_id");
+  const tagFilter = searchParams.get("tag") || "";
 
   // Facet labels for Active Filters
   const facetLabels: Record<string, string> = {
     "tasktype.name.keyword": "Task Type",
     "estimation_procedure.type.keyword": "Estimation Procedure",
     "target_feature.keyword": "Target Feature",
+    "tags.tag": "Tag",
   };
 
   // Build initial filters based on query params
-  const initialFilters = dataIdFilter
-    ? [
-        {
-          field: "source_data.data_id",
-          values: [dataIdFilter],
-          type: "any" as const,
-        },
-      ]
-    : [];
+  const initialFilters = [
+    ...(dataIdFilter
+      ? [
+          {
+            field: "source_data.data_id",
+            values: [dataIdFilter],
+            type: "any" as const,
+          },
+        ]
+      : []),
+    ...(tagFilter
+      ? [{ field: "tags.tag", values: [tagFilter], type: "any" as const }]
+      : []),
+  ];
 
   return (
     <SearchProvider
@@ -68,22 +75,40 @@ export function TasksSearchPage() {
                   <p className="text-muted-foreground">
                     Machine learning tasks define problem setups on datasets
                   </p>
-                  {dataIdFilter && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <Badge
-                        variant="secondary"
-                        className="flex items-center gap-1.5 px-3 py-1"
-                      >
-                        <Database className="h-3 w-3" />
-                        <span>Filtering by Dataset #{dataIdFilter}</span>
-                        <Link
-                          href="/tasks"
-                          className="hover:bg-muted ml-1 rounded-full p-0.5"
-                          title="Clear filter"
+                  {(dataIdFilter || tagFilter) && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      {dataIdFilter && (
+                        <Badge
+                          variant="secondary"
+                          className="flex items-center gap-1.5 px-3 py-1"
                         >
-                          <X className="h-3 w-3" />
-                        </Link>
-                      </Badge>
+                          <Database className="h-3 w-3" />
+                          <span>Dataset #{dataIdFilter}</span>
+                          <Link
+                            href={tagFilter ? `/tasks?tag=${encodeURIComponent(tagFilter)}` : "/tasks"}
+                            className="hover:bg-muted ml-1 rounded-full p-0.5"
+                            title="Clear dataset filter"
+                          >
+                            <X className="h-3 w-3" />
+                          </Link>
+                        </Badge>
+                      )}
+                      {tagFilter && (
+                        <Badge
+                          variant="secondary"
+                          className="flex items-center gap-1.5 px-3 py-1"
+                        >
+                          <Tag className="h-3 w-3" />
+                          <span>Tag: {tagFilter}</span>
+                          <Link
+                            href={dataIdFilter ? `/tasks?data_id=${encodeURIComponent(dataIdFilter)}` : "/tasks"}
+                            className="hover:bg-muted ml-1 rounded-full p-0.5"
+                            title="Clear tag filter"
+                          >
+                            <X className="h-3 w-3" />
+                          </Link>
+                        </Badge>
+                      )}
                     </div>
                   )}
                 </div>

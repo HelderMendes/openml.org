@@ -17,6 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
+import { ClickableTagList } from "@/components/ui/clickable-tag-list";
 import { cn } from "@/lib/utils";
 import type { Dataset } from "@/types/dataset";
 
@@ -221,17 +222,10 @@ export function MetadataSection({ dataset }: MetadataSectionProps) {
             forceOpen={globalState}
             onIndividualToggle={() => setGlobalState(null)}
           >
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag, idx) => (
-                <Link
-                  key={idx}
-                  href={`/datasets?tag=${encodeURIComponent(tag.tag)}`}
-                  className="bg-muted hover:bg-muted/80 rounded-full px-2 py-1 text-xs transition-colors"
-                >
-                  {tag.tag}
-                </Link>
-              ))}
-            </div>
+            <ClickableTagList
+              tags={tags.map((t) => t.tag)}
+              getHref={(tag) => `/datasets?tag=${encodeURIComponent(tag)}`}
+            />
           </MetadataItem>
         )}
       </div>
