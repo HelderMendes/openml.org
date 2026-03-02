@@ -65,8 +65,6 @@ export const authOptions: NextAuthOptions = {
 
         try {
           // Direct database authentication - bypasses Flask
-          console.log("[Auth] Direct DB login for:", credentials.email);
-
           // Find user by email or username
           // Query only columns guaranteed to exist in the legacy schema
           const user = await queryOne(
@@ -75,7 +73,6 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (!user) {
-            console.log("[Auth] User not found:", credentials.email);
             return null;
           }
 
@@ -83,7 +80,6 @@ export const authOptions: NextAuthOptions = {
 
           // Check if user is active
           if (!dbUser.active) {
-            console.log("[Auth] User not activated:", credentials.email);
             return null;
           }
 
@@ -94,11 +90,8 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (!isValid) {
-            console.log("[Auth] Invalid password for:", credentials.email);
             return null;
           }
-
-          console.log("[Auth] Login successful for:", dbUser.username);
 
           // Try to get session_hash (API key) if column exists
           let sessionHash: string | null = null;

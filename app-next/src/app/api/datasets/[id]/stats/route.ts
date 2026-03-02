@@ -15,8 +15,6 @@ export async function GET(
   try {
     const flaskUrl = `${FLASK_BACKEND_URL}/api/v1/datasets/${datasetId}/stats?max_preview_rows=${maxPreviewRows}&force_refresh=${forceRefresh}`;
 
-    console.log(`[Stats API] Fetching from: ${flaskUrl}`);
-
     const response = await fetch(flaskUrl, {
       headers: {
         "Accept": "application/json",
@@ -46,7 +44,6 @@ export async function GET(
     }
 
     const data = await response.json();
-    console.log(`[Stats API] Success for dataset ${datasetId}`);
     return NextResponse.json(data);
   } catch (error) {
     console.error("[Stats API] Failed to fetch stats from Flask:", error);

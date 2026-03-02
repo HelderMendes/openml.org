@@ -17,7 +17,6 @@ The Next.js app uses **NextAuth.js** with direct database authentication, suppor
 ├─────────────────────────────────────────────────────────────────┤
 │  Database Layer (@/lib/db.ts)                                   │
 │    ├── Local dev: MySQL via Docker (docker-compose.local.yml)   │
-│    ├── Fallback: SQLite (server/openml.db)                      │
 │    └── Production: MySQL (via DATABASE_URL or MYSQL_* env vars) │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -38,14 +37,13 @@ The Next.js app uses **NextAuth.js** with direct database authentication, suppor
 The app automatically selects the database based on environment variables:
 
 ```typescript
-// @/lib/db.ts
-const USE_MYSQL =
-  process.env.DATABASE_URL !== undefined ||
-  process.env.MYSQL_HOST !== undefined;
+// @/lib/db.ts — MySQL only
+// Configured via DATABASE_URL or individual MYSQL_* env vars.
 ```
 
-- If `DATABASE_URL` or ` ` is set → **MySQL**
-- Otherwise → **SQLite** fallback (`server/openml.db`)
+- `DATABASE_URL` (recommended) or `MYSQL_HOST` + `MYSQL_USER` + `MYSQL_PASSWORD` + `MYSQL_DATABASE`
+- Both local dev (Docker) and production use **MySQL**
+- `DATABASE_URL` is required — the app will throw an error on startup if no database is configured
 
 ### Local Development (Docker MySQL)
 
@@ -115,31 +113,45 @@ CREATE TABLE users (
 
 **Note:** The `session_hash` column is optional. The auth system queries it separately in a try/catch so it works with or without the column.
 
-Additional tables created automatically if missing:
+### New Tables Required for Next.js Features
+
+These three tables must be created in the production database **before deploying**.
+They are additive — no existing tables or columns are modified.
+
+For local development, `scripts/init-local-db.js` creates them automatically.
+For production, the backend team must run the SQL below once. See also [OPEN_ITEMS.md](./OPEN_ITEMS.md#0-backend-team--required-actions-for-production).
 
 ```sql
--- Email confirmation tokens
-CREATE TABLE email_confirmation_token (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  token VARCHAR(255) NOT NULL,
-  expires_at DATETIME NOT NULL,
-  INDEX idx_token (token)
-);
-
--- Password reset tokens
-CREATE TABLE password_reset_token (
+-- 1. Email confirmation tokens (email/password registration)
+CREATE TABLE IF NOT EXISTS email_confirmation_token (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
   token VARCHAR(255) NOT NULL UNIQUE,
   expires_at DATETIME NOT NULL,
-  used TINYINT(1) DEFAULT 0,
-  used_at DATETIME,
-  INDEX idx_token (token)
-);
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_token (token),
+  INDEX idx_user_id (user_id),
+  INDEX idx_expires (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Passkeys (WebAuthn)
-CREATE TABLE user_passkeys (
+-- 2. Password reset tokens (forgot-password flow)
+CREATE TABLE IF NOT EXISTS password_reset_token (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  token VARCHAR(255) NOT NULL UNIQUE,
+  expires_at DATETIME NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  used BOOLEAN DEFAULT FALSE,
+  used_at DATETIME,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_token (token),
+  INDEX idx_user_id (user_id),
+  INDEX idx_expires (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 3. Passkey credentials (WebAuthn sign-up & sign-in)
+CREATE TABLE IF NOT EXISTS user_passkeys (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
   credential_id BLOB NOT NULL,
@@ -148,10 +160,19 @@ CREATE TABLE user_passkeys (
   transports VARCHAR(255),
   device_name VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  last_used_at TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
+  last_used_at TIMESTAMP NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
+
+| Missing table              | Feature that breaks                             |
+| -------------------------- | ----------------------------------------------- |
+| `email_confirmation_token` | Email/password registration (confirmation step) |
+| `password_reset_token`     | Forgot password / reset password                |
+| `user_passkeys`            | Passkey sign-up and sign-in (WebAuthn)          |
+
+> **Important:** Traditional email/password **sign-in** for existing users works without these tables — it only reads from `users`.
 
 ## Environment Variables
 
@@ -344,13 +365,12 @@ The auth system is designed to work with any existing OpenML database:
 
 ## Deployment Environments
 
-| Environment               | Database   | Auth Works?    |
-| ------------------------- | ---------- | -------------- |
-| **Local dev (Docker)**    | MySQL      | ✅ All methods |
-| **Local dev (no Docker)** | SQLite     | ✅ All methods |
-| **Vercel (no MySQL)**     | None       | ⚠️ OAuth only  |
-| **Vercel + MySQL**        | TU/e MySQL | ✅ All methods |
-| **k8s Production**        | TU/e MySQL | ✅ All methods |
+| Environment             | Database   | Auth Works?           |
+| ----------------------- | ---------- | --------------------- |
+| **Local dev (Docker)**  | MySQL      | ✅ All methods        |
+| **Vercel + MySQL**      | TU/e MySQL | ✅ All methods        |
+| **k8s Production**      | TU/e MySQL | ✅ All methods        |
+| **No MySQL configured** | —          | ❌ App will not start |
 
 ## Troubleshooting
 
@@ -417,7 +437,7 @@ src/
 ├── hooks/
 │   └── use-auth.ts               # Unified auth hook
 ├── lib/
-│   └── db.ts                     # Database abstraction (MySQL/SQLite)
+│   └── db.ts                     # Database layer (MySQL)
 └── types/
     └── next-auth.d.ts            # NextAuth type extensions
 ```

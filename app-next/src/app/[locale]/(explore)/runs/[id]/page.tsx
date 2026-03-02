@@ -1,6 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
-import { APP_CONFIG } from "@/lib/config";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import {
   FileText,
   BarChart3,
@@ -10,6 +10,7 @@ import {
   LineChart,
   Download,
 } from "lucide-react";
+import { getRun } from "@/lib/api/run";
 import { RunHeader } from "@/components/run/run-header";
 import { RunMetricsSection } from "@/components/run/run-metrics-section";
 import { RunParametersSection } from "@/components/run/run-parameters-section";
@@ -20,91 +21,32 @@ import { RunAnalysesSection } from "@/components/run/run-analyses-section";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import Link from "next/link";
 
-// API response types
-interface RunApiResponse {
-  run?: Run;
-  error?: { code: string; message: string };
-}
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const runId = parseInt(id, 10);
 
-interface Run {
-  run_id: number;
-  uploader?: string;
-  uploader_id?: number;
-  upload_time?: string;
-  flow_id?: number;
-  flow_name?: string;
-  task_id?: number;
-  task?: {
-    task_id?: number;
-    task_type?: string;
-    source_data?: {
-      data_id?: number;
-      name?: string;
+  if (isNaN(runId)) {
+    return {
+      title: "Run Not Found | OpenML",
     };
-  };
-  visibility?: string;
-  error_message?: string | null;
-  tag?: string[];
-  parameter_setting?: Array<{
-    name: string;
-    value: string | number | boolean | null;
-  }>;
-  output_data?: {
-    evaluation?: Array<{
-      name: string;
-      value: string | number;
-      stdev?: string | number;
-      array_data?: Record<string, string | number>;
-      per_fold?: Array<number | number[]>;
-    }>;
-  };
-  nr_of_likes?: number;
-  nr_of_downloads?: number;
-  nr_of_issues?: number;
-  nr_of_downvotes?: number;
-  setup_string?: string;
-}
-
-// Fetch run data from API - no mock data, proper error handling
-async function getRun(
-  runId: number,
-): Promise<{ run: Run | null; error: string | null }> {
-  try {
-    const apiUrl =
-      APP_CONFIG.urlApi || "https://www.openml.org/api/v1";
-    const response = await fetch(`${apiUrl}/json/run/${runId}`, {
-      next: { revalidate: 3600 },
-      headers: {
-        Accept: "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return { run: null, error: `Run #${runId} not found` };
-      }
-      return {
-        run: null,
-        error: `Failed to fetch run: HTTP ${response.status}`,
-      };
-    }
-
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      return { run: null, error: "Invalid response format from API" };
-    }
-
-    const data: RunApiResponse = await response.json();
-
-    if (data.error) {
-      return { run: null, error: data.error.message || "Unknown API error" };
-    }
-
-    return { run: data.run || null, error: null };
-  } catch (error) {
-    console.error("Failed to fetch run:", error);
-    return { run: null, error: "Failed to connect to OpenML API" };
   }
+
+  const { run } = await getRun(runId);
+
+  if (!run) {
+    return {
+      title: "Run Not Found | OpenML",
+    };
+  }
+
+  return {
+    title: `Run ${run.run_id} | OpenML`,
+    description: `Details for Run ${run.run_id} on task ${run.task_id} with flow ${run.flow_id}.`,
+  };
 }
 
 export default async function RunDetailPage({

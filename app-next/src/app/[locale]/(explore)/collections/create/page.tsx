@@ -2,6 +2,12 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { CollectionCreateForm } from "@/components/collection/collection-create-form";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Create Collection | OpenML",
+  description: "Create a new benchmark collection of tasks on OpenML.",
+};
 
 export default async function CollectionCreatePage({
   params,

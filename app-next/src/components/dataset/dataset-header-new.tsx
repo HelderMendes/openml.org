@@ -578,7 +578,7 @@ export function DatasetHeader({
         <Link href={`/datasets/${dataset.data_id}/edit`}>
           <Button variant="outline" className="gap-2">
             <Pencil className="h-4 w-4" />
-            Edit
+            Edit Dataset
           </Button>
         </Link>
 

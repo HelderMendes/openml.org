@@ -127,11 +127,6 @@ export function MeasureSearchContainer({
         esQuery.sort = [{ [sortOpt.field]: { order: sortOpt.dir } }];
       }
 
-      console.log(
-        "[MeasureSearchContainer] ES Query:",
-        JSON.stringify(esQuery, null, 2),
-      );
-
       // Use the /api/search proxy (now uses fetch instead of axios)
       const res = await fetch("/api/search", {
         method: "POST",
@@ -142,14 +137,8 @@ export function MeasureSearchContainer({
         }),
       });
 
-      console.log("[MeasureSearchContainer] Response status:", res.status);
-
       if (res.ok) {
         const data = await res.json();
-        console.log("[MeasureSearchContainer] ES response:", {
-          total: data.hits?.total,
-          hitCount: data.hits?.hits?.length,
-        });
 
         const measures = (data.hits?.hits || []).map(
           (hit: { _source: Record<string, unknown>; _id: string }) => ({
@@ -158,10 +147,6 @@ export function MeasureSearchContainer({
           }),
         );
 
-        console.log(
-          "[MeasureSearchContainer] Received measures:",
-          measures.length,
-        );
         setMeasures(measures);
 
         // Set total count for pagination

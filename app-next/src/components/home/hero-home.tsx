@@ -19,7 +19,7 @@ export const HeroHome: React.FC = () => {
   }, []);
 
   return (
-    // <div className="dark:bg-muted/30 relative overflow-hidden bg-[url('/img/bg_lightMode_4_heroSection.png')] bg-cover bg-center dark:bg-none">
+    // <div className="dark:bg-muted/30 relative overflow-hidden bg-[url('/img/bg_lightMode_4_heroSection.png')] bg-cover bg-center dark:bg-none"
     <div
       className="dark:bg-muted/30 relative overflow-hidden bg-[url('/img/bg-light_hero.png')] bg-cover bg-top dark:bg-none"
       onClick={() => setHomeMenuOpen(false)}
@@ -79,7 +79,8 @@ export const HeroHome: React.FC = () => {
 
                 <Image
                   // src="/img/313b01fb-02f1-4ffe-90f7-2d4f229e3e6b.jpeg"
-                  src="/img/hero04.jpg"
+                  // src="/img/hero04.jpg"
+                  src="/img/bg-light_hero02.jpg"
                   alt="Light mode"
                   fill
                   priority
@@ -88,6 +89,8 @@ export const HeroHome: React.FC = () => {
                 />
                 <Image
                   src="/img/14.jpeg"
+                  // src="/img/hero04.jpg"
+                  // src="/img/bg-light_hero02.jpg"
                   alt="Dark mode"
                   fill
                   priority

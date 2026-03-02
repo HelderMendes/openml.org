@@ -51,9 +51,6 @@ export async function GET(
       typeof totalHits === "object" ? totalHits.value : totalHits || 0;
 
     const datasets = hits.map((hit) => hit._source);
-    // console.log(
-    //   `✅ [User Datasets API] Found ${datasets.length} datasets (${total} total)`,
-    // );
 
     return NextResponse.json({
       datasets,

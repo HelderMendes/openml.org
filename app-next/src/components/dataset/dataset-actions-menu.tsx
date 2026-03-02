@@ -142,12 +142,12 @@ export function DatasetActionsMenu({
           <DropdownMenuSeparator />
 
           {/* Edit Dataset */}
-          <DropdownMenuItem asChild className="cursor-pointer">
+          {/* <DropdownMenuItem asChild className="cursor-pointer">
             <Link href={`/datasets/${datasetId}/edit`}>
               <Pencil className="mr-2 h-4 w-4" />
               <span>Edit Dataset</span>
             </Link>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
 
           {/* Bookmark */}
           <DropdownMenuItem

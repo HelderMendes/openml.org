@@ -28,6 +28,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Link from "next/link";
 
 interface ExperimentMenuProps {
   entityType: "dataset" | "task" | "flow";
@@ -178,48 +179,48 @@ flow <- getOMLFlow(${entityId})
               <DropdownMenuLabel className="text-muted-foreground text-xs font-normal">
                 Experiments run on Tasks
               </DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => {
-                  // Find and expand the tasks section
-                  const tasksSection = document.getElementById("tasks");
-                  if (tasksSection) {
-                    // Find the collapsible trigger button and click to expand
-                    const trigger = tasksSection.querySelector(
-                      "button[data-state='closed']",
-                    );
-                    if (trigger) {
-                      (trigger as HTMLButtonElement).click();
+              {taskCount > 0 && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    // Find and expand the tasks section
+                    const tasksSection = document.getElementById("tasks");
+                    if (tasksSection) {
+                      // Find the collapsible trigger button and click to expand
+                      const trigger = tasksSection.querySelector(
+                        "button[data-state='closed']",
+                      );
+                      if (trigger) {
+                        (trigger as HTMLButtonElement).click();
+                      }
+                      // Scroll to the section
+                      tasksSection.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                      });
                     }
-                    // Scroll to the section
-                    tasksSection.scrollIntoView({
-                      behavior: "smooth",
-                      block: "start",
-                    });
-                  }
-                }}
-                className="cursor-pointer"
-              >
-                <div
-                  style={{ color: entityColors.task }}
-                  className="mr-2 flex h-4 w-4 items-center justify-center"
+                  }}
+                  className="cursor-pointer"
                 >
-                  <FontAwesomeIcon icon={ENTITY_ICONS.task} />
-                </div>
-                View Tasks ({taskCount})
-              </DropdownMenuItem>
-              {taskCount === 0 && (
-                <DropdownMenuItem asChild>
-                  <a
-                    href="https://docs.openml.org/tasks/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cursor-pointer"
+                  <div
+                    style={{ color: entityColors.task }}
+                    className="mr-2 flex h-4 w-4 items-center justify-center"
                   >
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Create a Task
-                  </a>
+                    <FontAwesomeIcon icon={ENTITY_ICONS.task} />
+                  </div>
+                  View Tasks ({taskCount})
                 </DropdownMenuItem>
               )}
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/tasks/create"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="cursor-pointer"
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Create a Task
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
           )}

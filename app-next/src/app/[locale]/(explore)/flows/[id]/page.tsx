@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { FileText, Settings2, List, History, BarChart3 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ENTITY_ICONS } from "@/constants/entityIcons";
@@ -14,6 +15,41 @@ import { FlowVersionsSection } from "@/components/flow/flow-versions-section";
 import { FlowRunsList } from "@/components/flow/flow-runs-list";
 import { FlowNavigationMenu } from "@/components/flow/flow-navigation-menu";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const flowId = parseInt(id, 10);
+
+  if (isNaN(flowId)) {
+    return {
+      title: "Flow Not Found | OpenML",
+    };
+  }
+
+  try {
+    const flow = await getFlow(flowId);
+    if (!flow) {
+      return {
+        title: "Flow Not Found | OpenML",
+      };
+    }
+
+    return {
+      title: `${flow.name} (Flow ${flow.flow_id}) | OpenML`,
+      description: flow.description
+        ? flow.description.replace(/<[^>]*>/g, "").substring(0, 160)
+        : `Details for OpenML Flow ${flow.name}.`,
+    };
+  } catch (error) {
+    return {
+      title: "Error | OpenML",
+    };
+  }
+}
 
 export default async function FlowDetailPage({
   params,

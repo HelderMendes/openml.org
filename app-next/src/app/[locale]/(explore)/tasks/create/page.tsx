@@ -2,6 +2,12 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { TaskCreateForm } from "@/components/task/task-create-form";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Create Task | OpenML",
+  description: "Define a new machine learning task for a dataset on OpenML.",
+};
 
 export default async function TaskCreatePage({
   params,

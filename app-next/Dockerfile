@@ -3,7 +3,7 @@
 # =========================================
 FROM node:22-alpine AS deps
 
-# Native module build dependencies (argon2, better-sqlite3)
+# Native module build dependencies (argon2)
 RUN apk add --no-cache python3 make g++ linux-headers
 
 WORKDIR /app
@@ -76,11 +76,7 @@ COPY --from=deps /app/node_modules/argon2 ./node_modules/argon2
 COPY --from=deps /app/node_modules/@phc/format ./node_modules/@phc/format
 COPY --from=deps /app/node_modules/node-addon-api ./node_modules/node-addon-api
 COPY --from=deps /app/node_modules/node-gyp-build ./node_modules/node-gyp-build
-# better-sqlite3 (required: db.ts imports unconditionally; MySQL used at runtime)
-COPY --from=deps /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
-COPY --from=deps /app/node_modules/bindings ./node_modules/bindings
-COPY --from=deps /app/node_modules/file-uri-to-path ./node_modules/file-uri-to-path
-COPY --from=deps /app/node_modules/prebuild-install ./node_modules/prebuild-install
+
 
 # Set correct ownership
 RUN chown -R nextjs:nodejs /app

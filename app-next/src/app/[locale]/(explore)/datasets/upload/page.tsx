@@ -2,6 +2,13 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { DatasetUploadForm } from "@/components/dataset/dataset-upload-form";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Upload Dataset | OpenML",
+  description:
+    "Upload and share a machine learning dataset with the OpenML community.",
+};
 
 export default async function DatasetUploadPage({
   params,

@@ -44,9 +44,6 @@ export async function POST(req: NextRequest) {
       const { indexName, esQuery } = body;
       const url = getElasticsearchUrl(`${indexName}/_search`);
 
-      console.log(`[Search API] Case 2: indexName="${indexName}", URL="${url}"`);
-      console.log(`[Search API] ES Query:`, JSON.stringify(esQuery, null, 2));
-
       // Use fetch instead of axios (matches original MeasureList pattern)
       const response = await fetch(url, {
         method: "POST",
@@ -54,16 +51,15 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify(esQuery),
       });
 
-      console.log(`[Search API] ES Response status:`, response.status);
-
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`[Search API] ES Error:`, errorText);
-        throw new Error(`Elasticsearch returned ${response.status}: ${errorText}`);
+        throw new Error(
+          `Elasticsearch returned ${response.status}: ${errorText}`,
+        );
       }
 
       const data = await response.json();
-      console.log(`[Search API] ES Response hits:`, data.hits?.total);
 
       return NextResponse.json(data);
     }
@@ -80,7 +76,10 @@ export async function POST(req: NextRequest) {
     // Log full Elasticsearch error details
     if (error.response) {
       console.error(`[Search API] ES Error Status:`, error.response.status);
-      console.error(`[Search API] ES Error Data:`, JSON.stringify(error.response.data, null, 2));
+      console.error(
+        `[Search API] ES Error Data:`,
+        JSON.stringify(error.response.data, null, 2),
+      );
     }
 
     return NextResponse.json(

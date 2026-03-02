@@ -8,26 +8,26 @@
  * Usage: node scripts/init-local-db.js
  */
 
-const mysql = require('mysql2/promise');
+const mysql = require("mysql2/promise");
 
 const DB_CONFIG = {
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '3306'),
-  user: process.env.DB_USER || 'openml',
-  password: process.env.DB_PASSWORD || 'openml_local_pass',
-  database: process.env.DB_NAME || 'openml_local',
+  host: process.env.DB_HOST || "localhost",
+  port: parseInt(process.env.DB_PORT || "3306"),
+  user: process.env.DB_USER || "openml",
+  password: process.env.DB_PASSWORD || "openml_local_pass",
+  database: process.env.DB_NAME || "openml_local",
 };
 
 async function initDatabase() {
   let connection;
 
   try {
-    console.log('🔌 Connecting to MySQL...');
+    console.log("🔌 Connecting to MySQL...");
     connection = await mysql.createConnection(DB_CONFIG);
-    console.log('✅ Connected to MySQL\n');
+    console.log("✅ Connected to MySQL\n");
 
     // Create users table (LEGACY SCHEMA - matches production Flask)
-    console.log('📋 Creating users table (legacy schema)...');
+    console.log("📋 Creating users table (legacy schema)...");
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -61,10 +61,10 @@ async function initDatabase() {
         INDEX idx_activation_code (activation_code)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
-    console.log('✅ Created users table');
+    console.log("✅ Created users table");
 
     // Create groups table (LEGACY SCHEMA) - note: groups is a reserved keyword, use backticks
-    console.log('📋 Creating groups table (legacy schema)...');
+    console.log("📋 Creating groups table (legacy schema)...");
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS \`groups\` (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -72,10 +72,10 @@ async function initDatabase() {
         description TEXT
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
-    console.log('✅ Created groups table');
+    console.log("✅ Created groups table");
 
     // Create users_groups table (LEGACY SCHEMA)
-    console.log('📋 Creating users_groups table (legacy schema)...');
+    console.log("📋 Creating users_groups table (legacy schema)...");
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS users_groups (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -86,19 +86,19 @@ async function initDatabase() {
         UNIQUE KEY unique_user_group (user_id, group_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
-    console.log('✅ Created users_groups table');
+    console.log("✅ Created users_groups table");
 
     // Insert default groups
-    console.log('📋 Inserting default groups...');
+    console.log("📋 Inserting default groups...");
     await connection.execute(`
       INSERT IGNORE INTO \`groups\` (id, name, description) VALUES
       (1, 'admin', 'Administrator'),
       (2, 'user', 'Regular User')
     `);
-    console.log('✅ Inserted default groups');
+    console.log("✅ Inserted default groups");
 
     // Create email confirmation tokens table (NEW - for email confirmation feature)
-    console.log('📋 Creating email_confirmation_token table (new)...');
+    console.log("📋 Creating email_confirmation_token table (new)...");
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS email_confirmation_token (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -112,10 +112,10 @@ async function initDatabase() {
         INDEX idx_expires (expires_at)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
-    console.log('✅ Created email_confirmation_token table');
+    console.log("✅ Created email_confirmation_token table");
 
     // Create password reset tokens table (NEW - for password reset feature)
-    console.log('📋 Creating password_reset_token table (new)...');
+    console.log("📋 Creating password_reset_token table (new)...");
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS password_reset_token (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -131,27 +131,55 @@ async function initDatabase() {
         INDEX idx_expires (expires_at)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
-    console.log('✅ Created password_reset_token table');
+    console.log("✅ Created password_reset_token table");
+
+    // Create user_passkeys table (NEW - for WebAuthn/Passkey authentication)
+    console.log("📋 Creating user_passkeys table (new)...");
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS user_passkeys (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        credential_id BLOB NOT NULL,
+        public_key BLOB NOT NULL,
+        sign_count INT DEFAULT 0,
+        transports VARCHAR(255),
+        device_name VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_used_at TIMESTAMP NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        INDEX idx_user_id (user_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("✅ Created user_passkeys table");
 
     // Verify tables were created
-    console.log('\n📊 Verifying database schema...');
-    const [tables] = await connection.query('SHOW TABLES');
-    console.log('✅ Tables in database:', tables.map(t => Object.values(t)[0]).join(', '));
+    console.log("\n📊 Verifying database schema...");
+    const [tables] = await connection.query("SHOW TABLES");
+    console.log(
+      "✅ Tables in database:",
+      tables.map((t) => Object.values(t)[0]).join(", "),
+    );
 
-    console.log('\n✅ Database initialization complete!');
-    console.log('\n📝 Schema matches production Flask for backward compatibility');
-    console.log('   - users (legacy table with all Flask fields)');
-    console.log('   - groups, users_groups (legacy tables)');
-    console.log('   - email_confirmation_token (new for email confirmation)');
-    console.log('   - password_reset_token (new for password reset)');
-    console.log('\n🔧 To create a test user, run: node scripts/create-test-user.js');
-
+    console.log("\n✅ Database initialization complete!");
+    console.log(
+      "\n📝 Schema matches production Flask for backward compatibility",
+    );
+    console.log("   - users (legacy table with all Flask fields)");
+    console.log("   - groups, users_groups (legacy tables)");
+    console.log("   - email_confirmation_token (new for email confirmation)");
+    console.log("   - password_reset_token (new for password reset)");
+    console.log("   - user_passkeys (new for WebAuthn/Passkey auth)");
+    console.log(
+      "\n🔧 To create a test user, run: node scripts/create-test-user.js",
+    );
   } catch (error) {
-    console.error('\n❌ Error initializing database:', error.message);
-    console.error('\n💡 Troubleshooting:');
-    console.error('   - Make sure docker-compose.local.yml services are running');
-    console.error('   - Run: docker-compose -f docker-compose.local.yml up -d');
-    console.error('   - Check logs: docker logs openml-mysql-local');
+    console.error("\n❌ Error initializing database:", error.message);
+    console.error("\n💡 Troubleshooting:");
+    console.error(
+      "   - Make sure docker-compose.local.yml services are running",
+    );
+    console.error("   - Run: docker-compose -f docker-compose.local.yml up -d");
+    console.error("   - Check logs: docker logs openml-mysql-local");
     process.exit(1);
   } finally {
     if (connection) {

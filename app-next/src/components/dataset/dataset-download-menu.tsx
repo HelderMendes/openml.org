@@ -46,15 +46,6 @@ export function DatasetDownloadMenu({
   const xmlUrl = `https://www.openml.org/api/v1/data/${datasetId}`;
   const croissantUrl = `https://www.openml.org/croissant/dataset/${datasetId}`;
 
-  const handleCroissantDownload = () => {
-    const link = document.createElement("a");
-    link.href = croissantUrl;
-    link.download = `dataset_${datasetId}_croissant.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -106,12 +97,12 @@ export function DatasetDownloadMenu({
         </DropdownMenuItem>
 
         {/* Croissant */}
-        <DropdownMenuItem
-          onClick={handleCroissantDownload}
-          className="cursor-pointer"
-        >
-          <Croissant className="mr-2 h-4 w-4" />
-          <span>Croissant</span>
+        <DropdownMenuItem asChild className="cursor-pointer">
+          <a href={croissantUrl} target="_blank" rel="noopener noreferrer">
+            <Croissant className="mr-2 h-4 w-4" />
+            <span>Croissant</span>
+            <ExternalLink className="ml-auto h-3 w-3 opacity-50" />
+          </a>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
