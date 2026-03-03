@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { WorkspaceProvider } from "@/contexts/workspace-context";
 import { WorkspacePanel } from "@/components/workspace/workspace-panel";
+import { WorkspaceContentWrapper } from "@/components/workspace/workspace-content-wrapper";
 
 /**
  * Shared layout for all (explore) pages — datasets, tasks, flows, runs,
@@ -14,17 +15,16 @@ import { WorkspacePanel } from "@/components/workspace/workspace-panel";
  * Detail pages push their sections/quickLinks via <WorkspaceSetter />.
  * Listing pages don't set anything — the panel gracefully hides or shows
  * only the recent-entity trail.
+ *
+ * The panel uses fixed positioning so the page header remains full-width.
+ * WorkspaceContentWrapper adds dynamic right margin to prevent content
+ * from sliding under the panel.
  */
 export default function ExploreLayout({ children }: { children: ReactNode }) {
   return (
     <WorkspaceProvider>
-      <div className="flex gap-0">
-        {/* Main content — takes all remaining space */}
-        <div className="min-w-0 flex-1">{children}</div>
-
-        {/* Persistent right context panel */}
-        <WorkspacePanel />
-      </div>
+      <WorkspaceContentWrapper>{children}</WorkspaceContentWrapper>
+      <WorkspacePanel />
     </WorkspaceProvider>
   );
 }

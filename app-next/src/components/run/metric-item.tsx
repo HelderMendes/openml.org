@@ -166,6 +166,24 @@ const getPerFoldChartData = (perFold: Array<number | number[]>) => {
 };
 
 // ─── MetricItem ────────────────────────────────────────────────────────
+export function MetricItemWithCharts({
+  evaluation,
+  isCollapsed,
+  onToggle,
+}: {
+  evaluation: Evaluation;
+  isCollapsed: boolean;
+  onToggle: (name: string) => void;
+}) {
+  return (
+    <MetricItem
+      evaluation={evaluation}
+      isCollapsed={isCollapsed}
+      onToggle={onToggle}
+    />
+  );
+}
+
 export default function MetricItem({
   evaluation,
   isCollapsed,

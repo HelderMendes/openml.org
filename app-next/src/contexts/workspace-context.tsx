@@ -27,6 +27,8 @@ export interface WorkspaceEntity {
   subtitle?: string;
   url: string;
   color: string;
+  /** Optional href for a "Reset" link shown in the panel */
+  resetHref?: string;
 }
 
 export interface WorkspaceSection {
@@ -35,6 +37,8 @@ export interface WorkspaceSection {
   /** Lucide icon name — rendered by the panel component */
   iconName: string;
   count?: number;
+  /** Full URL — when set the section links to a page instead of an anchor */
+  href?: string;
 }
 
 export interface WorkspaceQuickLink {
@@ -60,6 +64,10 @@ export interface WorkspaceData {
 interface WorkspaceContextType extends WorkspaceData {
   /** History of recently viewed entities (most recent first, max 20) */
   recentEntities: WorkspaceEntity[];
+  /** Whether the desktop panel is collapsed */
+  isPanelCollapsed: boolean;
+  /** Toggle the desktop panel collapsed state */
+  setIsPanelCollapsed: (collapsed: boolean) => void;
   /** Push workspace data from a page */
   setWorkspace: (data: Partial<WorkspaceData>) => void;
   /** Clear all workspace data (e.g. on listing pages) */
@@ -78,6 +86,8 @@ const MAX_RECENT = 20;
 const WorkspaceContext = createContext<WorkspaceContextType>({
   ...EMPTY,
   recentEntities: [],
+  isPanelCollapsed: false,
+  setIsPanelCollapsed: () => {},
   setWorkspace: () => {},
   clearWorkspace: () => {},
 });
@@ -86,6 +96,7 @@ const WorkspaceContext = createContext<WorkspaceContextType>({
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<WorkspaceData>(EMPTY);
   const [recentEntities, setRecentEntities] = useState<WorkspaceEntity[]>([]);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const lastEntityKey = useRef<string>("");
 
   const setWorkspace = useCallback((partial: Partial<WorkspaceData>) => {
@@ -117,6 +128,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       value={{
         ...data,
         recentEntities,
+        isPanelCollapsed,
+        setIsPanelCollapsed,
         setWorkspace,
         clearWorkspace,
       }}

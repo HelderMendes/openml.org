@@ -71,10 +71,16 @@ const ENTITY_ICON_MAP: Record<EntityType, keyof typeof ENTITY_ICONS> = {
 // Main Panel
 // ═══════════════════════════════════════════════════════════════════════
 export function WorkspacePanel() {
-  const { entity, sections, quickLinks, actions, recentEntities } =
-    useWorkspace();
+  const {
+    entity,
+    sections,
+    quickLinks,
+    actions,
+    recentEntities,
+    isPanelCollapsed: isCollapsed,
+    setIsPanelCollapsed: setIsCollapsed,
+  } = useWorkspace();
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const hasContent =
@@ -131,12 +137,12 @@ export function WorkspacePanel() {
   // ── Desktop panel ─────────────────────────────────────────────────
   const desktopPanel = !hasContent ? null : (
     <aside
-      className={`hidden transition-all duration-300 xl:block ${
+      className={`fixed top-28 right-0 bottom-0 z-30 hidden border-l transition-all duration-300 xl:block ${
         isCollapsed ? "w-12" : "w-72"
-      } shrink-0`}
+      } bg-background`}
     >
       {isCollapsed ? (
-        <div className="sticky top-28">
+        <div className="p-2">
           <Button
             onClick={() => setIsCollapsed(false)}
             variant="outline"
@@ -148,7 +154,7 @@ export function WorkspacePanel() {
           </Button>
         </div>
       ) : (
-        <div className="sticky top-28 max-h-[calc(100vh-8rem)] w-72 space-y-4 overflow-y-auto pb-8">
+        <div className="h-full w-72 space-y-4 overflow-y-auto p-4 pb-8">
           <div className="flex justify-end">
             <Button
               onClick={() => setIsCollapsed(true)}
@@ -197,69 +203,40 @@ function PanelContent() {
             On This Page
           </h3>
           <nav className="space-y-0.5">
-            {sections.map((section) => (
-              <a
-                key={section.id}
-                href={`#${section.id}`}
-                className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
-              >
-                <span className="flex items-center gap-2">
-                  <IconByName name={section.iconName} className="h-4 w-4" />
-                  {section.label}
-                </span>
-                {section.count != null && section.count > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    {section.count.toLocaleString()}
-                  </Badge>
-                )}
-              </a>
-            ))}
+            {sections.map((section) => {
+              const isPageLink = section.href && !section.href.startsWith("#");
+              const Comp = isPageLink ? Link : "a";
+              return (
+                <Comp
+                  key={section.id}
+                  href={section.href || `#${section.id}`}
+                  className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
+                >
+                  <span className="flex items-center gap-2">
+                    <IconByName name={section.iconName} className="h-4 w-4" />
+                    {section.label}
+                  </span>
+                  {section.count != null && section.count > 0 && (
+                    <Badge variant="secondary" className="text-xs">
+                      {section.count.toLocaleString()}
+                    </Badge>
+                  )}
+                </Comp>
+              );
+            })}
           </nav>
-        </div>
-      )}
-
-      {/* ── Quick Links (entity-specific) ────────────────────────── */}
-      {quickLinks.length > 0 && (
-        <div className="bg-card rounded-lg border p-4 shadow-sm">
-          <h3
-            className="mb-3 text-sm font-semibold"
-            style={{
-              color: entity ? ENTITY_COLOR_MAP[entity.type] : entityColors.run,
-            }}
-          >
-            Related
-          </h3>
-          <nav className="space-y-0.5">
-            {quickLinks.map((link, i) => (
+          {/* Reset button — shown when entity has a resetHref */}
+          {entity?.resetHref && (
+            <div className="mt-3 border-t pt-3">
               <Link
-                key={i}
-                href={link.href}
-                className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
+                href={entity.resetHref}
+                className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
               >
-                <IconByName name={link.iconName} className="h-4 w-4" />
-                {link.label}
+                <X className="h-4 w-4" />
+                Reset
               </Link>
-            ))}
-          </nav>
-        </div>
-      )}
-
-      {/* ── Actions ──────────────────────────────────────────────── */}
-      {actions.length > 0 && (
-        <div className="bg-card rounded-lg border p-4 shadow-sm">
-          <h3 className="mb-3 text-sm font-semibold">Actions</h3>
-          <nav className="space-y-0.5">
-            {actions.map((action, i) => (
-              <Link
-                key={i}
-                href={action.href}
-                className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors dark:hover:bg-slate-700 dark:hover:text-white"
-              >
-                <IconByName name={action.iconName} className="h-4 w-4" />
-                {action.label}
-              </Link>
-            ))}
-          </nav>
+            </div>
+          )}
         </div>
       )}
 

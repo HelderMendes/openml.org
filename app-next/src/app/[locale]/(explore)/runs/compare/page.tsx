@@ -115,27 +115,14 @@ export default async function RunComparePage({
             subtitle: runs.map((r) => `#${r.run_id}`).join(", "),
             url: `/runs/compare?ids=${runIds.join(",")}`,
             color: entityColors.run,
+            resetHref: "/runs",
           }}
-          sections={[
-            {
-              id: "comparison-table",
-              label: "Comparison Table",
-              iconName: "BarChart3",
-              count: runs.length,
-            },
-          ]}
-          quickLinks={runs.map((r) => ({
+          sections={runs.map((r) => ({
+            id: `run-${r.run_id}`,
             label: `Run #${r.run_id}`,
-            href: `/runs/${r.run_id}`,
             iconName: "ExternalLink",
+            href: `/runs/${r.run_id}`,
           }))}
-          actions={[
-            {
-              label: "Browse Runs",
-              href: "/runs",
-              iconName: "ExternalLink",
-            },
-          ]}
         />
 
         {/* Header */}

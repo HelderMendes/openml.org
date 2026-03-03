@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import MetricItemWithCharts from "./metric-item";
+import { MetricItemWithCharts } from "./metric-item";
 import { RunMetricsTable } from "./run-metrics-table";
 
 interface Evaluation {
@@ -100,14 +100,14 @@ export function RunMetricsSection({ run }: RunMetricsSectionProps) {
   const listRef = useRef<HTMLDivElement>(null);
   const exportRef = useRef<HTMLDivElement>(null);
 
-  const toggleMetric = (name: string) => {
+  const toggleMetric = useCallback((name: string) => {
     setCollapsedMetrics((prev) => {
       const next = new Set(prev);
       if (next.has(name)) next.delete(name);
       else next.add(name);
       return next;
     });
-  };
+  }, []);
 
   // Memoize evaluations to prevent unnecessary re-renders
   const evaluations = useMemo(
