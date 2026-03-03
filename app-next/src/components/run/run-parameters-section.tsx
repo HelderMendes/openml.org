@@ -117,7 +117,7 @@ export function RunParametersSection({ run }: RunParametersSectionProps) {
       {/* Parameters table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead>
+          <thead className="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 backdrop-blur">
             <tr className="border-b">
               <th className="p-3 text-left text-sm font-medium">Parameter</th>
               <th className="p-3 text-left text-sm font-medium">Value</th>
@@ -128,7 +128,10 @@ export function RunParametersSection({ run }: RunParametersSectionProps) {
               (param: ParameterSetting, index: number) => (
                 <tr key={index} className="hover:bg-muted/50 border-b">
                   <td className="p-3 font-mono text-sm">{param.name}</td>
-                  <td className="max-w-md p-3 font-mono text-sm break-all">
+                  <td
+                    className="max-w-md p-3 font-mono text-sm break-all"
+                    style={{ fontVariantNumeric: "tabular-nums" }}
+                  >
                     {String(param.value)}
                   </td>
                 </tr>

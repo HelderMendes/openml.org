@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { ChevronRight } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
+import { ChevronRight, Copy, Check } from "lucide-react";
 
 export interface Evaluation {
   name: string;
@@ -73,7 +73,10 @@ function HorizontalBarChart({
               }}
             />
           </div>
-          <span className="w-14 shrink-0 text-right font-mono text-[10px]">
+          <span
+            className="w-14 shrink-0 text-right font-mono text-[10px]"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
             {entry.value.toFixed(4)}
           </span>
         </div>
@@ -172,6 +175,31 @@ export default function MetricItem({
   isCollapsed: boolean;
   onToggle: (name: string) => void;
 }) {
+  const [copied, setCopied] = useState(false);
+
+  const copyValue = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const v =
+        typeof evaluation.value === "string"
+          ? parseFloat(evaluation.value)
+          : evaluation.value;
+      const s = evaluation.stdev
+        ? typeof evaluation.stdev === "string"
+          ? parseFloat(evaluation.stdev)
+          : evaluation.stdev
+        : null;
+      const text =
+        s !== null && !isNaN(s)
+          ? `${evaluation.name}: ${v.toFixed(4)} ± ${s.toFixed(4)}`
+          : `${evaluation.name}: ${v.toFixed(4)}`;
+      navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    },
+    [evaluation.name, evaluation.value, evaluation.stdev],
+  );
+
   const chartData = useMemo(() => {
     const arrayData = evaluation.array_data;
     const perFold = evaluation.per_fold;
@@ -202,7 +230,7 @@ export default function MetricItem({
 
   return (
     <div
-      className={`rounded-lg border px-4 pt-3 pb-2 transition-all duration-150 ${
+      className={`group/card rounded-lg border px-4 pt-3 pb-2 transition-all duration-150 ${
         hasCharts
           ? "hover:border-slate-400 hover:bg-slate-100/35 hover:shadow-sm"
           : ""
@@ -225,15 +253,32 @@ export default function MetricItem({
             {formatMetricName(evaluation.name)}
           </h3>
         </div>
-        <div className="shrink-0 text-right">
-          <span className="text-2xl font-bold">
-            {!isNaN(value) ? value.toFixed(4) : evaluation.value}
-          </span>
-          {stdev !== null && !isNaN(stdev) && (
-            <span className="text-muted-foreground ml-1 text-sm">
-              ±{stdev.toFixed(4)}
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={copyValue}
+            className="text-muted-foreground hover:text-foreground rounded p-1 opacity-0 transition-opacity group-hover/card:opacity-100 focus:opacity-100"
+            title="Copy metric value"
+            aria-label="Copy metric value"
+          >
+            {copied ? (
+              <Check className="h-3.5 w-3.5 text-green-500" />
+            ) : (
+              <Copy className="h-3.5 w-3.5" />
+            )}
+          </button>
+          <div
+            className="text-right"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            <span className="text-2xl font-bold">
+              {!isNaN(value) ? value.toFixed(4) : evaluation.value}
             </span>
-          )}
+            {stdev !== null && !isNaN(stdev) && (
+              <span className="text-muted-foreground ml-1 text-sm">
+                ±{stdev.toFixed(4)}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

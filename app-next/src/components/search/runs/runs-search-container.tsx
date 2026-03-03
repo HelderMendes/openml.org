@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { APP_CONFIG } from "@/lib/config";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { WithSearch, Paging, SearchContext } from "@elastic/react-search-ui";
 import { FilterBar } from "../shared/filter-bar";
@@ -25,6 +25,8 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  GitCompareArrows,
+  X,
 } from "lucide-react";
 
 interface Evaluation {
@@ -264,11 +266,15 @@ function EnrichedRunsView({
   results,
   selectedRun,
   onSelectRun,
+  selectedIds,
+  onToggleId,
 }: {
   view: string;
   results: RunResult[];
   selectedRun: EnhancedRunResult | null;
   onSelectRun: (run: EnhancedRunResult) => void;
+  selectedIds: Set<string | number>;
+  onToggleId: (id: string | number) => void;
 }) {
   const [enrichedResults, setEnrichedResults] = useState<EnhancedRunResult[]>(
     [],
@@ -337,9 +343,27 @@ function EnrichedRunsView({
 
   return (
     <>
-      {view === "list" && <RunListView results={displayedResults} />}
-      {view === "grid" && <RunGridView results={displayedResults} />}
-      {view === "table" && <RunTableView results={displayedResults} />}
+      {view === "list" && (
+        <RunListView
+          results={displayedResults}
+          selectedIds={selectedIds}
+          onToggleId={onToggleId}
+        />
+      )}
+      {view === "grid" && (
+        <RunGridView
+          results={displayedResults}
+          selectedIds={selectedIds}
+          onToggleId={onToggleId}
+        />
+      )}
+      {view === "table" && (
+        <RunTableView
+          results={displayedResults}
+          selectedIds={selectedIds}
+          onToggleId={onToggleId}
+        />
+      )}
       {view === "split" && (
         <RunSplitView
           results={displayedResults}
@@ -356,6 +380,8 @@ export function RunsSearchContainer() {
   const [selectedRun, setSelectedRun] = useState<EnhancedRunResult | null>(
     null,
   );
+  const [compareIds, setCompareIds] = useState<Set<string | number>>(new Set());
+  const router = useRouter();
   const searchParams = useSearchParams();
   const context = useContext(SearchContext);
   const driver = context?.driver;
@@ -367,6 +393,25 @@ export function RunsSearchContainer() {
     if (currentTerm === query) return;
     driver.getActions().setSearchTerm(query, { shouldClearFilters: false });
   }, [query, driver]);
+
+  const toggleCompareId = useCallback((id: string | number) => {
+    setCompareIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else if (next.size < 10) {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleCompare = useCallback(() => {
+    if (compareIds.size >= 2) {
+      const ids = Array.from(compareIds).join(",");
+      router.push(`/runs/compare?ids=${ids}`);
+    }
+  }, [compareIds, router]);
 
   return (
     <WithSearch
@@ -426,6 +471,8 @@ export function RunsSearchContainer() {
                   results={(results || []) as RunResult[]}
                   selectedRun={selectedRun}
                   onSelectRun={setSelectedRun}
+                  selectedIds={compareIds}
+                  onToggleId={toggleCompareId}
                 />
               )}
             </WithSearch>
@@ -589,13 +636,45 @@ export function RunsSearchContainer() {
               );
             }}
           </WithSearch>
+
+          {/* Floating comparison bar */}
+          {compareIds.size > 0 && (
+            <div className="fixed right-6 bottom-6 z-50 flex items-center gap-3 rounded-xl border bg-white/95 px-4 py-3 shadow-lg backdrop-blur supports-backdrop-filter:bg-white/80 dark:bg-slate-900/95 dark:supports-backdrop-filter:bg-slate-900/80">
+              <GitCompareArrows className="h-5 w-5 text-red-500" />
+              <span className="text-sm font-medium">
+                {compareIds.size} run{compareIds.size !== 1 ? "s" : ""} selected
+              </span>
+              <button
+                onClick={handleCompare}
+                disabled={compareIds.size < 2}
+                className="rounded-lg bg-red-500 px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Compare
+              </button>
+              <button
+                onClick={() => setCompareIds(new Set())}
+                className="text-muted-foreground hover:text-foreground rounded p-1 transition-colors"
+                title="Clear selection"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </WithSearch>
   );
 }
 
-function RunListView({ results }: { results: EnhancedRunResult[] }) {
+function RunListView({
+  results,
+  selectedIds,
+  onToggleId,
+}: {
+  results: EnhancedRunResult[];
+  selectedIds: Set<string | number>;
+  onToggleId: (id: string | number) => void;
+}) {
   if (!results || results.length === 0)
     return (
       <div className="text-muted-foreground p-8 text-center">No runs found</div>
@@ -631,6 +710,20 @@ function RunListView({ results }: { results: EnhancedRunResult[] }) {
             key={runId || index}
             className="relative flex items-start justify-between border-b p-4 transition-colors hover:bg-red-50 dark:hover:bg-red-900/15"
           >
+            {/* Compare checkbox */}
+            {runId && (
+              <label
+                className="relative z-10 mt-1.5 mr-2 flex shrink-0 cursor-pointer items-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(runId)}
+                  onChange={() => onToggleId(runId)}
+                  className="h-4 w-4 cursor-pointer rounded border-gray-300 text-red-500 accent-red-500"
+                />
+              </label>
+            )}
             <div className="min-w-0 flex-1">
               <div className="mb-1 flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
@@ -757,7 +850,15 @@ function RunListView({ results }: { results: EnhancedRunResult[] }) {
   );
 }
 
-function RunGridView({ results }: { results: EnhancedRunResult[] }) {
+function RunGridView({
+  results,
+  selectedIds,
+  onToggleId,
+}: {
+  results: EnhancedRunResult[];
+  selectedIds: Set<string | number>;
+  onToggleId: (id: string | number) => void;
+}) {
   if (!results || results.length === 0)
     return (
       <div className="text-muted-foreground p-8 text-center">No runs found</div>
@@ -784,17 +885,31 @@ function RunGridView({ results }: { results: EnhancedRunResult[] }) {
           .join(" • ");
 
         return (
-          <Link
+          <div
             key={runId || index}
-            href={`/runs/${runId}`}
-            className="bg-card block rounded-lg border p-4 transition-colors hover:bg-red-50 dark:hover:bg-red-900/15"
+            className="bg-card relative rounded-lg border p-4 transition-colors hover:bg-red-50 dark:hover:bg-red-900/15"
           >
             <div className="mb-2 flex items-start justify-between">
-              <FontAwesomeIcon
-                icon={ENTITY_ICONS.run}
-                className="h-8 w-8"
-                style={{ color: entityColors.run }}
-              />
+              <div className="flex items-center gap-2">
+                {runId && (
+                  <label
+                    className="relative z-10 flex cursor-pointer items-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(runId)}
+                      onChange={() => onToggleId(runId)}
+                      className="h-4 w-4 cursor-pointer rounded border-gray-300 text-red-500 accent-red-500"
+                    />
+                  </label>
+                )}
+                <FontAwesomeIcon
+                  icon={ENTITY_ICONS.run}
+                  className="h-8 w-8"
+                  style={{ color: entityColors.run }}
+                />
+              </div>
               <Badge variant="openml" className="bg-red-500 text-white">
                 #{runId}
               </Badge>
@@ -841,7 +956,14 @@ function RunGridView({ results }: { results: EnhancedRunResult[] }) {
                 {result.nr_of_issues?.raw || 0}
               </span>
             </div>
-          </Link>
+            <Link
+              href={`/runs/${runId}`}
+              className="absolute inset-0"
+              aria-label={`View run ${runId}`}
+            >
+              <span className="sr-only">View run {runId}</span>
+            </Link>
+          </div>
         );
       })}
     </div>
@@ -869,7 +991,15 @@ const runTableColumns = [
   },
 ];
 
-function RunTableView({ results }: { results: EnhancedRunResult[] }) {
+function RunTableView({
+  results,
+  selectedIds,
+  onToggleId,
+}: {
+  results: EnhancedRunResult[];
+  selectedIds: Set<string | number>;
+  onToggleId: (id: string | number) => void;
+}) {
   if (!results || results.length === 0)
     return (
       <div className="text-muted-foreground p-8 text-center">No runs found</div>
@@ -921,6 +1051,9 @@ function RunTableView({ results }: { results: EnhancedRunResult[] }) {
             <table className="w-full">
               <thead>
                 <tr className="bg-muted/50 border-b">
+                  <th className="w-10 p-3 text-center">
+                    <span className="sr-only">Compare</span>
+                  </th>
                   {runTableColumns.map((column) => (
                     <th
                       key={column.field}
@@ -956,6 +1089,16 @@ function RunTableView({ results }: { results: EnhancedRunResult[] }) {
                       key={runId || index}
                       className="border-b transition-colors hover:bg-red-50 dark:hover:bg-red-900/15"
                     >
+                      <td className="p-3 text-center">
+                        {runId && (
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(runId)}
+                            onChange={() => onToggleId(runId)}
+                            className="h-4 w-4 cursor-pointer rounded border-gray-300 text-red-500 accent-red-500"
+                          />
+                        )}
+                      </td>
                       <td className="p-3">
                         <Link
                           href={`/runs/${runId}`}

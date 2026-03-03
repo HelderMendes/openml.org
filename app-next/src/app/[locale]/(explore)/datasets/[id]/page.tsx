@@ -9,7 +9,6 @@ import {
 import { DatasetHeader } from "@/components/dataset/dataset-header-new";
 import { DatasetDescription } from "@/components/dataset/dataset-description";
 import { QualityTable } from "@/components/dataset/quality-table";
-import { DatasetNavigationMenu } from "@/components/dataset/dataset-navigation-menu";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { DataAnalysisSection } from "@/components/dataset/data-analysis-section";
 import { MetadataSection } from "@/components/dataset/metadata-section";
@@ -17,6 +16,8 @@ import { ActivityOverview } from "@/components/dataset/activity-overview";
 import { DataDetailSection } from "@/components/dataset/data-detail-section";
 import { TasksSection } from "@/components/dataset/tasks-section";
 import { RunsSection } from "@/components/dataset/runs-section";
+import { WorkspaceSetter } from "@/components/workspace/workspace-setter";
+import { entityColors } from "@/constants";
 
 export async function generateMetadata({
   params,
@@ -154,6 +155,72 @@ export default async function DatasetDetailPage({
     <div className="relative min-h-screen">
       {/* Main Content */}
       <div className="container mx-auto max-w-[1400px] px-4 py-8 sm:px-6 lg:px-8">
+        {/* Push context to the persistent workspace panel */}
+        <WorkspaceSetter
+          entity={{
+            type: "dataset",
+            id: dataset.data_id,
+            title: dataset.name,
+            subtitle: `${dataset.qualities?.NumberOfInstances?.toLocaleString() || "?"} instances · ${dataset.qualities?.NumberOfFeatures?.toLocaleString() || "?"} features`,
+            url: `/datasets/${id}`,
+            color: entityColors.data,
+          }}
+          sections={[
+            { id: "description", label: "Description", iconName: "FileText" },
+            ...(dataset.features && dataset.features.length > 0
+              ? [
+                  {
+                    id: "data-analysis",
+                    label: `Data & Analysis`,
+                    iconName: "Database",
+                    count: dataset.features.length,
+                  },
+                ]
+              : []),
+            { id: "metadata", label: "Metadata", iconName: "Tags" },
+            { id: "activity", label: "Activity", iconName: "LineChart" },
+            { id: "data-detail", label: "Data Detail", iconName: "Database" },
+            {
+              id: "tasks",
+              label: "Tasks",
+              iconName: "ExternalLink",
+              count: taskCount,
+            },
+            {
+              id: "runs",
+              label: "Runs",
+              iconName: "ExternalLink",
+              count: runCount,
+            },
+            ...(dataset.qualities && Object.keys(dataset.qualities).length > 0
+              ? [
+                  {
+                    id: "qualities",
+                    label: "Qualities",
+                    iconName: "BarChart3",
+                    count: Object.keys(dataset.qualities).length,
+                  },
+                ]
+              : []),
+          ]}
+          quickLinks={[
+            ...(dataset.data_id
+              ? [
+                  {
+                    label: `Tasks on this dataset`,
+                    href: `/tasks?data_id=${dataset.data_id}`,
+                    iconName: "ExternalLink",
+                  },
+                  {
+                    label: `Runs on this dataset`,
+                    href: `/runs?data_id=${dataset.data_id}`,
+                    iconName: "ExternalLink",
+                  },
+                ]
+              : []),
+          ]}
+        />
+
         {/* Header: Full Width - Name, stats, actions */}
         <DatasetHeader
           dataset={dataset}
@@ -161,61 +228,46 @@ export default async function DatasetDetailPage({
           runCount={runCount}
         />
 
-        {/* Content with Sidebar - Below Header */}
-        <div className="relative mt-6 flex min-h-screen gap-8">
-          {/* Left: Main Content */}
-          <div className="min-w-0 flex-1 space-y-6">
-            {/* Description: Primary content */}
-            <section id="description" className="scroll-mt-20">
-              <DatasetDescription dataset={dataset} />
-            </section>
+        {/* Main Content */}
+        <div className="mt-6 space-y-6">
+          {/* Description: Primary content */}
+          <section id="description" className="scroll-mt-20">
+            <DatasetDescription dataset={dataset} />
+          </section>
 
-            {/* Data & Analysis Section - MERGED: Features table + Distribution + Correlation */}
-            {dataset.features && dataset.features.length > 0 && (
-              <DataAnalysisSection dataset={dataset} />
-            )}
+          {/* Data & Analysis Section - MERGED: Features table + Distribution + Correlation */}
+          {dataset.features && dataset.features.length > 0 && (
+            <DataAnalysisSection dataset={dataset} />
+          )}
 
-            {/* Metadata Section - kggl style expandable metadata */}
-            <MetadataSection dataset={dataset} />
+          {/* Metadata Section - kggl style expandable metadata */}
+          <MetadataSection dataset={dataset} />
 
-            {/* Activity Overview - kggl style activity stats */}
-            <ActivityOverview dataset={dataset} />
+          {/* Activity Overview - kggl style activity stats */}
+          <ActivityOverview dataset={dataset} />
 
-            {/* Data Detail Section - Download links, API, code snippets */}
-            <DataDetailSection dataset={dataset} />
+          {/* Data Detail Section - Download links, API, code snippets */}
+          <DataDetailSection dataset={dataset} />
 
-            {/* Tasks Section - Tasks defined on this dataset */}
-            <TasksSection dataset={dataset} taskCount={taskCount} />
+          {/* Tasks Section - Tasks defined on this dataset */}
+          <TasksSection dataset={dataset} taskCount={taskCount} />
 
-            {/* Runs Section - Experiments performed on this dataset */}
-            <RunsSection dataset={dataset} runCount={runCount} />
+          {/* Runs Section - Experiments performed on this dataset */}
+          <RunsSection dataset={dataset} runCount={runCount} />
 
-            {/* Qualities: Meta-features (collapsed by default) */}
-            {dataset.qualities && Object.keys(dataset.qualities).length > 0 && (
-              <CollapsibleSection
-                id="qualities"
-                title="Dataset Qualities"
-                description="Computed meta-features and statistics"
-                icon={<BarChart3 className="h-4 w-4 text-gray-500" />}
-                badge={Object.keys(dataset.qualities).length}
-                defaultOpen={false}
-              >
-                <QualityTable qualities={dataset.qualities} />
-              </CollapsibleSection>
-            )}
-          </div>
-
-          {/* Right: Navigation Menu - Responsive */}
-          <DatasetNavigationMenu
-            hasFeatures={dataset.features && dataset.features.length > 0}
-            hasQualities={
-              dataset.qualities && Object.keys(dataset.qualities).length > 0
-            }
-            featuresCount={dataset.features?.length || 0}
-            taskCount={taskCount}
-            runCount={runCount}
-            dataId={dataset.data_id}
-          />
+          {/* Qualities: Meta-features (collapsed by default) */}
+          {dataset.qualities && Object.keys(dataset.qualities).length > 0 && (
+            <CollapsibleSection
+              id="qualities"
+              title="Dataset Qualities"
+              description="Computed meta-features and statistics"
+              icon={<BarChart3 className="h-4 w-4 text-gray-500" />}
+              badge={Object.keys(dataset.qualities).length}
+              defaultOpen={false}
+            >
+              <QualityTable qualities={dataset.qualities} />
+            </CollapsibleSection>
+          )}
         </div>
       </div>
     </div>

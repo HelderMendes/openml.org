@@ -8,6 +8,7 @@ import {
   MessageCircle,
   Eye,
   EyeOff,
+  GitCompareArrows,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { entityColors } from "@/constants/entityColors";
@@ -163,6 +164,14 @@ export function RunHeader({ run }: RunHeaderProps) {
                 </span>
               </Link>
             )}
+            <span className="text-muted-foreground mx-1">|</span>
+            <Link
+              href={`/runs/compare?ids=${run.run_id}`}
+              className="flex items-center gap-1 text-red-500 transition-colors hover:text-red-600 hover:underline"
+            >
+              <GitCompareArrows className="h-4 w-4" />
+              Compare with…
+            </Link>
           </div>
         </div>
       </div>
