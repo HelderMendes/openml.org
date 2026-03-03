@@ -32,5 +32,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
  * This component wraps the app with NextAuth SessionProvider
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>;
+  return (
+    <SessionProvider refetchOnWindowFocus={false}>{children}</SessionProvider>
+  );
 }

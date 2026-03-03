@@ -151,7 +151,7 @@ export function DatasetHeader({
 
             {/* Version with link to all versions */}
             <Link
-              href={`/datasets?search=${encodeURIComponent(dataset.name)}`}
+              href={`/datasets?q=${encodeURIComponent(dataset.name)}`}
               className="text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
               title="View all versions of this dataset"
             >

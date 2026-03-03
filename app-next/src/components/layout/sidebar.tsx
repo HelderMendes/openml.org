@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { navItems, type NavItem } from "@/constants";
@@ -42,7 +43,6 @@ export function Sidebar() {
   const isHomePage = pathname === "/";
   const { isCollapsed, setIsCollapsed, homeMenuOpen, setHomeMenuOpen } =
     useSidebar();
-  const [counts, setCounts] = useState<Record<string, number>>({});
   const { data: session, status } = useSession();
   const [user, setUser] = useState<{
     name: string;
@@ -88,42 +88,36 @@ export function Sidebar() {
     }
   }, [status, session]);
 
-  // Fetch entity counts on mount
-  useEffect(() => {
-    fetch("/api/count")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (Array.isArray(data)) {
-          const countsMap = data.reduce(
-            (
-              acc: Record<string, number>,
-              item: { index: string; count: number },
-            ) => {
-              acc[item.index] = item.count;
-              return acc;
-            },
-            {},
-          );
-          setCounts(countsMap);
-        } else {
-          console.warn(
-            "⚠️ API returned non-array data, counts unavailable:",
-            data,
-          );
-        }
-      })
-      .catch((error) => {
+  // Fetch entity counts with React Query (deduplicates requests, caches results)
+  const { data: counts = {} } = useQuery<Record<string, number>>({
+    queryKey: ["entity-counts"],
+    queryFn: async () => {
+      const response = await fetch("/api/count");
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      if (!Array.isArray(data)) {
         console.warn(
-          "⚠️ Could not fetch entity counts (sidebar will work without them):",
-          error.message,
+          "⚠️ API returned non-array data, counts unavailable:",
+          data,
         );
-      });
-  }, []);
+        return {};
+      }
+      return data.reduce(
+        (
+          acc: Record<string, number>,
+          item: { index: string; count: number },
+        ) => {
+          acc[item.index] = item.count;
+          return acc;
+        },
+        {},
+      );
+    },
+    staleTime: 5 * 60 * 1000, // Cache counts for 5 minutes
+    retry: 1,
+  });
 
   // Render mobile/tablet unified menu (< 1024px for all pages, all sizes for homepage)
   const renderUnifiedMenu = () => (

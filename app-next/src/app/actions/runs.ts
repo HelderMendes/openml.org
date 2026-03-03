@@ -68,7 +68,12 @@ export async function fetchTopRuns(
     const response = await fetch(url);
 
     if (!response.ok) {
-      if (response.status === 404) return { evaluations: { evaluation: [] } };
+      // 404 = endpoint not found, 412 = "precondition failed" which the
+      // OpenML REST API returns when no evaluations exist for this
+      // task/metric combination.  Both are expected empty-result cases.
+      if (response.status === 404 || response.status === 412) {
+        return { evaluations: { evaluation: [] } };
+      }
       throw new Error(`REST API Error: ${response.status}`);
     }
 
