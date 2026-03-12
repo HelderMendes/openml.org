@@ -9,6 +9,7 @@ import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { CollectionDatasetsSection } from "@/components/collection/collection-datasets-section";
 import { CollectionTasksSection } from "@/components/collection/collection-tasks-section";
 import { CollectionNavigationMenu } from "@/components/collection/collection-navigation-menu";
+import { EntityActionsMenu } from "@/components/ui/entity-actions-menu";
 import Link from "next/link";
 import { fetchStudy } from "@/lib/api/study";
 import type { StudyData } from "@/lib/api/study";
@@ -108,14 +109,21 @@ export default async function CollectionDetailPage({
             <span className="text-muted-foreground text-sm">#{id}</span>
           </div>
 
-          <h1 className="mb-4 flex items-center gap-3 text-3xl font-bold tracking-tight">
-            <Layers
-              className="h-8 w-8"
-              style={{ color: entityColors.collections }}
-              aria-hidden="true"
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight">
+              <Layers
+                className="h-8 w-8"
+                style={{ color: entityColors.collections }}
+                aria-hidden="true"
+              />
+              {study.name}
+            </h1>
+            <EntityActionsMenu
+              entityType="collection"
+              entityId={id}
+              entityName={study.name}
             />
-            {study.name}
-          </h1>
+          </div>
 
           <div className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-2 text-sm">
             {study.uploader && (
