@@ -9,6 +9,7 @@ import { TaskDefinitionSection } from "@/components/task/task-definition-section
 import { TaskAnalysisSection } from "@/components/task/task-analysis-section";
 import { TaskRunsList } from "@/components/task/task-runs-list";
 import { WorkspaceSetter } from "@/components/workspace/workspace-setter";
+import { WorkspaceInlinePanel } from "@/components/workspace/workspace-inline-panel";
 import { entityColors } from "@/constants";
 
 /**
@@ -112,41 +113,44 @@ export default async function TaskDetailPage({
         {/* Header: Full Width - Name, stats, actions (Kaggle-style) */}
         <TaskHeader task={task} runCount={displayRunCount} />
 
-        {/* Main Content */}
-        <div className="mt-6 space-y-6">
-          {/* 1. Task Definition (Target, Splits, Metrics) */}
-          <CollapsibleSection
-            id="definition"
-            title="Task Definition"
-            description="Target feature, estimation procedure, and metrics"
-            icon={<FileText className="h-4 w-4 text-gray-500" />}
-            defaultOpen={true}
-          >
-            <TaskDefinitionSection task={task} />
-          </CollapsibleSection>
+        {/* Main Content + Inline Panel */}
+        <div className="mt-6 flex gap-8">
+          <div className="min-w-0 flex-1 space-y-6">
+            {/* 1. Task Definition (Target, Splits, Metrics) */}
+            <CollapsibleSection
+              id="definition"
+              title="Task Definition"
+              description="Target feature, estimation procedure, and metrics"
+              icon={<FileText className="h-4 w-4 text-gray-500" />}
+              defaultOpen={true}
+            >
+              <TaskDefinitionSection task={task} />
+            </CollapsibleSection>
 
-          {/* 2. Task Analysis / Evaluation */}
-          <CollapsibleSection
-            id="task-analysis"
-            title="Task Analysis"
-            description="Performance evaluations and metrics"
-            icon={<BarChart3 className="h-4 w-4 text-gray-500" />}
-            defaultOpen={true}
-          >
-            <TaskAnalysisSection task={task} runCount={displayRunCount} />
-          </CollapsibleSection>
+            {/* 2. Task Analysis / Evaluation */}
+            <CollapsibleSection
+              id="task-analysis"
+              title="Task Analysis"
+              description="Performance evaluations and metrics"
+              icon={<BarChart3 className="h-4 w-4 text-gray-500" />}
+              defaultOpen={true}
+            >
+              <TaskAnalysisSection task={task} runCount={displayRunCount} />
+            </CollapsibleSection>
 
-          {/* 3. Runs List */}
-          <CollapsibleSection
-            id="runs"
-            title="Runs"
-            description="List of experimental runs on this task"
-            icon={<List className="h-4 w-4 text-gray-500" />}
-            badge={displayRunCount}
-            defaultOpen={false}
-          >
-            <TaskRunsList task={task} runCount={displayRunCount} />
-          </CollapsibleSection>
+            {/* 3. Runs List */}
+            <CollapsibleSection
+              id="runs"
+              title="Runs"
+              description="List of experimental runs on this task"
+              icon={<List className="h-4 w-4 text-gray-500" />}
+              badge={displayRunCount}
+              defaultOpen={false}
+            >
+              <TaskRunsList task={task} runCount={displayRunCount} />
+            </CollapsibleSection>
+          </div>
+          <WorkspaceInlinePanel />
         </div>
       </div>
     </div>

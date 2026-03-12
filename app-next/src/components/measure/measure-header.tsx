@@ -1,10 +1,4 @@
-import {
-  Calendar,
-  Hash,
-  ArrowUp,
-  ArrowDown,
-  Ruler,
-} from "lucide-react";
+import { Calendar, Hash, ArrowUp, ArrowDown, Ruler } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ENTITY_ICONS } from "@/constants/entityIcons";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +17,10 @@ interface MeasureHeaderProps {
 
 export function MeasureHeader({ measure }: MeasureHeaderProps) {
   const measureId =
-    measure.eval_id || measure.proc_id || measure.quality_id || measure.measure_id;
+    measure.eval_id ||
+    measure.proc_id ||
+    measure.quality_id ||
+    measure.measure_id;
   const typeLabel =
     MEASURE_TYPE_LABELS[measure.measure_type] || measure.measure_type;
 
@@ -36,7 +33,7 @@ export function MeasureHeader({ measure }: MeasureHeaderProps) {
     : null;
 
   return (
-    <header className="space-y-6 border-b p-0">
+    <header className="space-y-6 border-b pb-4">
       {/* LINE 1: Icon + Title */}
       <div className="flex items-start gap-3">
         <div

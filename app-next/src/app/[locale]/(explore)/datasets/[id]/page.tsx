@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { BarChart3 } from "lucide-react";
 import {
   fetchDataset,
@@ -17,6 +19,7 @@ import { DataDetailSection } from "@/components/dataset/data-detail-section";
 import { TasksSection } from "@/components/dataset/tasks-section";
 import { RunsSection } from "@/components/dataset/runs-section";
 import { WorkspaceSetter } from "@/components/workspace/workspace-setter";
+import { WorkspaceInlinePanel } from "@/components/workspace/workspace-inline-panel";
 import { entityColors } from "@/constants";
 
 export async function generateMetadata({
@@ -129,11 +132,17 @@ export default async function DatasetDetailPage({
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const [dataset, taskCount, runCount] = await Promise.all([
+  const [dataset, taskCount, runCount, session] = await Promise.all([
     fetchDataset(id),
     fetchDatasetTaskCount(id),
     fetchDatasetRunCount(id),
+    getServerSession(authOptions),
   ]);
+
+  const sessionUser = session?.user as { id?: string; openmlUserId?: string } | undefined;
+  // Prefer the real OpenML user ID (resolves local dev ID mismatch)
+  const effectiveUserId = sessionUser?.openmlUserId ?? sessionUser?.id;
+  const isOwner = effectiveUserId ? Number(effectiveUserId) === dataset.uploader_id : false;
 
   // If dataset is deactivated, show notice
   if (dataset.status === "deactivated") {
@@ -226,48 +235,52 @@ export default async function DatasetDetailPage({
           dataset={dataset}
           taskCount={taskCount}
           runCount={runCount}
+          isAuthenticated={!!session?.user}
         />
 
-        {/* Main Content */}
-        <div className="mt-6 space-y-6">
-          {/* Description: Primary content */}
-          <section id="description" className="scroll-mt-20">
-            <DatasetDescription dataset={dataset} />
-          </section>
+        {/* Main Content + Inline Panel */}
+        <div className="mt-6 flex gap-8">
+          <div className="min-w-0 flex-1 space-y-6">
+            {/* Description: Primary content */}
+            <section id="description" className="scroll-mt-20">
+              <DatasetDescription dataset={dataset} />
+            </section>
 
-          {/* Data & Analysis Section - MERGED: Features table + Distribution + Correlation */}
-          {dataset.features && dataset.features.length > 0 && (
-            <DataAnalysisSection dataset={dataset} />
-          )}
+            {/* Data & Analysis Section - MERGED: Features table + Distribution + Correlation */}
+            {dataset.features && dataset.features.length > 0 && (
+              <DataAnalysisSection dataset={dataset} />
+            )}
 
-          {/* Metadata Section - kggl style expandable metadata */}
-          <MetadataSection dataset={dataset} />
+            {/* Metadata Section - kggl style expandable metadata */}
+            <MetadataSection dataset={dataset} />
 
-          {/* Activity Overview - kggl style activity stats */}
-          <ActivityOverview dataset={dataset} />
+            {/* Activity Overview - kggl style activity stats */}
+            <ActivityOverview dataset={dataset} />
 
-          {/* Data Detail Section - Download links, API, code snippets */}
-          <DataDetailSection dataset={dataset} />
+            {/* Data Detail Section - Download links, API, code snippets */}
+            <DataDetailSection dataset={dataset} />
 
-          {/* Tasks Section - Tasks defined on this dataset */}
-          <TasksSection dataset={dataset} taskCount={taskCount} />
+            {/* Tasks Section - Tasks defined on this dataset */}
+            <TasksSection dataset={dataset} taskCount={taskCount} />
 
-          {/* Runs Section - Experiments performed on this dataset */}
-          <RunsSection dataset={dataset} runCount={runCount} />
+            {/* Runs Section - Experiments performed on this dataset */}
+            <RunsSection dataset={dataset} runCount={runCount} />
 
-          {/* Qualities: Meta-features (collapsed by default) */}
-          {dataset.qualities && Object.keys(dataset.qualities).length > 0 && (
-            <CollapsibleSection
-              id="qualities"
-              title="Dataset Qualities"
-              description="Computed meta-features and statistics"
-              icon={<BarChart3 className="h-4 w-4 text-gray-500" />}
-              badge={Object.keys(dataset.qualities).length}
-              defaultOpen={false}
-            >
-              <QualityTable qualities={dataset.qualities} />
-            </CollapsibleSection>
-          )}
+            {/* Qualities: Meta-features (collapsed by default) */}
+            {dataset.qualities && Object.keys(dataset.qualities).length > 0 && (
+              <CollapsibleSection
+                id="qualities"
+                title="Dataset Qualities"
+                description="Computed meta-features and statistics"
+                icon={<BarChart3 className="h-4 w-4 text-gray-500" />}
+                badge={Object.keys(dataset.qualities).length}
+                defaultOpen={false}
+              >
+                <QualityTable qualities={dataset.qualities} />
+              </CollapsibleSection>
+            )}
+          </div>
+          <WorkspaceInlinePanel />
         </div>
       </div>
     </div>

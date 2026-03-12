@@ -11,6 +11,7 @@ import { RunOutputFilesSection } from "@/components/run/run-output-files-section
 import { RunAnalysesSection } from "@/components/run/run-analyses-section";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { WorkspaceSetter } from "@/components/workspace/workspace-setter";
+import { WorkspaceInlinePanel } from "@/components/workspace/workspace-inline-panel";
 import { entityColors } from "@/constants";
 import {
   BarChart3,
@@ -184,8 +185,9 @@ export default async function RunDetailPage({
         {/* Header: Full Width */}
         <RunHeader run={run} />
 
-        {/* Main Content */}
-        <div className="mt-6 space-y-6">
+        {/* Main Content + Inline Panel */}
+        <div className="mt-6 flex gap-8">
+          <div className="min-w-0 flex-1 space-y-6">
           {/* Evaluation Metrics */}
           {evaluationsCount > 0 && (
             <CollapsibleSection
@@ -266,6 +268,8 @@ export default async function RunDetailPage({
               </div>
             </CollapsibleSection>
           )}
+          </div>
+          <WorkspaceInlinePanel />
         </div>
       </div>
     </div>

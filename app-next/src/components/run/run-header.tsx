@@ -3,7 +3,6 @@ import {
   User,
   CheckCircle2,
   XCircle,
-  Heart,
   CloudDownload,
   MessageCircle,
   Eye,
@@ -11,9 +10,12 @@ import {
   GitCompareArrows,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { entityColors } from "@/constants/entityColors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ENTITY_ICONS } from "@/constants/entityIcons";
+import { LikeButton } from "@/components/ui/like-button";
+import { EntityActionsMenu } from "@/components/ui/entity-actions-menu";
 
 function truncateFlowName(name: string): string {
   const words = name.split(" ");
@@ -69,8 +71,10 @@ export function RunHeader({ run }: RunHeaderProps) {
       ? `Flow #${run.flow_id}`
       : null;
 
+  const likes = run.nr_of_likes || 0;
+
   return (
-    <header className="space-y-3 border-b pb-6">
+    <header className="space-y-3 border-b p-0">
       <div className="flex items-start gap-3">
         <FontAwesomeIcon
           icon={ENTITY_ICONS.run}
@@ -126,10 +130,13 @@ export function RunHeader({ run }: RunHeaderProps) {
                 {uploaderLabel}
               </Link>
             )}
-            <span className="flex items-center gap-1" title="likes">
-              <Heart className="h-4 w-4 fill-purple-500 text-purple-500" />
-              {run.nr_of_likes || 0} likes
-            </span>
+            <LikeButton
+              entityType="run"
+              entityId={run.run_id}
+              initialLikes={likes}
+              showCount={true}
+              size="sm"
+            />
             <span className="flex items-center gap-1" title="downloads">
               <CloudDownload className="h-4 w-4 text-gray-500" />
               {run.nr_of_downloads || 0} downloads
@@ -164,16 +171,23 @@ export function RunHeader({ run }: RunHeaderProps) {
                 </span>
               </Link>
             )}
-            <span className="text-muted-foreground mx-1">|</span>
-            <Link
-              href={`/runs/compare?ids=${run.run_id}`}
-              className="flex items-center gap-1 text-red-500 transition-colors hover:text-red-600 hover:underline"
-            >
-              <GitCompareArrows className="h-4 w-4" />
-              Compare with…
-            </Link>
           </div>
         </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-wrap items-center justify-end gap-3 pb-4">
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/runs/compare?ids=${run.run_id}`}>
+            <GitCompareArrows className="h-4 w-4" />
+            Compare with…
+          </Link>
+        </Button>
+        <EntityActionsMenu
+          entityType="run"
+          entityId={run.run_id}
+          entityName={`Run #${run.run_id}`}
+        />
       </div>
     </header>
   );

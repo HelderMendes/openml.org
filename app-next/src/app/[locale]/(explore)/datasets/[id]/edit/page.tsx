@@ -36,8 +36,10 @@ export default async function DatasetEditPage({
   const dataset = await fetchDataset(id);
 
   // Determine if current user is the dataset owner
-  const userId = (session.user as { id?: string }).id;
-  const isOwner = userId ? Number(userId) === dataset.uploader_id : false;
+  // Prefer real OpenML user ID (resolves local dev ID mismatch)
+  const sessionUser = session.user as { id?: string; openmlUserId?: string };
+  const effectiveUserId = sessionUser.openmlUserId ?? sessionUser.id;
+  const isOwner = effectiveUserId ? Number(effectiveUserId) === dataset.uploader_id : false;
 
   // Check whether the session has a valid OpenML API key
   const hasApiKey = !!(session as { apikey?: string }).apikey;
@@ -53,6 +55,7 @@ export default async function DatasetEditPage({
         isOwner={isOwner}
         hasApiKey={hasApiKey}
         isLocalUser={isLocalUser}
+        initialTags={(dataset.tags ?? []).map((t) => t.tag)}
         initialValues={{
           description: dataset.description || "",
           creator: dataset.creator || "",

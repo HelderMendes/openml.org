@@ -6,6 +6,7 @@ import { getRun } from "@/lib/api/run";
 import type { RunDetail } from "@/lib/api/run";
 import { RunComparisonClient } from "@/components/run/run-comparison-client";
 import { WorkspaceSetter } from "@/components/workspace/workspace-setter";
+import { WorkspaceInlinePanel } from "@/components/workspace/workspace-inline-panel";
 import { entityColors } from "@/constants";
 
 export const metadata: Metadata = {
@@ -128,12 +129,12 @@ export default async function RunComparePage({
         {/* Header */}
         <header className="space-y-3 border-b pb-6">
           <div className="flex items-center gap-3">
-            <Link
+            {/* <Link
               href="/runs"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
-            </Link>
+            </Link> */}
             <GitCompareArrows className="h-8 w-8 text-red-500" />
             <div>
               <h1 className="text-3xl font-bold tracking-tight">
@@ -191,9 +192,12 @@ export default async function RunComparePage({
           )}
         </header>
 
-        {/* Client-side interactive comparison */}
-        <div className="mt-6">
-          <RunComparisonClient runs={runs} />
+        {/* Client-side interactive comparison + inline panel */}
+        <div className="mt-6 flex gap-8">
+          <div className="min-w-0 flex-1">
+            <RunComparisonClient runs={runs} />
+          </div>
+          <WorkspaceInlinePanel />
         </div>
       </div>
     </div>

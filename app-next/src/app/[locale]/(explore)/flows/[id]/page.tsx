@@ -15,6 +15,7 @@ import { FlowVersionsSection } from "@/components/flow/flow-versions-section";
 import { FlowRunsList } from "@/components/flow/flow-runs-list";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { WorkspaceSetter } from "@/components/workspace/workspace-setter";
+import { WorkspaceInlinePanel } from "@/components/workspace/workspace-inline-panel";
 import { entityColors } from "@/constants";
 
 export async function generateMetadata({
@@ -158,8 +159,9 @@ export default async function FlowDetailPage({
         {/* Header: Full Width */}
         <FlowHeader flow={flow} runCount={runCount} />
 
-        {/* Main Content */}
-        <div className="mt-6 space-y-6">
+        {/* Main Content + Inline Panel */}
+        <div className="mt-6 flex gap-8">
+          <div className="min-w-0 flex-1 space-y-6">
           {/* 1. Description Section */}
           <CollapsibleSection
             id="description"
@@ -260,6 +262,8 @@ export default async function FlowDetailPage({
           >
             <FlowRunsList flow={flow} runCount={runCount} />
           </CollapsibleSection>
+          </div>
+          <WorkspaceInlinePanel />
         </div>
       </div>
     </div>
