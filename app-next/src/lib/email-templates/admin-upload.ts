@@ -6,8 +6,9 @@ export const generateAdminReviewEmail = (
   datasetId: string,
   datasetName: string,
   logoUrl: string,
+  datasetUrl?: string,
 ) => {
-  const datasetLink = `https://www.openml.org/d/${datasetId}`;
+  const datasetLink = datasetUrl ?? `https://www.openml.org/datasets/${datasetId}`;
 
   const content = `
     <!-- Content for Admin Upload Review -->

@@ -5,6 +5,7 @@ import { generateResetPasswordEmail } from "./email-templates/reset-password";
 import { generateProfileUpdateEmail } from "./email-templates/profile-update";
 import { generateAdminReviewEmail } from "./email-templates/admin-upload";
 import { generateDatasetEditEmail } from "./email-templates/dataset-edit";
+import { generateEntityCreatedEmail } from "./email-templates/entity-created";
 
 // Shared email utility for sending system emails
 const transporter = nodemailer.createTransport({
@@ -142,7 +143,7 @@ export async function sendDatasetUploadEmail(
   datasetId: string | number,
 ) {
   const baseUrl = APP_CONFIG.siteUrl || "http://localhost:3000";
-  const datasetUrl = `${baseUrl}/d/${datasetId}`;
+  const datasetUrl = `${baseUrl}/datasets/${datasetId}`;
   const logoUrl = `${baseUrl}/logo_openML_light-bkg.png`;
 
   const htmlContent = generateAdminReviewEmail(
@@ -150,6 +151,7 @@ export async function sendDatasetUploadEmail(
     datasetId.toString(),
     datasetName,
     logoUrl,
+    datasetUrl,
   );
 
   // Send to ADMIN_EMAIL or default support email
@@ -179,6 +181,47 @@ Please review this dataset to ensure it meets our quality standards.`,
   }
 }
 
+// Send creation confirmation to the creator (dataset, task, or collection)
+export async function sendCreationConfirmationEmail(
+  recipientEmail: string,
+  entityType: "dataset" | "task" | "collection",
+  entityName: string,
+  entityId: string | number,
+) {
+  const baseUrl = APP_CONFIG.siteUrl || "http://localhost:3050";
+  const logoUrl = `${baseUrl}/logo_openML_light-bkg.png`;
+  const pathMap = { dataset: "datasets", task: "tasks", collection: "collections" };
+  const entityUrl = `${baseUrl}/${pathMap[entityType]}/${entityId}`;
+
+  const htmlContent = generateEntityCreatedEmail(
+    entityType,
+    entityName,
+    entityId.toString(),
+    entityUrl,
+    logoUrl,
+  );
+
+  const labelMap = { dataset: "Dataset", task: "Task", collection: "Collection" };
+  const label = labelMap[entityType];
+
+  const mailOptions = {
+    from: process.env.SMTP_FROM || '"OpenML" <noreply@openml.org>',
+    to: recipientEmail,
+    subject: `Your OpenML ${label} "${entityName}" has been created`,
+    html: htmlContent,
+    text: `Your ${label} "${entityName}" has been successfully submitted to OpenML.\nView it at: ${entityUrl}\n\nBest regards,\nThe OpenML Team`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`${label} creation email sent:`, info.messageId);
+    return { success: true };
+  } catch (error) {
+    console.error(`Error sending ${label} creation email:`, error);
+    return { success: false, error };
+  }
+}
+
 // Send dataset edit notification
 
 export async function sendDatasetEditEmail(
@@ -187,7 +230,7 @@ export async function sendDatasetEditEmail(
   datasetId: string | number,
 ) {
   const baseUrl = APP_CONFIG.siteUrl || "http://localhost:3000";
-  const datasetUrl = `${baseUrl}/d/${datasetId}`;
+  const datasetUrl = `${baseUrl}/datasets/${datasetId}`;
   const logoUrl = `${baseUrl}/logo_openML_light-bkg.png`;
 
   const htmlContent = generateDatasetEditEmail(
@@ -196,6 +239,7 @@ export async function sendDatasetEditEmail(
     datasetName,
     ["Metadata updated"], // changes
     logoUrl,
+    datasetUrl,
   );
 
   const mailOptions = {
