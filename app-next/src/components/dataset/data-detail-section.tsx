@@ -22,7 +22,7 @@ interface DataDetailSectionProps {
  * - Data preview link
  */
 export function DataDetailSection({ dataset }: DataDetailSectionProps) {
-  const apiUrl = APP_CONFIG.apiUrl || "https://www.openml.org";
+  const apiUrl = APP_CONFIG.openmlApiUrl || "https://www.openml.org";
 
   return (
     <CollapsibleSection

@@ -152,10 +152,7 @@ export function SearchContainer() {
             <div className="bg-muted/30 border-b px-4 py-3">
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground">Datasets tagged</span>
-                <Badge
-                  variant="secondary"
-                  className="gap-1 font-semibold"
-                >
+                <Badge variant="secondary" className="gap-1 font-semibold">
                   <Hash className="h-3 w-3" />
                   {tagParam}
                 </Badge>
@@ -368,7 +365,7 @@ export function SearchContainer() {
                         Array.from({ length: 8 }).map((_, i) => (
                           <div
                             key={i}
-                            className="rounded-lg border p-4 space-y-3"
+                            className="space-y-3 rounded-lg border p-4"
                           >
                             <div className="h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
                             <div className="h-3 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
@@ -394,7 +391,7 @@ export function SearchContainer() {
                       <div className="w-[380px] space-y-0 overflow-y-auto border-r">
                         {isLoading ? (
                           Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="border-b p-3 space-y-2">
+                            <div key={i} className="space-y-2 border-b p-3">
                               <div className="h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
                               <div className="flex gap-3">
                                 {Array.from({ length: 3 }).map((_, j) => (

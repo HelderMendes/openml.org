@@ -148,17 +148,17 @@ export function Sidebar() {
       >
         {/* Logo Header - Only show when menu is open */}
         {homeMenuOpen && (
-          <div className="relative flex min-h-40 shrink-0 items-start justify-center bg-[#233044] py-6">
+          <div className="relative flex shrink-0 items-center justify-center bg-[#233044] py-4">
             <Link
               href="/"
-              className="group flex w-64 items-start justify-center"
+              className="group flex w-64 items-center justify-center"
               onClick={() => setHomeMenuOpen(false)}
             >
               <Image
                 src="/logo_openML_dark-bkg.png"
                 alt="OpenML Logo"
-                width={100}
-                height={50}
+                width={140}
+                height={70}
                 className="h-auto w-auto object-contain transition-transform duration-300 ease-out group-hover:scale-110"
                 style={{
                   animation: "logoFadeScale 0.4s ease-out 0.2s both",

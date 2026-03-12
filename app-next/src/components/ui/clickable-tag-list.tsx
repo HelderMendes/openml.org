@@ -18,11 +18,11 @@ export function ClickableTagList({
   className,
 }: ClickableTagListProps) {
   // OpenML API sometimes returns a single string instead of string[]
-  const tagArray = Array.isArray(tags)
-    ? tags
-    : typeof tags === "string"
-      ? [tags]
-      : [];
+  const tagArray = [
+    ...new Set(
+      Array.isArray(tags) ? tags : typeof tags === "string" ? [tags] : [],
+    ),
+  ];
   if (!tagArray.length) return null;
 
   return (

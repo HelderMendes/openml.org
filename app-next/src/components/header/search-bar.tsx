@@ -58,14 +58,20 @@ export function SearchBar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlQuery]);
 
-  // When already on an entity's sub-page (e.g. /collections/runs), preserve that
-  // sub-path so searching stays on the same tab. When navigating from a different
-  // entity, fall back to the root route (which redirects to the default sub-page).
+  // When on a search sub-tab (e.g. /datasets/runs), preserve that sub-path so
+  // searching stays on the same tab. Detail pages (e.g. /datasets/47155) always
+  // fall back to the root search route.
   const getRoute = useCallback(
     (indexKey: string): string => {
       const index = searchIndices.find((i) => i.key === indexKey);
       if (!index) return "/";
-      return effectivePath.startsWith(index.route) ? effectivePath : index.route;
+      if (!effectivePath.startsWith(index.route)) return index.route;
+      // Only preserve sub-paths that look like named tabs (no numeric/slug IDs).
+      // e.g. /datasets/runs ✅  — /datasets/47155 ❌  — /measures/wall-clock-time ❌
+      const subPath = effectivePath.slice(index.route.length);
+      const nextSegment = subPath.split("/").filter(Boolean)[0] ?? "";
+      const isDetailPage = nextSegment !== "" && !/^[a-z]+$/.test(nextSegment);
+      return isDetailPage ? index.route : effectivePath;
     },
     [effectivePath],
   );
