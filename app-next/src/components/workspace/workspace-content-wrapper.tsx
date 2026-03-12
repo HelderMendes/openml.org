@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { cn } from "@/lib/utils";
 
@@ -13,10 +14,17 @@ export function WorkspaceContentWrapper({
 }: {
   children: React.ReactNode;
 }) {
-  const { entity, sections, recentEntities, isPanelCollapsed } = useWorkspace();
+  const { entity, isPanelCollapsed } = useWorkspace();
+  const pathname = usePathname();
 
+  // Mirror the same visibility logic as WorkspacePanel so margin is removed
+  // immediately when pathname changes (before async clearWorkspace fires).
+  const normalizedPath = (pathname ?? "").replace(/^\/[a-z]{2}(\/|$)/, "/");
+  const entityBasePath = entity?.url.split("?")[0] ?? null;
   const hasPanelContent =
-    entity !== null || sections.length > 0 || recentEntities.length > 0;
+    entity !== null &&
+    entityBasePath !== null &&
+    normalizedPath.startsWith(entityBasePath);
 
   return (
     <div

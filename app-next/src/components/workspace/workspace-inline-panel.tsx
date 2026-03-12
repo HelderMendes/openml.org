@@ -27,7 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useWorkspace, type EntityType } from "@/contexts/workspace-context";
 
-// ─── Icon lookup (string → component) ───────────────────────────────────
+// ─── Icon lookup ─────────────────────────────────────────────────────────────
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   BarChart3,
   Settings2,
@@ -47,7 +47,7 @@ function IconByName({ name, className }: { name: string; className?: string }) {
   return <Icon className={className} />;
 }
 
-// ─── Entity color helper ────────────────────────────────────────────────
+// ─── Entity color helper ──────────────────────────────────────────────────────
 const ENTITY_COLOR_MAP: Record<EntityType, string> = {
   run: entityColors.run,
   dataset: entityColors.data,
@@ -68,137 +68,13 @@ const ENTITY_ICON_MAP: Record<EntityType, keyof typeof ENTITY_ICONS> = {
   measure: "measure",
 };
 
-// ═══════════════════════════════════════════════════════════════════════
-// Main Panel
-// ═══════════════════════════════════════════════════════════════════════
-export function WorkspacePanel() {
-  const {
-    entity,
-    isPanelCollapsed: isCollapsed,
-    setIsPanelCollapsed: setIsCollapsed,
-  } = useWorkspace();
-
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const pathname = usePathname();
-
-  // Strip locale prefix (/en/, /nl/, etc.) for comparison
-  const normalizedPath = (pathname ?? "").replace(/^\/[a-z]{2}(\/|$)/, "/");
-  // Entity base path without query string
-  const entityBasePath = entity?.url.split("?")[0] ?? null;
-  // Only show panel when entity is set AND we're actually on that entity's page.
-  // This prevents the panel persisting during the async cleanup gap when navigating away.
-  const hasContent =
-    entity !== null &&
-    entityBasePath !== null &&
-    normalizedPath.startsWith(entityBasePath);
-  // Recent section only on runs/compare
-  const showRecent = normalizedPath.startsWith("/runs/compare");
-
-  // ── Mobile button ─────────────────────────────────────────────────
-  const mobileButton = hasContent ? (
-    <div className="fixed right-6 bottom-6 z-50 xl:hidden">
-      <Button
-        onClick={() => setMobileOpen(!mobileOpen)}
-        size="lg"
-        className="shadow-lg"
-        style={{
-          backgroundColor: entity
-            ? ENTITY_COLOR_MAP[entity.type]
-            : entityColors.run,
-        }}
-      >
-        {mobileOpen ? (
-          <X className="mr-2 h-5 w-5" />
-        ) : (
-          <Menu className="mr-2 h-5 w-5" />
-        )}
-        {mobileOpen ? "Close" : "On This Page"}
-      </Button>
-    </div>
-  ) : null;
-
-  // ── Mobile panel ──────────────────────────────────────────────────
-  const mobilePanel = mobileOpen ? (
-    <>
-      <div
-        className="fixed inset-0 z-40 bg-black/50 xl:hidden"
-        onClick={() => setMobileOpen(false)}
-      />
-      <div className="bg-background fixed top-0 right-0 bottom-0 z-50 w-80 shadow-2xl xl:hidden">
-        <div className="flex h-full flex-col overflow-y-auto p-6">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">On This Page</h2>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMobileOpen(false)}
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-          <PanelContent showRecent={showRecent} />
-        </div>
-      </div>
-    </>
-  ) : null;
-
-  // ── Desktop panel ─────────────────────────────────────────────────
-  const desktopPanel = !hasContent ? null : (
-    <aside
-      className={`fixed top-28 right-0 bottom-0 z-30 hidden border-l transition-all duration-300 xl:block ${
-        isCollapsed ? "w-12" : "w-72"
-      } bg-background`}
-    >
-      {isCollapsed ? (
-        <div className="p-2">
-          <Button
-            onClick={() => setIsCollapsed(false)}
-            variant="outline"
-            size="icon"
-            className="bg-background hover:bg-accent shadow-md"
-            title="Expand panel"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-        </div>
-      ) : (
-        <div className="h-full w-72 space-y-4 overflow-y-auto p-4 pb-8">
-          <div className="flex justify-end">
-            <Button
-              onClick={() => setIsCollapsed(true)}
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-foreground"
-              title="Collapse panel"
-            >
-              <ChevronRight className="mr-1 h-4 w-4" />
-              Hide
-            </Button>
-          </div>
-          <PanelContent showRecent={showRecent} />
-        </div>
-      )}
-    </aside>
-  );
-
-  return (
-    <>
-      {mobileButton}
-      {mobilePanel}
-      {desktopPanel}
-    </>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// Panel Content (shared between mobile + desktop)
-// ═══════════════════════════════════════════════════════════════════════
+// ─── Shared panel content ─────────────────────────────────────────────────────
 function PanelContent({ showRecent }: { showRecent: boolean }) {
   const { entity, sections, recentEntities } = useWorkspace();
 
   return (
     <div className="space-y-4">
-      {/* ── On This Page ─────────────────────────────────────────── */}
+      {/* On This Page */}
       {sections.length > 0 && (
         <div className="bg-card rounded-lg border p-4 shadow-sm">
           <h3
@@ -232,7 +108,6 @@ function PanelContent({ showRecent }: { showRecent: boolean }) {
               );
             })}
           </nav>
-          {/* Reset button — shown when entity has a resetHref */}
           {entity?.resetHref && (
             <div className="mt-3 border-t pt-3">
               <Link
@@ -247,7 +122,7 @@ function PanelContent({ showRecent }: { showRecent: boolean }) {
         </div>
       )}
 
-      {/* ── Navigation ───────────────────────────────────────────── */}
+      {/* Navigation */}
       {entity && (
         <div className="bg-card rounded-lg border p-4 shadow-sm">
           <h3
@@ -279,7 +154,7 @@ function PanelContent({ showRecent }: { showRecent: boolean }) {
         </div>
       )}
 
-      {/* ── Recent Entities — only on runs/compare ───────────────── */}
+      {/* Recent — only on runs/compare */}
       {showRecent && recentEntities.length > 1 && (
         <div className="bg-card rounded-lg border p-4 shadow-sm">
           <h3 className="text-muted-foreground mb-3 flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase">
@@ -315,5 +190,116 @@ function PanelContent({ showRecent }: { showRecent: boolean }) {
         </div>
       )}
     </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// WorkspaceInlinePanel — renders as a sticky sidebar inside a flex layout.
+// Place it as a sibling of the main content div inside a `relative flex gap-8`
+// container that starts AFTER the entity header.
+// ═══════════════════════════════════════════════════════════════════════════════
+export function WorkspaceInlinePanel() {
+  const {
+    entity,
+    isPanelCollapsed: isCollapsed,
+    setIsPanelCollapsed: setIsCollapsed,
+  } = useWorkspace();
+
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Only show "Recent" on runs/compare
+  const normalizedPath = (pathname ?? "").replace(/^\/[a-z]{2}(\/|$)/, "/");
+  const showRecent = normalizedPath.startsWith("/runs/compare");
+
+  // Don't render if no entity context
+  if (!entity) return null;
+
+  const entityColor = ENTITY_COLOR_MAP[entity.type];
+
+  return (
+    <>
+      {/* ── Mobile floating button ─────────────────────────────────── */}
+      <div className="fixed right-6 bottom-6 z-50 xl:hidden">
+        <Button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          size="lg"
+          className="shadow-lg"
+          style={{ backgroundColor: entityColor }}
+        >
+          {mobileOpen ? (
+            <X className="mr-2 h-5 w-5" />
+          ) : (
+            <Menu className="mr-2 h-5 w-5" />
+          )}
+          {mobileOpen ? "Close" : "On This Page"}
+        </Button>
+      </div>
+
+      {/* ── Mobile slide-out panel ─────────────────────────────────── */}
+      {mobileOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/50 xl:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="bg-background fixed top-0 right-0 bottom-0 z-50 w-80 shadow-2xl xl:hidden">
+            <div className="flex h-full flex-col overflow-y-auto p-6">
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-lg font-semibold">On This Page</h2>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+              <PanelContent showRecent={showRecent} />
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Desktop sticky sidebar ─────────────────────────────────── */}
+      <aside
+        className={`hidden shrink-0 transition-all duration-300 xl:block ${
+          isCollapsed ? "w-12" : "w-72"
+        }`}
+      >
+        {isCollapsed ? (
+          <div className="sticky top-28 pt-2">
+            <Button
+              onClick={() => setIsCollapsed(false)}
+              variant="outline"
+              size="icon"
+              className="bg-background hover:bg-accent shadow-md"
+              title="Expand panel"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <div
+            className="sticky top-28 w-72 space-y-4 overflow-y-auto pb-8"
+            style={{ maxHeight: "calc(100vh - 8rem)" }}
+          >
+            <div className="flex justify-end">
+              <Button
+                onClick={() => setIsCollapsed(true)}
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground"
+                title="Collapse panel"
+              >
+                <ChevronRight className="mr-1 h-4 w-4" />
+                Hide
+              </Button>
+            </div>
+            <PanelContent showRecent={showRecent} />
+          </div>
+        )}
+      </aside>
+    </>
   );
 }
