@@ -69,8 +69,6 @@ export default async function LocaleLayout({
 
   // Read runtime environment variables
   const clientEnv = {
-    NEXT_PUBLIC_API_URL:
-      process.env.NEXT_PUBLIC_API_URL || "https://www.openml.org",
     NEXT_PUBLIC_OPENML_API_URL:
       process.env.NEXT_PUBLIC_OPENML_API_URL || "https://www.openml.org",
     NEXT_PUBLIC_ELASTICSEARCH_SERVER:

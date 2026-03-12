@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import bundlerAnalyzer from "@next/bundle-analyzer";
 
+// Wrap the Next.js config with the bundle analyzer and internationalization plugins
 const withNextIntl = createNextIntlPlugin("./src/i18n.ts");
+
+const withBundleAnalyzer = bundlerAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const nextConfig: NextConfig = {
   // Vercel-specific optimizations
@@ -65,12 +71,6 @@ const nextConfig: NextConfig = {
         hostname: "lh3.googleusercontent.com",
         port: "",
         pathname: "/**", // Google user avatars
-      },
-      {
-        protocol: "https",
-        hostname: "avatars.githubusercontent.com",
-        port: "",
-        pathname: "/**", // GitHub user avatars
       },
       {
         protocol: "https",
@@ -185,4 +185,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+export default withBundleAnalyzer(withNextIntl(nextConfig));
