@@ -105,6 +105,36 @@ export const authOptions: NextAuthOptions = {
             // session_hash column may not exist in all deployments
           }
 
+          // Resolve real OpenML user ID from API key (handles local dev ID mismatch)
+          let openmlUserId: string | undefined;
+          if (sessionHash) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
+            try {
+              const openmlApiUrl =
+                process.env.OPENML_API_URL || "https://www.openml.org";
+              // Try /user/whoami first, fall back to /user/data
+              for (const path of ["/api/v1/json/user/whoami", "/api/v1/json/user/data"]) {
+                const res = await fetch(
+                  `${openmlApiUrl}${path}?api_key=${encodeURIComponent(sessionHash)}`,
+                  { signal: controller.signal },
+                );
+                if (res.ok) {
+                  const data = await res.json();
+                  const rawId = data?.user?.id ?? data?.id;
+                  if (rawId != null) {
+                    openmlUserId = String(rawId);
+                    break;
+                  }
+                }
+              }
+            } catch {
+              // Non-critical: fall back to local DB ID for ownership checks
+            } finally {
+              clearTimeout(timeoutId);
+            }
+          }
+
           // Return user object
           return {
             id: dbUser.id.toString(),
@@ -116,6 +146,7 @@ export const authOptions: NextAuthOptions = {
               dbUser.image && dbUser.image !== "0000" ? dbUser.image : null,
             username: dbUser.username,
             session_hash: sessionHash,
+            openmlUserId,
           };
         } catch (error) {
           console.error("Login error:", error);
@@ -330,6 +361,7 @@ export const authOptions: NextAuthOptions = {
         token.lastName = user.lastName;
         token.picture = user.image;
         token.isLocalUser = user.isLocalUser || false;
+        token.openmlUserId = user.openmlUserId;
       }
 
       return token;
@@ -353,6 +385,10 @@ export const authOptions: NextAuthOptions = {
         }
         // Mark if user is local-only (not from openml.org)
         session.user.isLocalUser = token.isLocalUser || false;
+        // Real OpenML user ID (may differ from local DB ID in dev environments)
+        if (token.openmlUserId) {
+          session.user.openmlUserId = token.openmlUserId;
+        }
       }
       return session;
     },

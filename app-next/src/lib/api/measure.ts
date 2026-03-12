@@ -35,9 +35,10 @@ export async function fetchMeasure(id: string): Promise<Measure> {
 
     return data._source as Measure;
   } catch (error) {
-    if (error instanceof Error && error.message === "NEXT_NOT_FOUND") {
+    if ((error as { digest?: string })?.digest === "NEXT_NOT_FOUND") {
       throw error;
     }
+    console.error(`Error fetching measure ${id}:`, error);
     throw new Error("Failed to load measure");
   }
 }

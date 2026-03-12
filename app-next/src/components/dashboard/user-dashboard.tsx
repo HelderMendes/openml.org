@@ -76,6 +76,7 @@ export function UserDashboard() {
     id?: string;
   } | null>(null);
   const [showFocusCards, setShowFocusCards] = useState(true);
+  const [showStats, setShowStats] = useState(true);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [stats, setStats] = useState<UserStats>({
     // Contribution counts - start at 0
@@ -282,7 +283,7 @@ export function UserDashboard() {
         </div>
 
         {/* Stats Cards Row - Reputation & Activity */}
-        <div className="mb-8 grid gap-6 md:grid-cols-3">
+        {showStats && <div className="mb-8 grid gap-6 md:grid-cols-3">
           {/* Reputation Score */}
           <Card className="border-2 border-amber-200 bg-white dark:border-amber-800 dark:bg-slate-800">
             <CardHeader className="pb-3">
@@ -395,136 +396,144 @@ export function UserDashboard() {
               </p>
             </CardContent>
           </Card>
-        </div>
+        </div>}
 
         {/* Impact & Contribution Stats */}
-        <div className="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {showStats && <div className="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {/* Datasets with Impact */}
-          <Card className="bg-white dark:bg-slate-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <div style={{ color: entityColors.data }}>
-                  <FontAwesomeIcon
-                    icon={ENTITY_ICONS.dataset}
-                    className="h-5 w-5"
-                  />
+          <Link href={user.id ? `/users/${user.id}` : "#"}>
+            <Card className="bg-white transition-shadow hover:shadow-md dark:bg-slate-800">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div style={{ color: entityColors.data }}>
+                    <FontAwesomeIcon
+                      icon={ENTITY_ICONS.dataset}
+                      className="h-5 w-5"
+                    />
+                  </div>
+                  <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
+                    Datasets
+                  </CardTitle>
                 </div>
-                <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                  Datasets
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900 dark:text-white">
-                {isLoadingStats ? "..." : stats.datasetsCreated}
-              </div>
-              <p style={{ color: entityColors.data }} className="text-sm">
-                created
-              </p>
-              <div className="mt-3 flex items-center gap-3 text-xs">
-                <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
-                  <Download className="h-3 w-3" />
-                  <span>
-                    {isLoadingStats
-                      ? "-"
-                      : stats.totalDownloads.toLocaleString()}
-                  </span>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900 dark:text-white">
+                  {isLoadingStats ? "..." : stats.datasetsCreated}
                 </div>
-                <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
-                  <Eye className="h-3 w-3" />
-                  <span>
-                    {isLoadingStats ? "-" : stats.totalViews.toLocaleString()}
-                  </span>
+                <p style={{ color: entityColors.data }} className="text-sm">
+                  created
+                </p>
+                <div className="mt-3 flex items-center gap-3 text-xs">
+                  <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                    <Download className="h-3 w-3" />
+                    <span>
+                      {isLoadingStats
+                        ? "-"
+                        : stats.totalDownloads.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                    <Eye className="h-3 w-3" />
+                    <span>
+                      {isLoadingStats ? "-" : stats.totalViews.toLocaleString()}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
 
           {/* Flows with Reuse */}
-          <Card className="bg-white dark:bg-slate-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <div style={{ color: entityColors.flow }}>
-                  <FontAwesomeIcon
-                    icon={ENTITY_ICONS.flow}
-                    className="h-5 w-5"
-                  />
+          <Link href={user.id ? `/users/${user.id}` : "#"}>
+            <Card className="bg-white transition-shadow hover:shadow-md dark:bg-slate-800">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div style={{ color: entityColors.flow }}>
+                    <FontAwesomeIcon
+                      icon={ENTITY_ICONS.flow}
+                      className="h-5 w-5"
+                    />
+                  </div>
+                  <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
+                    Flows
+                  </CardTitle>
                 </div>
-                <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                  Flows
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900 dark:text-white">
-                {isLoadingStats ? "..." : stats.flowsCreated}
-              </div>
-              <p style={{ color: entityColors.flow }} className="text-sm">
-                created
-              </p>
-              <div className="mt-3 flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
-                <Users className="h-3 w-3" />
-                <span>
-                  {isLoadingStats ? "-" : stats.flowReuses} reuses by others
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900 dark:text-white">
+                  {isLoadingStats ? "..." : stats.flowsCreated}
+                </div>
+                <p style={{ color: entityColors.flow }} className="text-sm">
+                  created
+                </p>
+                <div className="mt-3 flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
+                  <Users className="h-3 w-3" />
+                  <span>
+                    {isLoadingStats ? "-" : stats.flowReuses} reuses by others
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
 
           {/* Runs */}
-          <Card className="bg-white dark:bg-slate-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <div style={{ color: entityColors.run }}>
-                  <FontAwesomeIcon
-                    icon={ENTITY_ICONS.run}
-                    className="h-5 w-5"
-                  />
+          <Link href={user.id ? `/users/${user.id}` : "#"}>
+            <Card className="bg-white transition-shadow hover:shadow-md dark:bg-slate-800">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div style={{ color: entityColors.run }}>
+                    <FontAwesomeIcon
+                      icon={ENTITY_ICONS.run}
+                      className="h-5 w-5"
+                    />
+                  </div>
+                  <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
+                    Runs
+                  </CardTitle>
                 </div>
-                <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                  Runs
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900 dark:text-white">
-                {isLoadingStats ? "..." : stats.runsCreated}
-              </div>
-              <p style={{ color: entityColors.run }} className="text-sm">
-                experiments
-              </p>
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900 dark:text-white">
+                  {isLoadingStats ? "..." : stats.runsCreated}
+                </div>
+                <p style={{ color: entityColors.run }} className="text-sm">
+                  experiments
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
 
           {/* Citations */}
-          <Card className="bg-white dark:bg-slate-800">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                  Citations
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900 dark:text-white">
-                {isLoadingStats ? "..." : stats.totalCitations}
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                in publications
-              </p>
-              <div className="mt-3 flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
-                <MessageSquare className="h-3 w-3" />
-                <span>
-                  {isLoadingStats ? "-" : stats.discussionsPosted} discussions
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          <Link href={user.id ? `/users/${user.id}` : "#"}>
+            <Card className="bg-white transition-shadow hover:shadow-md dark:bg-slate-800">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
+                    Citations
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900 dark:text-white">
+                  {isLoadingStats ? "..." : stats.totalCitations}
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  in publications
+                </p>
+                <div className="mt-3 flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
+                  <MessageSquare className="h-3 w-3" />
+                  <span>
+                    {isLoadingStats ? "-" : stats.discussionsPosted} discussions
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>}
 
         {/* Top Contributions */}
-        {!isLoadingStats && (stats.topDataset || stats.topFlow) && (
+        {showStats && !isLoadingStats && (stats.topDataset || stats.topFlow) && (
           <div className="mb-8">
             <h2 className="mb-4 text-2xl font-bold text-slate-900 dark:text-white">
               Your Top Contributions
@@ -665,10 +674,15 @@ export function UserDashboard() {
           </div>
         )}
 
-        {/* Hide Stats Link */}
+        {/* Toggle Stats */}
         <div className="text-right">
-          <Button variant="ghost" size="sm" className="text-sm">
-            Hide stats
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-sm"
+            onClick={() => setShowStats((v) => !v)}
+          >
+            {showStats ? "Hide stats" : "Show stats"}
           </Button>
         </div>
       </div>

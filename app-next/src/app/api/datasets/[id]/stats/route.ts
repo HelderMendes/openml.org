@@ -12,6 +12,10 @@ export async function GET(
   const maxPreviewRows = searchParams.get("max_preview_rows") || "100";
   const forceRefresh = searchParams.get("force_refresh") || "false";
 
+  const controller = new AbortController();
+  // Flask needs time to download + process large datasets from OpenML
+  const timeoutId = setTimeout(() => controller.abort(), 120_000);
+
   try {
     const flaskUrl = `${FLASK_BACKEND_URL}/api/v1/datasets/${datasetId}/stats?max_preview_rows=${maxPreviewRows}&force_refresh=${forceRefresh}`;
 
@@ -19,7 +23,10 @@ export async function GET(
       headers: {
         "Accept": "application/json",
       },
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const contentType = response.headers.get("content-type");
@@ -46,7 +53,16 @@ export async function GET(
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
+    clearTimeout(timeoutId);
     console.error("[Stats API] Failed to fetch stats from Flask:", error);
+
+    // Timeout — dataset too large or Flask download stalled
+    if (error instanceof Error && error.name === "AbortError") {
+      return NextResponse.json(
+        { error: "Stats computation timed out. The dataset may be too large to process." },
+        { status: 504 }
+      );
+    }
 
     // Network error - Flask likely not running
     if (error instanceof TypeError && error.message.includes("fetch")) {

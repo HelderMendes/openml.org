@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import Link from "next/link";
-import { ArrowLeft, Save, Loader2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Save, Loader2, AlertTriangle, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +19,7 @@ interface DatasetEditFormProps {
   isOwner: boolean;
   hasApiKey: boolean;
   isLocalUser: boolean;
+  initialTags: string[];
   initialValues: {
     description: string;
     creator: string;
@@ -39,6 +41,7 @@ export function DatasetEditForm({
   isOwner,
   hasApiKey,
   isLocalUser,
+  initialTags,
   initialValues,
   features,
 }: DatasetEditFormProps) {
@@ -46,13 +49,32 @@ export function DatasetEditForm({
   const locale = useLocale();
   const { toast } = useToast();
   const [values, setValues] = useState(initialValues);
+  const [tags, setTags] = useState<string[]>(initialTags);
+  const [tagInput, setTagInput] = useState("");
+  const [tagInputError, setTagInputError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const TAG_PATTERN = /^[a-zA-Z0-9_.-]+$/;
 
   const handleChange = (
     field: keyof typeof values,
     value: string,
   ) => {
     setValues((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const addTag = () => {
+    const trimmed = tagInput.trim();
+    if (!trimmed) return;
+    if (!TAG_PATTERN.test(trimmed)) {
+      setTagInputError("Only letters, numbers, underscores, hyphens, and dots are allowed.");
+      return;
+    }
+    if (!tags.includes(trimmed)) {
+      setTags((prev) => [...prev, trimmed]);
+    }
+    setTagInput("");
+    setTagInputError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,16 +85,34 @@ export function DatasetEditForm({
       const res = await fetch(`/api/datasets/${datasetId}/edit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...values,
-          isOwner,
-        }),
+        body: JSON.stringify({ ...values, isOwner }),
       });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || `Failed to save (${res.status})`);
       }
+
+      // Apply tag changes — diff against initialTags
+      const toAdd = tags.filter((t) => !initialTags.includes(t));
+      const toRemove = initialTags.filter((t) => !tags.includes(t));
+
+      await Promise.all([
+        ...toAdd.map((tag) =>
+          fetch(`/api/datasets/${datasetId}/tags`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tag }),
+          }),
+        ),
+        ...toRemove.map((tag) =>
+          fetch(`/api/datasets/${datasetId}/tags`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tag }),
+          }),
+        ),
+      ]);
 
       toast({
         title: "Changes saved",
@@ -292,6 +332,61 @@ export function DatasetEditForm({
           </CardContent>
         </Card>
       )}
+
+      {/* Tags */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Tags</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <Badge key={tag} variant="secondary" className="gap-1 pr-1">
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => setTags((prev) => prev.filter((t) => t !== tag))}
+                  className="hover:text-destructive ml-0.5 rounded transition-colors"
+                  aria-label={`Remove tag ${tag}`}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+            {tags.length === 0 && (
+              <p className="text-muted-foreground text-sm">No tags yet.</p>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Add a tag..."
+              value={tagInput}
+              onChange={(e) => {
+                setTagInput(e.target.value);
+                setTagInputError(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addTag();
+                }
+              }}
+              className={tagInputError ? "border-destructive" : ""}
+            />
+            <Button type="button" variant="outline" onClick={addTag} className="gap-1 shrink-0">
+              <Plus className="h-4 w-4" />
+              Add
+            </Button>
+          </div>
+          {tagInputError ? (
+            <p className="text-destructive text-xs">{tagInputError}</p>
+          ) : (
+            <p className="text-muted-foreground text-xs">
+              Tags are applied when you save. Only letters, numbers, <code>_</code> <code>-</code> <code>.</code> allowed.
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Actions */}
       <div className="flex items-center justify-between">

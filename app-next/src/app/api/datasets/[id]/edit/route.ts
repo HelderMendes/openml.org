@@ -31,11 +31,10 @@ export async function POST(
 
   const body = await request.json();
 
-  // Build form data for OpenML REST API
-  const formData = new URLSearchParams();
-  formData.append("api_key", apiKey);
+  // Build XML for OpenML edit_parameters (required by the API)
+  const xmlFields: string[] = [];
 
-  const fields = [
+  const textFields = [
     "description",
     "creator",
     "collection_date",
@@ -46,23 +45,29 @@ export async function POST(
   ];
 
   // Owner-only fields
-  if (body.isOwner) {
-    fields.push(
-      "default_target_attribute",
-      "ignore_attribute",
-      "row_id_attribute",
-    );
-  }
+  const ownerFields = body.isOwner
+    ? ["default_target_attribute", "ignore_attribute", "row_id_attribute"]
+    : [];
 
-  for (const field of fields) {
+  for (const field of [...textFields, ...ownerFields]) {
     if (body[field] !== undefined) {
-      // Send empty string as-is (the API will clear the field)
-      formData.append(field, body[field] || "");
+      const value = (body[field] || "").toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      xmlFields.push(`  <oml:${field}>${value}</oml:${field}>`);
     }
   }
 
+  const editParametersXml =
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<oml:data_set_description xmlns:oml="http://openml.org/openml">\n` +
+    xmlFields.join("\n") +
+    `\n</oml:data_set_description>`;
+
+  const formData = new URLSearchParams();
+  formData.append("api_key", apiKey);
+  formData.append("edit_parameters", editParametersXml);
+
   try {
-    const response = await fetch(`${OPENML_API}/api/v1/json/data/${id}`, {
+    const response = await fetch(`${OPENML_API}/api/v1/json/data/edit/${id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -76,7 +81,9 @@ export async function POST(
       const message =
         response.status === 401 || response.status === 403
           ? "Your API key is not accepted by the OpenML server. If you are using a local test account, dataset editing is not supported — only real OpenML accounts can save changes."
-          : "Failed to save changes. Please try again.";
+          : response.status === 412
+            ? "The OpenML server rejected this edit. You can only edit datasets you own."
+            : "Failed to save changes. Please try again.";
       return NextResponse.json({ error: message }, { status: response.status });
     }
 

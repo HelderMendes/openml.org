@@ -12,6 +12,7 @@ declare module "next-auth" {
     apikey?: string;
     accessToken?: string;
     isLocalUser?: boolean;
+    openmlUserId?: string;
   }
 
   interface Session extends DefaultSession {
@@ -22,6 +23,7 @@ declare module "next-auth" {
       lastName?: string;
       image?: string | null;
       isLocalUser?: boolean;
+      openmlUserId?: string;
     } & DefaultSession["user"];
     apikey?: string;
     accessToken?: string;
@@ -38,5 +40,6 @@ declare module "next-auth/jwt" {
     apikey?: string;
     accessToken?: string;
     isLocalUser?: boolean;
+    openmlUserId?: string;
   }
 }

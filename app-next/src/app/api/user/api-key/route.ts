@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     // Use 127.0.0.1 instead of localhost for more reliable resolution
     const localApiUrl = "http://127.0.0.1:8000";
     const prodApiUrl =
-      APP_CONFIG.apiUrl || "https://www.openml.org";
+      APP_CONFIG.openmlApiUrl || "https://www.openml.org";
 
     // Try local first, then production
     const urlsToTry = [localApiUrl, prodApiUrl];
