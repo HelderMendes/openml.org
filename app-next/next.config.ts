@@ -14,10 +14,11 @@ const nextConfig: NextConfig = {
   output: "standalone", // Optimize for Vercel deployment
 
   // Silence warning about multiple lockfiles by explicitly setting the root
+  turbopack: {
+    root: process.cwd(),
+  },
+
   experimental: {
-    turbopack: {
-      root: process.cwd(),
-    },
     serverActions: {
       bodySizeLimit: "10mb",
     },
