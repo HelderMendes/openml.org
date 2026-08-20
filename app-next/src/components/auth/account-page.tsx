@@ -89,7 +89,9 @@ export function AccountPage() {
     });
   };
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = async (
+    e: React.SyntheticEvent<HTMLFormElement, SubmitEvent>,
+  ) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -138,7 +140,9 @@ export function AccountPage() {
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = async (
+    e: React.SyntheticEvent<HTMLFormElement, SubmitEvent>,
+  ) => {
     e.preventDefault();
     setIsSubmitting(true);
 

@@ -11,9 +11,12 @@ import { getConfig } from "@/lib/config";
 // Function that reads at runtime
 export function getElasticsearchBaseUrl(): string {
   return (
+    getConfig("NEXT_PUBLIC_URL_ELASTICSEARCH") ||
     getConfig("ELASTICSEARCH_URL") ||
     getConfig("NEXT_PUBLIC_ELASTICSEARCH_URL") ||
-    "https://es.openml.org/"
+    getConfig("NEXT_PUBLIC_ELASTICSEARCH_SERVER") ||
+    // es.openml.org direct access is blocked post-migration; proxy path is the live default
+    "https://www.openml.org/es/"
   );
 }
 

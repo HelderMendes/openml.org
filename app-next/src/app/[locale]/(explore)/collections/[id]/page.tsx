@@ -1,3 +1,4 @@
+import type React from "react";
 import { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -13,6 +14,7 @@ import { EntityActionsMenu } from "@/components/ui/entity-actions-menu";
 import Link from "next/link";
 import { fetchStudy } from "@/lib/api/study";
 import type { StudyData } from "@/lib/api/study";
+import type { IconProps } from "@/types";
 
 export async function generateMetadata({
   params,
@@ -79,16 +81,31 @@ export default async function CollectionDetailPage({
     {
       label: "Flows",
       count: study.flows_included || 0,
-      icon: (props: any) => (
-        <FontAwesomeIcon icon={ENTITY_ICONS.flow} {...props} />
+      icon: ({ className, style }: IconProps) => (
+        <FontAwesomeIcon
+          icon={ENTITY_ICONS.flow}
+          className={className}
+          style={
+            style as React.CSSProperties &
+              Record<`--fa-font-${string}`, string | undefined>
+          }
+        />
       ),
       color: entityColors.flow,
     },
+
     {
       label: "Runs",
       count: study.runs_included || 0,
-      icon: (props: any) => (
-        <FontAwesomeIcon icon={ENTITY_ICONS.run} {...props} />
+      icon: ({ className, style }: IconProps) => (
+        <FontAwesomeIcon
+          icon={ENTITY_ICONS.run}
+          className={className}
+          style={
+            style as React.CSSProperties &
+              Record<`--fa-font-${string}`, string | undefined>
+          }
+        />
       ),
       color: entityColors.run,
     },

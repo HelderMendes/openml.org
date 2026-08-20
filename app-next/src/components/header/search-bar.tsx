@@ -100,10 +100,12 @@ export function SearchBar() {
 
   // Handle form submit (Enter key) - navigate immediately
   const handleSearch = useCallback(
-    (e: React.FormEvent) => {
+    (e: React.SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
       e.preventDefault();
       if (inputValue.trim()) {
-        router.push(`${getRoute(selectedIndex)}?q=${encodeURIComponent(inputValue)}`);
+        router.push(
+          `${getRoute(selectedIndex)}?q=${encodeURIComponent(inputValue)}`,
+        );
       }
     },
     [inputValue, selectedIndex, getRoute, router],

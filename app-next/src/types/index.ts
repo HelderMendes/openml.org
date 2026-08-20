@@ -49,3 +49,6 @@ export type EntityUrlPath = {
   flow: "/flows";
   run: "/runs";
 };
+
+// UI / component types
+export type { IconProps, IconComponent } from "./ui";

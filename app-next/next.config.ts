@@ -13,12 +13,17 @@ const nextConfig: NextConfig = {
   // Vercel-specific optimizations
   output: "standalone", // Optimize for Vercel deployment
 
-  // Enable WebAssembly support for parquet-wasm
+  // Silence warning about multiple lockfiles by explicitly setting the root
   experimental: {
+    turbopack: {
+      root: process.cwd(),
+    },
     serverActions: {
       bodySizeLimit: "10mb",
     },
   },
+
+  // Enable WebAssembly support for parquet-wasm
 
   // Configure webpack to handle WASM files
   webpack: (config, { isServer }) => {

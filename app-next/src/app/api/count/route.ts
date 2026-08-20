@@ -5,6 +5,9 @@ import {
   ELASTICSEARCH_INDICES,
 } from "@/lib/elasticsearch";
 
+// Counts change infrequently; cache to avoid triggering the upstream ES rate limiter
+export const revalidate = 300;
+
 export async function GET() {
   const elasticsearchEndpoint = getElasticsearchUrl("_msearch");
   const indices = ELASTICSEARCH_INDICES.filter(
@@ -54,7 +57,9 @@ export async function GET() {
         typeof r.hits.total === "number" ? r.hits.total : r.hits.total.value,
     }));
 
-    return NextResponse.json(counts);
+    return NextResponse.json(counts, {
+      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60" },
+    });
   } catch (error) {
     const duration = Date.now() - startTime;
     console.error(`❌ [Count API] Failed after ${duration}ms`);

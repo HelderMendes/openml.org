@@ -33,6 +33,8 @@ import {
 import { APICodeBlock } from "./api-code-block";
 import { LanguageSelector, type LanguageExample } from "./language-selector";
 import { TableOfContents } from "@/components/about/table-of-contents";
+import type React from "react";
+import type { IconProps } from "@/types";
 
 // Define code examples for different languages
 const installExamples: LanguageExample[] = [
@@ -376,7 +378,13 @@ export function APIPageContent() {
                   description: "Access curated ML datasets with rich metadata",
                 },
                 {
-                  icon: (props: any) => <FontAwesomeIcon icon={ENTITY_ICONS.run} {...props} />,
+                  icon: ({ className, style }: IconProps) => (
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.run}
+                    className={className}
+                    style={style as React.CSSProperties & Record<`--fa-font-${string}`, string | undefined>}
+                  />
+                ),
                   title: "50,000+ Tasks",
                   description:
                     "Pre-defined ML tasks with standardized evaluation",
@@ -824,7 +832,13 @@ openml.config.apikey = "your_api_key_here"`}
                   href: "/datasets",
                 },
                 {
-                  icon: (props: any) => <FontAwesomeIcon icon={ENTITY_ICONS.run} {...props} />,
+                  icon: ({ className, style }: IconProps) => (
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.run}
+                    className={className}
+                    style={style as React.CSSProperties & Record<`--fa-font-${string}`, string | undefined>}
+                  />
+                ),
                   title: "Browse Tasks",
                   description: "Find ML tasks to solve",
                   href: "/tasks",

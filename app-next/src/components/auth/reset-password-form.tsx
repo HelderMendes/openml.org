@@ -26,7 +26,9 @@ export function ResetPasswordForm() {
     }
   }, [token]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (
+    e: React.SyntheticEvent<HTMLFormElement, SubmitEvent>,
+  ) => {
     e.preventDefault();
     if (!token) return;
 
@@ -84,7 +86,9 @@ export function ResetPasswordForm() {
             sign-in page...
           </p>
         </div>
-        <Button onClick={() => router.push("/auth/sign-in")}>Sign In Now</Button>
+        <Button onClick={() => router.push("/auth/sign-in")}>
+          Sign In Now
+        </Button>
       </div>
     );
   }

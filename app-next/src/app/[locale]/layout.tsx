@@ -76,6 +76,8 @@ export default async function LocaleLayout({
       "https://www.openml.org/es",
     NEXT_PUBLIC_ELASTICSEARCH_URL:
       process.env.NEXT_PUBLIC_ELASTICSEARCH_URL || "https://www.openml.org/es",
+    NEXT_PUBLIC_URL_ELASTICSEARCH:
+      process.env.NEXT_PUBLIC_URL_ELASTICSEARCH || "https://www.openml.org/es",
     NEXT_PUBLIC_URL_MINIO:
       process.env.NEXT_PUBLIC_URL_MINIO || "https://www.openml.org/data",
     NEXT_PUBLIC_ENABLE_ELASTICSEARCH:

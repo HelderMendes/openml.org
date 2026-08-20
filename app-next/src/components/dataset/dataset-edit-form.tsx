@@ -56,10 +56,7 @@ export function DatasetEditForm({
 
   const TAG_PATTERN = /^[a-zA-Z0-9_.-]+$/;
 
-  const handleChange = (
-    field: keyof typeof values,
-    value: string,
-  ) => {
+  const handleChange = (field: keyof typeof values, value: string) => {
     setValues((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -67,7 +64,9 @@ export function DatasetEditForm({
     const trimmed = tagInput.trim();
     if (!trimmed) return;
     if (!TAG_PATTERN.test(trimmed)) {
-      setTagInputError("Only letters, numbers, underscores, hyphens, and dots are allowed.");
+      setTagInputError(
+        "Only letters, numbers, underscores, hyphens, and dots are allowed.",
+      );
       return;
     }
     if (!tags.includes(trimmed)) {
@@ -126,7 +125,8 @@ export function DatasetEditForm({
     } catch (err) {
       toast({
         title: "Failed to save",
-        description: err instanceof Error ? err.message : "Failed to save changes",
+        description:
+          err instanceof Error ? err.message : "Failed to save changes",
         variant: "destructive",
       });
     } finally {
@@ -147,8 +147,7 @@ export function DatasetEditForm({
         </Link>
         <h1 className="text-2xl font-bold">Edit Dataset</h1>
         <p className="text-muted-foreground">
-          {datasetName}{" "}
-          <span className="text-xs">#{datasetId}</span>
+          {datasetName} <span className="text-xs">#{datasetId}</span>
         </p>
       </div>
 
@@ -157,7 +156,9 @@ export function DatasetEditForm({
         <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
           <AlertTriangle className="mt-0.5 size-5 shrink-0" />
           <div className="space-y-1">
-            <p className="text-sm font-medium">Saving is unavailable in this environment</p>
+            <p className="text-sm font-medium">
+              Saving is unavailable in this environment
+            </p>
             <p className="text-xs">
               {isLocalUser
                 ? "This account was created locally and does not have a valid OpenML API key. Dataset edits cannot be saved to the OpenML backend in a local development environment."
@@ -211,9 +212,7 @@ export function DatasetEditForm({
             <Input
               id="collection_date"
               value={values.collection_date}
-              onChange={(e) =>
-                handleChange("collection_date", e.target.value)
-              }
+              onChange={(e) => handleChange("collection_date", e.target.value)}
               placeholder="e.g. 2023"
             />
           </div>
@@ -274,8 +273,8 @@ export function DatasetEditForm({
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground text-sm">
-              Changing these attributes may affect tasks and runs associated with
-              this dataset.
+              Changing these attributes may affect tasks and runs associated
+              with this dataset.
             </p>
 
             <div className="space-y-2">
@@ -345,7 +344,9 @@ export function DatasetEditForm({
                 {tag}
                 <button
                   type="button"
-                  onClick={() => setTags((prev) => prev.filter((t) => t !== tag))}
+                  onClick={() =>
+                    setTags((prev) => prev.filter((t) => t !== tag))
+                  }
                   className="hover:text-destructive ml-0.5 rounded transition-colors"
                   aria-label={`Remove tag ${tag}`}
                 >
@@ -373,7 +374,12 @@ export function DatasetEditForm({
               }}
               className={tagInputError ? "border-destructive" : ""}
             />
-            <Button type="button" variant="outline" onClick={addTag} className="gap-1 shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addTag}
+              className="shrink-0 gap-1"
+            >
               <Plus className="h-4 w-4" />
               Add
             </Button>
@@ -382,7 +388,8 @@ export function DatasetEditForm({
             <p className="text-destructive text-xs">{tagInputError}</p>
           ) : (
             <p className="text-muted-foreground text-xs">
-              Tags are applied when you save. Only letters, numbers, <code>_</code> <code>-</code> <code>.</code> allowed.
+              Tags are applied when you save. Only letters, numbers,{" "}
+              <code>_</code> <code>-</code> <code>.</code> allowed.
             </p>
           )}
         </CardContent>
@@ -395,7 +402,16 @@ export function DatasetEditForm({
             Cancel
           </Button>
         </Link>
-        <Button type="submit" disabled={saving || !hasApiKey || isLocalUser} className="gap-2" title={(!hasApiKey || isLocalUser) ? "Saving is not available in this environment" : undefined}>
+        <Button
+          type="submit"
+          disabled={saving || !hasApiKey || isLocalUser}
+          className="gap-2"
+          title={
+            !hasApiKey || isLocalUser
+              ? "Saving is not available in this environment"
+              : undefined
+          }
+        >
           {saving ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
