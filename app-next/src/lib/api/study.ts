@@ -1,4 +1,4 @@
-import { getElasticsearchUrl } from "@/lib/elasticsearch";
+import { fetchElasticsearch } from "@/lib/elasticsearch";
 
 export interface StudyData {
   study_id: number;
@@ -19,8 +19,14 @@ export interface StudyData {
  * Fetch study metadata from Elasticsearch
  */
 export async function fetchStudy(id: string): Promise<StudyData> {
-  const url = getElasticsearchUrl(`study/_doc/${id}`);
-  const res = await fetch(url, { next: { revalidate: 3600 } });
+  const { response: res } = await fetchElasticsearch(
+    `study/_doc/${id}`,
+    { next: { revalidate: 3600 } },
+    {
+      fallbackStatuses: [403, 404],
+      timeoutMsPrimary: 3000,
+    },
+  );
 
   if (!res.ok) {
     throw new Error(`Study ${id} not found`);

@@ -1,12 +1,24 @@
 import type { Flow } from "@/types/flow";
-import { getElasticsearchUrl } from "@/lib/elasticsearch";
+import { fetchElasticsearch } from "@/lib/elasticsearch";
+
+async function fetchWithEsCompatibility(
+  path: string,
+  init?: RequestInit,
+): Promise<Response> {
+  const { response } = await fetchElasticsearch(path, init, {
+    fallbackStatuses: [403, 404],
+    timeoutMsPrimary: 3000,
+    timeoutMsLegacy: 4000,
+  });
+  return response;
+}
 
 /**
  * Fetch a single flow by ID from Elasticsearch
  */
 export async function getFlow(id: number): Promise<Flow | null> {
   try {
-    const response = await fetch(getElasticsearchUrl(`flow/_doc/${id}`), {
+    const response = await fetchWithEsCompatibility(`flow/_doc/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -34,7 +46,7 @@ export async function getFlow(id: number): Promise<Flow | null> {
  */
 export async function fetchFlowRunCount(flowId: number): Promise<number> {
   try {
-    const response = await fetch(getElasticsearchUrl("run/_count"), {
+    const response = await fetchWithEsCompatibility("run/_count", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +56,8 @@ export async function fetchFlowRunCount(flowId: number): Promise<number> {
           term: { "run_flow.flow_id": flowId },
         },
       }),
-      cache: "no-store",
+      // Run counts change infrequently; cache to reduce load on the rate-limited ES proxy.
+      next: { revalidate: 300 },
     });
 
     if (!response.ok) {
@@ -64,7 +77,7 @@ export async function fetchFlowRunCount(flowId: number): Promise<number> {
  */
 export async function fetchFlowVersions(name: string): Promise<Flow[]> {
   try {
-    const response = await fetch(getElasticsearchUrl("flow/_search"), {
+    const response = await fetchWithEsCompatibility("flow/_search", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

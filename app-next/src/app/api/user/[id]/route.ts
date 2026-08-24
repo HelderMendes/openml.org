@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
-import { getElasticsearchUrl } from "@/lib/elasticsearch";
+import { fetchElasticsearch } from "@/lib/elasticsearch";
 
 const USER_INDEX = "user";
 
@@ -21,13 +20,28 @@ export async function GET(
       size: 1,
     };
 
-    const url = getElasticsearchUrl(`${USER_INDEX}/_search`);
-    const response = await axios.post(url, esQuery, {
-      headers: { "Content-Type": "application/json" },
-      timeout: 10000,
-    });
+    const { response } = await fetchElasticsearch(
+      `${USER_INDEX}/_search`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(esQuery),
+      },
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
+      },
+    );
 
-    const hits = response.data.hits?.hits || [];
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: "Failed to fetch user data" },
+        { status: 502 },
+      );
+    }
+
+    const data = await response.json();
+    const hits = data.hits?.hits || [];
 
     if (hits.length === 0) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -38,12 +52,6 @@ export async function GET(
     return NextResponse.json(user);
   } catch (error) {
     console.error("❌ [User API] Error:", error);
-
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 404) {
-        return NextResponse.json({ error: "User not found" }, { status: 404 });
-      }
-    }
 
     return NextResponse.json(
       { error: "Failed to fetch user data" },

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const ES_URL = process.env.ES_URL || "https://es.openml.org";
+import { fetchElasticsearch } from "@/lib/elasticsearch";
 
 export async function GET(
   request: NextRequest,
@@ -11,21 +10,28 @@ export async function GET(
   const limit = parseInt(searchParams.get("limit") || "10");
 
   try {
-    const response = await fetch(`${ES_URL}/run/_search`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: {
-          term: {
-            "run_task.source_data.data_id": id,
-          },
+    const { response } = await fetchElasticsearch(
+      "run/_search",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        size: limit,
-        sort: [{ date: { order: "desc" } }],
-      }),
-    });
+        body: JSON.stringify({
+          query: {
+            term: {
+              "run_task.source_data.data_id": id,
+            },
+          },
+          size: limit,
+          sort: [{ date: { order: "desc" } }],
+        }),
+      },
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
+      },
+    );
 
     if (!response.ok) {
       return NextResponse.json(

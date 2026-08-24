@@ -1,10 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
-import { getElasticsearchUrl } from "@/lib/elasticsearch";
+import { fetchElasticsearch, getElasticsearchUrl } from "@/lib/elasticsearch";
 import ElasticsearchAPIConnector from "@elastic/search-ui-elasticsearch-connector";
 
 // Cache for connectors to improve performance
 const connectorsCache: Record<string, ElasticsearchAPIConnector> = {};
+
+type ElasticsearchFallbackPayload = {
+  took: number;
+  timed_out: boolean;
+  _shards: {
+    total: number;
+    successful: number;
+    skipped: number;
+    failed: number;
+  };
+  hits: {
+    total: { value: number; relation: "eq" };
+    max_score: number | null;
+    hits: unknown[];
+  };
+  aggregations?: Record<string, unknown>;
+};
+
+// Process-local snapshot cache per index for stale fallback during upstream incidents.
+const latestSearchSnapshotByIndex = new Map<
+  string,
+  ElasticsearchFallbackPayload
+>();
+
+function createEmptySearchPayload(): ElasticsearchFallbackPayload {
+  return {
+    took: 0,
+    timed_out: false,
+    _shards: { total: 0, successful: 0, skipped: 0, failed: 0 },
+    hits: {
+      total: { value: 0, relation: "eq" },
+      max_score: null,
+      hits: [],
+    },
+    aggregations: {},
+  };
+}
 
 /**
  * Robust search proxy for Elasticsearch
@@ -42,26 +78,64 @@ export async function POST(req: NextRequest) {
     // Case 2: Custom es-proxy request (from OpenMLSearchConnector)
     if (body.indexName && body.esQuery) {
       const { indexName, esQuery } = body;
-      const url = getElasticsearchUrl(`${indexName}/_search`);
-
-      // Use fetch instead of axios (matches original MeasureList pattern)
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(esQuery),
-      });
+      const { response, source } = await fetchElasticsearch(
+        `${indexName}/_search`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(esQuery),
+          cache: "no-store",
+        },
+        {
+          fallbackStatuses: [403, 404],
+          timeoutMsPrimary: 3000,
+          timeoutMsLegacy: 4000,
+        },
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`[Search API] ES Error:`, errorText);
+
+        if (response.status === 403) {
+          const stale = latestSearchSnapshotByIndex.get(indexName);
+          if (stale) {
+            return NextResponse.json(stale, {
+              status: 200,
+              headers: {
+                "X-Search-Source": "stale-fallback",
+                "Cache-Control":
+                  "public, max-age=30, s-maxage=120, stale-while-revalidate=600",
+              },
+            });
+          }
+
+          return NextResponse.json(createEmptySearchPayload(), {
+            status: 200,
+            headers: {
+              "X-Search-Source": "empty-fallback",
+              "Cache-Control":
+                "public, max-age=15, s-maxage=60, stale-while-revalidate=300",
+            },
+          });
+        }
+
         throw new Error(
           `Elasticsearch returned ${response.status}: ${errorText}`,
         );
       }
 
       const data = await response.json();
+      latestSearchSnapshotByIndex.set(
+        indexName,
+        data as ElasticsearchFallbackPayload,
+      );
 
-      return NextResponse.json(data);
+      return NextResponse.json(data, {
+        headers: {
+          "X-Search-Source": source,
+        },
+      });
     }
 
     // Case 3: Raw multi-search or other requests (fallback)
@@ -86,9 +160,8 @@ export async function POST(req: NextRequest) {
       {
         error: "Search failed",
         details: error.message,
-        esError: error.response?.data,
       },
-      { status: error.response?.status || 500 },
+      { status: 502 },
     );
   }
 }

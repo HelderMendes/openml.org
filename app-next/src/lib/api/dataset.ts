@@ -1,13 +1,30 @@
 import { Dataset } from "@/types/dataset";
 import { notFound } from "next/navigation";
-import { getElasticsearchUrl } from "@/lib/elasticsearch";
+import { fetchElasticsearch } from "@/lib/elasticsearch";
 
 const ES_INDEX = "data";
 
 export async function fetchDataset(id: string): Promise<Dataset> {
   try {
     const response = await fetch(
-      getElasticsearchUrl(`${ES_INDEX}/_doc/${id}`),
+      (
+        await fetchElasticsearch(
+          `${ES_INDEX}/_doc/${id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            next: {
+              revalidate: 3600,
+              tags: [`dataset-${id}`],
+            },
+          },
+          {
+            fallbackStatuses: [403, 404],
+            timeoutMsPrimary: 3000,
+          },
+        )
+      ).response.url,
       {
         next: {
           revalidate: 3600,
@@ -51,24 +68,31 @@ export async function fetchDatasetTaskCount(
   datasetId: string,
 ): Promise<number> {
   try {
-    const response = await fetch(getElasticsearchUrl("task/_search"), {
-      method: "POST",
-      next: {
-        revalidate: 1800, // Cache for 30 minutes
-        tags: [`dataset-${datasetId}-tasks`],
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: {
-          term: {
-            "source_data.data_id": datasetId,
-          },
+    const { response } = await fetchElasticsearch(
+      "task/_search",
+      {
+        method: "POST",
+        next: {
+          revalidate: 1800, // Cache for 30 minutes
+          tags: [`dataset-${datasetId}-tasks`],
         },
-        size: 0, // Count only
-      }),
-    });
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: {
+            term: {
+              "source_data.data_id": datasetId,
+            },
+          },
+          size: 0, // Count only
+        }),
+      },
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
+      },
+    );
 
     if (!response.ok) {
       console.error("Failed to fetch task count:", response.statusText);
@@ -87,24 +111,31 @@ export async function fetchDatasetTaskCount(
 
 export async function fetchDatasetRunCount(datasetId: string): Promise<number> {
   try {
-    const response = await fetch(getElasticsearchUrl("run/_search"), {
-      method: "POST",
-      next: {
-        revalidate: 1800,
-        tags: [`dataset-${datasetId}-runs`],
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: {
-          term: {
-            "run_task.source_data.data_id": datasetId,
-          },
+    const { response } = await fetchElasticsearch(
+      "run/_search",
+      {
+        method: "POST",
+        next: {
+          revalidate: 1800,
+          tags: [`dataset-${datasetId}-runs`],
         },
-        size: 0,
-      }),
-    });
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: {
+            term: {
+              "run_task.source_data.data_id": datasetId,
+            },
+          },
+          size: 0,
+        }),
+      },
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
+      },
+    );
 
     if (!response.ok) {
       return 0;
@@ -130,22 +161,29 @@ export async function getPopularDatasetIds(
   limit: number = 100,
 ): Promise<string[]> {
   try {
-    const response = await fetch(getElasticsearchUrl(`${ES_INDEX}/_search`), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: {
-          term: {
-            status: "active",
-          },
+    const { response } = await fetchElasticsearch(
+      `${ES_INDEX}/_search`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        sort: [{ runs: { order: "desc" } }],
-        size: limit,
-        _source: ["data_id"],
-      }),
-    });
+        body: JSON.stringify({
+          query: {
+            term: {
+              status: "active",
+            },
+          },
+          sort: [{ runs: { order: "desc" } }],
+          size: limit,
+          _source: ["data_id"],
+        }),
+      },
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
+      },
+    );
 
     if (!response.ok) {
       console.error("Error fetching popular datasets:", response.statusText);

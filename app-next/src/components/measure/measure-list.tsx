@@ -1,4 +1,4 @@
-import { getElasticsearchUrl } from "@/lib/elasticsearch";
+import { fetchElasticsearch } from "@/lib/elasticsearch";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -22,20 +22,26 @@ interface MeasureListProps {
 }
 
 async function fetchMeasures(measureType: string): Promise<Measure[]> {
-  const url = getElasticsearchUrl("measure/_search");
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query: {
-        bool: {
-          filter: [{ term: { measure_type: measureType } }],
+  const { response: res } = await fetchElasticsearch(
+    "measure/_search",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: {
+          bool: {
+            filter: [{ term: { measure_type: measureType } }],
+          },
         },
-      },
-      size: 200,
-    }),
-    next: { revalidate: 3600 },
-  });
+        size: 200,
+      }),
+      next: { revalidate: 3600 },
+    },
+    {
+      fallbackStatuses: [403, 404],
+      timeoutMsPrimary: 3000,
+    },
+  );
 
   if (!res.ok) return [];
 

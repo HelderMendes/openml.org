@@ -1,16 +1,33 @@
 import { Task } from "@/types/task";
 import { notFound } from "next/navigation";
-import { getElasticsearchUrl } from "@/lib/elasticsearch";
+import { fetchElasticsearch } from "@/lib/elasticsearch";
 
 const ES_INDEX = "task";
 
 export async function fetchTask(id: string): Promise<Task> {
   try {
     const response = await fetch(
-      getElasticsearchUrl(`${ES_INDEX}/_doc/${id}`),
+      (
+        await fetchElasticsearch(
+          `${ES_INDEX}/_doc/${id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            next: {
+              revalidate: 3600, // Cache for 1 hour
+              tags: [`task-${id}`],
+            },
+          },
+          {
+            fallbackStatuses: [403, 404],
+            timeoutMsPrimary: 3000,
+          },
+        )
+      ).response.url,
       {
         next: {
-          revalidate: 3600, // Cache for 1 hour
+          revalidate: 3600,
           tags: [`task-${id}`],
         },
         headers: {
@@ -20,9 +37,7 @@ export async function fetchTask(id: string): Promise<Task> {
     );
 
     if (response.status === 404) {
-      console.error(
-        `[TaskAPI] 404 Not Found for ID: "${id}". URL: ${getElasticsearchUrl(`${ES_INDEX}/_doc/${id}`)}`,
-      );
+      console.error(`[TaskAPI] 404 Not Found for ID: "${id}"`);
       notFound();
     }
 
@@ -50,24 +65,31 @@ export async function fetchTask(id: string): Promise<Task> {
 
 export async function fetchTaskRunCount(taskId: string): Promise<number> {
   try {
-    const response = await fetch(getElasticsearchUrl("run/_search"), {
-      method: "POST",
-      next: {
-        revalidate: 1800, // Cache for 30 minutes
-        tags: [`task-${taskId}-runs`],
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: {
-          term: {
-            "run_task.task_id": parseInt(taskId, 10),
-          },
+    const { response } = await fetchElasticsearch(
+      "run/_search",
+      {
+        method: "POST",
+        next: {
+          revalidate: 1800, // Cache for 30 minutes
+          tags: [`task-${taskId}-runs`],
         },
-        size: 0,
-      }),
-    });
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: {
+            term: {
+              "run_task.task_id": parseInt(taskId, 10),
+            },
+          },
+          size: 0,
+        }),
+      },
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
+      },
+    );
 
     if (!response.ok) {
       return 0;
@@ -85,8 +107,8 @@ export async function fetchTaskDatasetName(
   datasetId: number,
 ): Promise<string | null> {
   try {
-    const response = await fetch(
-      getElasticsearchUrl(`data/_doc/${datasetId}`),
+    const { response } = await fetchElasticsearch(
+      `data/_doc/${datasetId}`,
       {
         next: {
           revalidate: 3600,
@@ -95,6 +117,10 @@ export async function fetchTaskDatasetName(
         headers: {
           "Content-Type": "application/json",
         },
+      },
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
       },
     );
 
@@ -120,17 +146,24 @@ export async function getPopularTaskIds(
   limit: number = 100,
 ): Promise<string[]> {
   try {
-    const response = await fetch(getElasticsearchUrl(`${ES_INDEX}/_search`), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const { response } = await fetchElasticsearch(
+      `${ES_INDEX}/_search`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sort: [{ runs: { order: "desc" } }],
+          size: limit,
+          _source: ["task_id"],
+        }),
       },
-      body: JSON.stringify({
-        sort: [{ runs: { order: "desc" } }],
-        size: limit,
-        _source: ["task_id"],
-      }),
-    });
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
+      },
+    );
 
     if (!response.ok) {
       console.error("Error fetching popular tasks:", response.statusText);

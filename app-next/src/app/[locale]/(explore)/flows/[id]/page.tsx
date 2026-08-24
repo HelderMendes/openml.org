@@ -72,11 +72,15 @@ export default async function FlowDetailPage({
     notFound();
   }
 
-  // Parallel data fetching for other counts/sections
-  const [runCount, versions] = await Promise.all([
-    fetchFlowRunCount(flowId),
+  // Parallel data fetching for other counts/sections.
+  // Prefer the run count already embedded in the flow document — the
+  // dedicated run/_count query is unreliable upstream (rate-limited),
+  // so only fall back to it when the flow document doesn't have one.
+  const [fetchedRunCount, versions] = await Promise.all([
+    flow.runs === undefined ? fetchFlowRunCount(flowId) : Promise.resolve(0),
     fetchFlowVersions(flow.name),
   ]);
+  const runCount = flow.runs ?? fetchedRunCount;
 
   const parametersCount = flow.parameter?.length || 0;
   const componentsCount = flow.components?.component?.length || 0;
@@ -162,106 +166,109 @@ export default async function FlowDetailPage({
         {/* Main Content + Inline Panel */}
         <div className="mt-6 flex gap-8">
           <div className="min-w-0 flex-1 space-y-6">
-          {/* 1. Description Section */}
-          <CollapsibleSection
-            id="description"
-            title="Description"
-            description="Full description of this flow"
-            icon={<FileText className="h-4 w-4 text-gray-500" />}
-            defaultOpen={true}
-          >
-            <FlowDescriptionSection flow={flow} />
-          </CollapsibleSection>
-
-          {/* 1.2. Analysis Section */}
-          {runCount > 0 && (
+            {/* 1. Description Section */}
             <CollapsibleSection
-              id="analysis"
-              title="Analyse"
-              description="Performance analysis across tasks"
-              icon={<BarChart3 className="h-4 w-4 text-[#3b82f6]" />}
+              id="description"
+              title="Description"
+              description="Full description of this flow"
+              icon={<FileText className="h-4 w-4 text-gray-500" />}
               defaultOpen={true}
             >
-              <FlowAnalysisSection flow={flow} runCount={runCount} />
+              <FlowDescriptionSection flow={flow} />
             </CollapsibleSection>
-          )}
 
-          {/* 1.5. Dependencies Section */}
-          {flow.dependencies && (
-            <CollapsibleSection
-              id="dependencies"
-              title="Dependencies"
-              description="Libraries and requirements"
-              icon={
-                <FontAwesomeIcon
-                  icon={ENTITY_ICONS.flow}
-                  className="h-4 w-4 text-gray-500"
+            {/* 1.2. Analysis Section */}
+            {runCount > 0 && (
+              <CollapsibleSection
+                id="analysis"
+                title="Analyse"
+                description="Performance analysis across tasks"
+                icon={<BarChart3 className="h-4 w-4 text-[#3b82f6]" />}
+                defaultOpen={true}
+              >
+                <FlowAnalysisSection flow={flow} runCount={runCount} />
+              </CollapsibleSection>
+            )}
+
+            {/* 1.5. Dependencies Section */}
+            {flow.dependencies && (
+              <CollapsibleSection
+                id="dependencies"
+                title="Dependencies"
+                description="Libraries and requirements"
+                icon={
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.flow}
+                    className="h-4 w-4 text-gray-500"
+                  />
+                }
+                defaultOpen={true}
+              >
+                <FlowDependenciesSection flow={flow} />
+              </CollapsibleSection>
+            )}
+
+            {/* 2. Parameters Section */}
+            {parametersCount > 0 && (
+              <CollapsibleSection
+                id="parameters"
+                title="Parameters"
+                description="Configuration parameters and default values"
+                icon={<Settings2 className="h-4 w-4 text-gray-500" />}
+                badge={parametersCount}
+                defaultOpen={true}
+              >
+                <FlowParametersSection flow={flow} />
+              </CollapsibleSection>
+            )}
+
+            {/* 3. Components Section */}
+            {componentsCount > 0 && (
+              <CollapsibleSection
+                id="components"
+                title="Components"
+                description="Sub-flows and nested components"
+                icon={
+                  <FontAwesomeIcon
+                    icon={ENTITY_ICONS.flow}
+                    className="h-4 w-4 text-gray-500"
+                  />
+                }
+                badge={componentsCount}
+                defaultOpen={true}
+              >
+                <FlowComponentsSection flow={flow} />
+              </CollapsibleSection>
+            )}
+
+            {/* 4. Versions Section */}
+            {versionsCount > 1 && (
+              <CollapsibleSection
+                id="versions"
+                title="Versions"
+                description="Other versions of this flow"
+                icon={<History className="h-4 w-4 text-gray-500" />}
+                badge={versionsCount}
+                defaultOpen={false}
+              >
+                <FlowVersionsSection
+                  currentFlowId={flowId}
+                  versions={versions}
                 />
-              }
-              defaultOpen={true}
-            >
-              <FlowDependenciesSection flow={flow} />
-            </CollapsibleSection>
-          )}
+              </CollapsibleSection>
+            )}
 
-          {/* 2. Parameters Section */}
-          {parametersCount > 0 && (
+            {/* 5. Runs List */}
             <CollapsibleSection
-              id="parameters"
-              title="Parameters"
-              description="Configuration parameters and default values"
-              icon={<Settings2 className="h-4 w-4 text-gray-500" />}
-              badge={parametersCount}
-              defaultOpen={true}
-            >
-              <FlowParametersSection flow={flow} />
-            </CollapsibleSection>
-          )}
-
-          {/* 3. Components Section */}
-          {componentsCount > 0 && (
-            <CollapsibleSection
-              id="components"
-              title="Components"
-              description="Sub-flows and nested components"
-              icon={
-                <FontAwesomeIcon
-                  icon={ENTITY_ICONS.flow}
-                  className="h-4 w-4 text-gray-500"
-                />
-              }
-              badge={componentsCount}
-              defaultOpen={true}
-            >
-              <FlowComponentsSection flow={flow} />
-            </CollapsibleSection>
-          )}
-
-          {/* 4. Versions Section */}
-          {versionsCount > 1 && (
-            <CollapsibleSection
-              id="versions"
-              title="Versions"
-              description="Other versions of this flow"
-              icon={<History className="h-4 w-4 text-gray-500" />}
-              badge={versionsCount}
+              id="runs"
+              title="Runs"
+              description="Experiments performed using this flow"
+              icon={<List className="h-4 w-4 text-gray-500" />}
+              badge={runCount}
               defaultOpen={false}
             >
-              <FlowVersionsSection currentFlowId={flowId} versions={versions} />
+              <FlowRunsList flow={flow} runCount={runCount} />
             </CollapsibleSection>
-          )}
-
-          {/* 5. Runs List */}
-          <CollapsibleSection
-            id="runs"
-            title="Runs"
-            description="Experiments performed using this flow"
-            icon={<List className="h-4 w-4 text-gray-500" />}
-            badge={runCount}
-            defaultOpen={false}
-          >
-            <FlowRunsList flow={flow} runCount={runCount} />
-          </CollapsibleSection>
           </div>
           <WorkspaceInlinePanel />
         </div>

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
-import { getElasticsearchUrl } from "@/lib/elasticsearch";
+import { fetchElasticsearch } from "@/lib/elasticsearch";
 
 const TASK_INDEX = "task";
 
@@ -36,14 +35,29 @@ export async function GET(
       size: size,
     };
 
-    const url = getElasticsearchUrl(`${TASK_INDEX}/_search`);
-    const response = await axios.post(url, esQuery, {
-      headers: { "Content-Type": "application/json" },
-      timeout: 10000,
-    });
+    const { response } = await fetchElasticsearch(
+      `${TASK_INDEX}/_search`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(esQuery),
+      },
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
+      },
+    );
 
-    const hits = (response.data.hits?.hits || []) as ElasticsearchHit[];
-    const totalHits = response.data.hits?.total;
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: "Failed to fetch user tasks" },
+        { status: 502 },
+      );
+    }
+
+    const data = await response.json();
+    const hits = (data.hits?.hits || []) as ElasticsearchHit[];
+    const totalHits = data.hits?.total;
     const total =
       typeof totalHits === "object" ? totalHits.value : totalHits || 0;
 

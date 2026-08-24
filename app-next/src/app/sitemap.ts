@@ -1,8 +1,7 @@
 import { MetadataRoute } from "next";
-import { getElasticsearchUrl } from "@/lib/elasticsearch";
+import { fetchElasticsearch } from "@/lib/elasticsearch";
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_URL || "https://www.openml.org";
+const SITE_URL = process.env.NEXT_PUBLIC_URL || "https://www.openml.org";
 
 const LOCALES = ["nl", "fr", "de"] as const;
 
@@ -69,14 +68,23 @@ export async function generateSitemaps(): Promise<{ id: number }[]> {
   let offset = 1;
   for (const config of ENTITY_CONFIGS) {
     try {
-      const res = await fetch(getElasticsearchUrl(`${config.index}/_count`), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          config.filter ? { query: config.filter } : { query: { match_all: {} } }
-        ),
-        next: { revalidate: 3600 },
-      });
+      const { response: res } = await fetchElasticsearch(
+        `${config.index}/_count`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(
+            config.filter
+              ? { query: config.filter }
+              : { query: { match_all: {} } },
+          ),
+          next: { revalidate: 3600 },
+        },
+        {
+          fallbackStatuses: [403, 404],
+          timeoutMsPrimary: 3000,
+        },
+      );
       if (res.ok) {
         const data = await res.json();
         const count: number = data.count ?? 0;
@@ -108,10 +116,7 @@ export default async function sitemap({
       const canonical = `${SITE_URL}${path}`;
       const localeAlternates = Object.fromEntries([
         ["x-default", canonical],
-        ...LOCALES.map((locale) => [
-          locale,
-          `${SITE_URL}/${locale}${path}`,
-        ]),
+        ...LOCALES.map((locale) => [locale, `${SITE_URL}/${locale}${path}`]),
       ]);
       return [
         {
@@ -130,16 +135,22 @@ export default async function sitemap({
   for (const config of ENTITY_CONFIGS) {
     let count = 0;
     try {
-      const countRes = await fetch(
-        getElasticsearchUrl(`${config.index}/_count`),
+      const { response: countRes } = await fetchElasticsearch(
+        `${config.index}/_count`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(
-            config.filter ? { query: config.filter } : { query: { match_all: {} } }
+            config.filter
+              ? { query: config.filter }
+              : { query: { match_all: {} } },
           ),
           next: { revalidate: 3600 },
-        }
+        },
+        {
+          fallbackStatuses: [403, 404],
+          timeoutMsPrimary: 3000,
+        },
       );
       if (countRes.ok) {
         const countData = await countRes.json();
@@ -163,25 +174,32 @@ export default async function sitemap({
 
 async function fetchEntitySitemap(
   config: (typeof ENTITY_CONFIGS)[number],
-  page: number
+  page: number,
 ): Promise<MetadataRoute.Sitemap> {
   try {
     const query = config.filter
       ? { query: config.filter }
       : { query: { match_all: {} } };
 
-    const res = await fetch(getElasticsearchUrl(`${config.index}/_search`), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...query,
-        _source: [config.idField, "date"],
-        sort: [{ date: { order: "desc" } }],
-        from: page * PAGE_SIZE,
-        size: PAGE_SIZE,
-      }),
-      next: { revalidate: 3600 },
-    });
+    const { response: res } = await fetchElasticsearch(
+      `${config.index}/_search`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...query,
+          _source: [config.idField, "date"],
+          sort: [{ date: { order: "desc" } }],
+          from: page * PAGE_SIZE,
+          size: PAGE_SIZE,
+        }),
+        next: { revalidate: 3600 },
+      },
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
+      },
+    );
 
     if (!res.ok) return [];
 

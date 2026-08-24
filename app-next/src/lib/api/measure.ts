@@ -1,13 +1,13 @@
 import { Measure } from "@/types/measure";
 import { notFound } from "next/navigation";
-import { getElasticsearchUrl } from "@/lib/elasticsearch";
+import { fetchElasticsearch } from "@/lib/elasticsearch";
 
 const ES_INDEX = "measure";
 
 export async function fetchMeasure(id: string): Promise<Measure> {
   try {
-    const response = await fetch(
-      getElasticsearchUrl(`${ES_INDEX}/_doc/${id}`),
+    const { response } = await fetchElasticsearch(
+      `${ES_INDEX}/_doc/${id}`,
       {
         next: {
           revalidate: 3600,
@@ -16,6 +16,10 @@ export async function fetchMeasure(id: string): Promise<Measure> {
         headers: {
           "Content-Type": "application/json",
         },
+      },
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
       },
     );
 
@@ -58,32 +62,39 @@ export async function fetchRelatedTasks(
   measureName: string,
 ): Promise<RelatedTask[]> {
   try {
-    const response = await fetch(getElasticsearchUrl("task/_search"), {
-      method: "POST",
-      next: {
-        revalidate: 3600,
-        tags: [`measure-tasks-${measureName}`],
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: {
-          term: {
-            "evaluation_measures.keyword": measureName,
-          },
+    const { response } = await fetchElasticsearch(
+      "task/_search",
+      {
+        method: "POST",
+        next: {
+          revalidate: 3600,
+          tags: [`measure-tasks-${measureName}`],
         },
-        _source: [
-          "task_id",
-          "task_type",
-          "task_type_id",
-          "source_data",
-          "runs",
-        ],
-        size: 50,
-        sort: [{ runs: { order: "desc" } }],
-      }),
-    });
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: {
+            term: {
+              "evaluation_measures.keyword": measureName,
+            },
+          },
+          _source: [
+            "task_id",
+            "task_type",
+            "task_type_id",
+            "source_data",
+            "runs",
+          ],
+          size: 50,
+          sort: [{ runs: { order: "desc" } }],
+        }),
+      },
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
+      },
+    );
 
     if (!response.ok) {
       return [];

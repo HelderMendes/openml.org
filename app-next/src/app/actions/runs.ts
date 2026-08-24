@@ -1,6 +1,6 @@
 "use server";
 
-import { getElasticsearchUrl } from "@/lib/elasticsearch";
+import { fetchElasticsearch } from "@/lib/elasticsearch";
 
 interface OpenMLRunSearchBody {
   query?: {
@@ -36,14 +36,21 @@ interface OpenMLRunSearchBody {
 
 export async function searchRuns(body: OpenMLRunSearchBody) {
   try {
-    const response = await fetch(getElasticsearchUrl("run/_search"), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const { response } = await fetchElasticsearch(
+      "run/_search",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        cache: "no-store",
       },
-      body: JSON.stringify(body),
-      cache: "no-store",
-    });
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
+      },
+    );
 
     if (!response.ok) {
       throw new Error(`ES Error: ${response.status} ${response.statusText}`);
@@ -81,6 +88,9 @@ export async function fetchTopRuns(
     return data;
   } catch (error) {
     console.error("fetchTopRuns error:", error);
-    return { evaluations: { evaluation: [] } };
+    // Distinct from the empty-result cases above: this is a genuine
+    // failure (network error, non-404/412 status, bad JSON), not "no
+    // evaluations yet" — callers should surface this differently.
+    return { evaluations: { evaluation: [] }, error: true };
   }
 }

@@ -1,83 +1,132 @@
 import { NextResponse } from "next/server";
-import axios from "axios";
-import {
-  getElasticsearchUrl,
-  ELASTICSEARCH_INDICES,
-} from "@/lib/elasticsearch";
+import { fetchElasticsearch } from "@/lib/elasticsearch";
 
 // Counts change infrequently; cache to avoid triggering the upstream ES rate limiter
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+
+type EntityCount = { index: string; count: number };
+
+type CountQuery = {
+  label: string;
+  index: string;
+  query?: Record<string, unknown>;
+};
+
+// One entry per sidebar stat. Each is fetched as its own plain `_search`
+// (not batched via `_msearch`) so it gets fetchElasticsearch's full
+// resilience — legacy-URL fallback and a retry timeout — which a
+// multi-index `_msearch` call structurally can't get (there's no single
+// index to build a legacy typed path from). It also means one entity
+// failing doesn't take the rest of the sidebar down with it.
+const COUNT_QUERIES: CountQuery[] = [
+  // Only active datasets count, per team leader request.
+  {
+    label: "data",
+    index: "data",
+    query: { term: { "status.keyword": "active" } },
+  },
+  { label: "task", index: "task" },
+  { label: "flow", index: "flow" },
+  { label: "run", index: "run" },
+  { label: "study", index: "study" },
+  { label: "measure", index: "measure" },
+  // Breakdown counts for collections/benchmarks and measures sidebar groups.
+  {
+    label: "study_task",
+    index: "study",
+    query: { term: { study_type: "task" } },
+  },
+  {
+    label: "study_run",
+    index: "study",
+    query: { term: { study_type: "run" } },
+  },
+  {
+    label: "measure_data_quality",
+    index: "measure",
+    query: { term: { measure_type: "data_quality" } },
+  },
+  {
+    label: "measure_evaluation",
+    index: "measure",
+    query: { term: { measure_type: "evaluation_measure" } },
+  },
+  {
+    label: "measure_procedure",
+    index: "measure",
+    query: { term: { measure_type: "estimation_procedure" } },
+  },
+];
+
+// Per-label last-known-good snapshot — lets one entity's transient failure
+// fall back to its own last successful value instead of dragging every
+// other (possibly currently-healthy) count down with it.
+const lastKnownGood = new Map<string, number>();
+
+async function fetchCount(query: CountQuery): Promise<number | null> {
+  try {
+    const { response } = await fetchElasticsearch(
+      `${query.index}/_search`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          size: 0,
+          ...(query.query ? { query: query.query } : {}),
+        }),
+        cache: "no-store",
+      },
+      {
+        fallbackStatuses: [403, 404],
+        timeoutMsPrimary: 3000,
+      },
+    );
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    const total = data.hits?.total;
+    return typeof total === "number" ? total : (total?.value ?? null);
+  } catch {
+    return null;
+  }
+}
 
 export async function GET() {
-  const elasticsearchEndpoint = getElasticsearchUrl("_msearch");
-  const indices = ELASTICSEARCH_INDICES.filter(
-    (i) => i !== "user" && i !== "benchmark",
-  );
+  const results = await Promise.all(COUNT_QUERIES.map(fetchCount));
 
-  // Build NDJSON body for _msearch - correct format
-  // For datasets (data index), only count active ones per team leader request
-  let requestBody = "";
-  indices.forEach((index) => {
-    if (index === "data") {
-      // Only count active datasets
-      requestBody += `{ "index": "${index}" }\n{ "size": 0, "query": { "term": { "status.keyword": "active" } } }\n`;
-    } else {
-      requestBody += `{ "index": "${index}" }\n{ "size": 0 }\n`;
+  let freshCount = 0;
+  let staleCount = 0;
+
+  const counts: EntityCount[] = COUNT_QUERIES.map((query, i) => {
+    const fresh = results[i];
+    if (fresh !== null) {
+      lastKnownGood.set(query.label, fresh);
+      freshCount++;
+      return { index: query.label, count: fresh };
     }
+
+    const stale = lastKnownGood.get(query.label);
+    if (stale !== undefined) {
+      staleCount++;
+      return { index: query.label, count: stale };
+    }
+
+    return null;
+  }).filter((c): c is EntityCount => c !== null);
+
+  const source =
+    freshCount === COUNT_QUERIES.length
+      ? "modern"
+      : freshCount === 0
+        ? "stale-fallback"
+        : "partial";
+
+  return NextResponse.json(counts, {
+    headers: {
+      "Cache-Control":
+        "public, max-age=60, s-maxage=900, stale-while-revalidate=3600",
+      "X-Count-Source": source,
+    },
   });
-
-  // Add study_type breakdown queries for collections/benchmarks sidebar counts
-  const extraLabels: string[] = [];
-  requestBody += `{ "index": "study" }\n{ "size": 0, "query": { "term": { "study_type": "task" } } }\n`;
-  extraLabels.push("study_task");
-  requestBody += `{ "index": "study" }\n{ "size": 0, "query": { "term": { "study_type": "run" } } }\n`;
-  extraLabels.push("study_run");
-
-  // Add measure_type breakdown queries for measures sidebar counts
-  requestBody += `{ "index": "measure" }\n{ "size": 0, "query": { "term": { "measure_type": "data_quality" } } }\n`;
-  extraLabels.push("measure_data_quality");
-  requestBody += `{ "index": "measure" }\n{ "size": 0, "query": { "term": { "measure_type": "evaluation_measure" } } }\n`;
-  extraLabels.push("measure_evaluation");
-  requestBody += `{ "index": "measure" }\n{ "size": 0, "query": { "term": { "measure_type": "estimation_procedure" } } }\n`;
-  extraLabels.push("measure_procedure");
-
-  const startTime = Date.now();
-
-  try {
-    const response = await axios.post(elasticsearchEndpoint, requestBody, {
-      headers: { "Content-Type": "application/x-ndjson" },
-      timeout: 30000, // 30 second timeout
-    });
-
-    // Extract counts safely
-    const allLabels = [...indices, ...extraLabels];
-    const counts = response.data.responses.map((r: any, i: number) => ({
-      index: allLabels[i],
-      count:
-        typeof r.hits.total === "number" ? r.hits.total : r.hits.total.value,
-    }));
-
-    return NextResponse.json(counts, {
-      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60" },
-    });
-  } catch (error) {
-    const duration = Date.now() - startTime;
-    console.error(`❌ [Count API] Failed after ${duration}ms`);
-    console.error("Error details:", error);
-
-    if (axios.isAxiosError(error)) {
-      console.error("Axios error code:", error.code);
-      console.error("Axios error message:", error.message);
-      console.error("Response status:", error.response?.status);
-      console.error("Response data:", error.response?.data);
-    }
-
-    return NextResponse.json(
-      {
-        error: "Internal server error",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 },
-    );
-  }
 }
