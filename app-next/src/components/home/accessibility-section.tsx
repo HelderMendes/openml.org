@@ -55,7 +55,6 @@ export function AccessibilitySection() {
                 alt="Diagram illustrating the scientific machine learning workflow and data lifecycle"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
-                priority
                 className="object-cover p-6"
               />
             </CardContent>

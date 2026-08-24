@@ -48,7 +48,6 @@ export function AcademicImpactSection() {
               height={700}
               className="h-auto w-full rounded-full object-contain dark:hidden"
               sizes="(max-width: 768px) 100vw, 33vw"
-              priority
             />
             <Image
               src={getImagePath("dark")}
@@ -57,7 +56,6 @@ export function AcademicImpactSection() {
               height={700}
               className="hidden h-auto w-full rounded-full object-contain dark:block"
               sizes="(max-width: 768px) 100vw, 33vw"
-              priority
             />
           </div>
         </div>

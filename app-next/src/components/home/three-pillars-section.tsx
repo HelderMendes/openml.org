@@ -35,7 +35,6 @@ export function ThreePillarsSection() {
                 alt="Dataset"
                 width={160}
                 height={160}
-                priority
                 className="mx-auto mb-0 flex items-center justify-center dark:hidden"
               />
               <Image
@@ -43,7 +42,6 @@ export function ThreePillarsSection() {
                 alt="Dataset"
                 width={160}
                 height={160}
-                priority
                 className="border-primary/20 mx-auto mb-0 hidden items-center justify-center rounded-2xl border dark:block"
               />
               <CardTitle className="mb-2 text-2xl">
@@ -67,7 +65,6 @@ export function ThreePillarsSection() {
                 alt="Dataset"
                 width={160}
                 height={160}
-                priority
                 className="mx-auto mb-0 flex items-center justify-center dark:hidden"
               />
               <Image
@@ -75,7 +72,6 @@ export function ThreePillarsSection() {
                 alt="Dataset"
                 width={160}
                 height={160}
-                priority
                 className="border-primary/20 mx-auto mb-0 hidden items-center justify-center rounded-2xl border dark:block"
               />
               <CardTitle className="mb-2 text-2xl">
@@ -99,7 +95,6 @@ export function ThreePillarsSection() {
                 alt="Dataset"
                 width={160}
                 height={160}
-                priority
                 className="mx-auto mb-0 flex items-center justify-center dark:hidden"
               />
               <Image
@@ -107,7 +102,6 @@ export function ThreePillarsSection() {
                 alt="Dataset"
                 width={160}
                 height={160}
-                priority
                 className="border-primary/20 mx-auto mb-0 hidden items-center justify-center rounded-2xl border dark:block"
               />
               <CardTitle className="mb-2 text-2xl">

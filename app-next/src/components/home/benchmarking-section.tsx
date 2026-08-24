@@ -8,9 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SectionContainer } from "@/components/layout/section-container";
-import {
-  CornerRightUp,
-} from "lucide-react";
+import { CornerRightUp } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
@@ -48,7 +46,6 @@ export function BenchmarkingSection() {
                   width={100}
                   height={100}
                   className="m-1 h-full w-full rounded-2xl bg-white object-cover"
-                  priority
                 />
               </div>
               <div className="flex-1 pb-2 text-white">
@@ -90,7 +87,6 @@ export function BenchmarkingSection() {
                   width={100}
                   height={100}
                   className="h-full w-full bg-white object-cover p-1"
-                  priority
                 />
               </div>
               <div className="flex-1 pb-2 text-white">

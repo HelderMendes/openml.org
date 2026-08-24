@@ -19,21 +19,29 @@ export default async function GalleryPage() {
 
   return (
     <div className="grid grid-cols-3 gap-4">
-      {photos.map((photo: { id: string; server: string; secret: string; title: string }) => {
-        // Construct Flickr Image URL: https://farm{farm}.staticflickr.com/{server}/{id}_{secret}_{size}.jpg
-        const src = `https://live.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_z.jpg`;
+      {photos.map(
+        (photo: {
+          id: string;
+          server: string;
+          secret: string;
+          title: string;
+        }) => {
+          // Construct Flickr Image URL: https://farm{farm}.staticflickr.com/{server}/{id}_{secret}_{size}.jpg
+          const src = `https://live.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_z.jpg`;
 
-        return (
-          <div key={photo.id} className="relative h-64">
-            <Image
-              src={src}
-              alt={photo.title}
-              fill
-              className="rounded-lg object-cover"
-            />
-          </div>
-        );
-      })}
+          return (
+            <div key={photo.id} className="relative h-64">
+              <Image
+                src={src}
+                alt={photo.title}
+                fill
+                sizes="33vw"
+                className="rounded-lg object-cover"
+              />
+            </div>
+          );
+        },
+      )}
     </div>
   );
 }

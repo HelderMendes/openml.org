@@ -183,7 +183,6 @@ const Step1Visuals = () => (
         alt="PyTorch logo"
         height={150}
         width={150}
-        priority
         className="h-9 w-auto rounded-xs bg-white object-contain p-0.75"
       />
     </Link>
@@ -193,7 +192,6 @@ const Step1Visuals = () => (
         alt="Scikit-learn logo"
         height={150}
         width={150}
-        priority
         className="h-9 w-auto rounded-xs bg-white object-contain p-0.75"
       />
     </Link>
@@ -203,7 +201,6 @@ const Step1Visuals = () => (
         alt="TensorFlow logo"
         height={150}
         width={150}
-        priority
         className="h-9 w-auto rounded-xs bg-white object-contain p-0.75"
       />
     </Link>
@@ -213,7 +210,6 @@ const Step1Visuals = () => (
         alt="XGBoost logo"
         height={150}
         width={150}
-        priority
         className="h-9 w-auto rounded-xs bg-white object-contain p-0.75"
       />
     </Link>
@@ -234,7 +230,6 @@ const Step2Diagram: React.FC<{ light: string; dark: string; alt: string }> = ({
         height={700}
         className="h-auto w-full object-contain dark:hidden"
         sizes="(max-width: 768px) 100vw, 33vw"
-        priority
       />
       <Image
         src={dark}
@@ -243,7 +238,6 @@ const Step2Diagram: React.FC<{ light: string; dark: string; alt: string }> = ({
         height={700}
         className="hidden h-auto w-full object-contain dark:block"
         sizes="(max-width: 768px) 100vw, 33vw"
-        priority
       />
     </div>
   );
