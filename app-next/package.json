@@ -108,5 +108,8 @@
     "entrypoints": [
       "app"
     ]
+  },
+  "overrides": {
+    "nodemailer": "^9.0.5"
   }
 }
