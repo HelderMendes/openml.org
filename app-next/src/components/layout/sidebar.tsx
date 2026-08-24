@@ -115,8 +115,11 @@ export function Sidebar() {
         {},
       );
     },
-    staleTime: 5 * 60 * 1000, // Cache counts for 5 minutes
-    retry: 1,
+    staleTime: 30 * 60 * 1000, // Treat counts as fresh for 30 minutes
+    gcTime: 2 * 60 * 60 * 1000, // Keep cache in memory for 2 hours
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   // Render mobile/tablet unified menu (< 1024px for all pages, all sizes for homepage)
@@ -171,7 +174,7 @@ export function Sidebar() {
         {/* Navigation - Only show when menu is open */}
         {homeMenuOpen && (
           <ScrollArea className="-mt-4 flex-1 overflow-auto pb-4">
-            <div className="space-y-6 px-3 pb-8">
+            <div className="space-y-6 px-3 py-8">
               {/* User Profile Section - Mobile Only */}
               <div className="border-b border-slate-600 pb-4 lg:hidden">
                 {user && (

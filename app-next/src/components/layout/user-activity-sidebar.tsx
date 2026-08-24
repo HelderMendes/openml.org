@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useSession, signOut } from "next-auth/react";
-import { useTheme } from "next-themes";
 import {
   ChevronRight,
   X,
@@ -35,7 +34,6 @@ interface UserActivitySidebarProps {
 // User Activity Sidebar - kggl-inspired collapsible sidebar
 export function UserActivitySidebar({ className }: UserActivitySidebarProps) {
   const { data: session, status } = useSession();
-  const { resolvedTheme } = useTheme();
   const [isOpen, setIsOpen] = React.useState(false);
   const sidebarRef = React.useRef<HTMLDivElement>(null);
   const [user, setUser] = React.useState<{
@@ -44,9 +42,6 @@ export function UserActivitySidebar({ className }: UserActivitySidebarProps) {
     avatar: string;
     initials: string;
   } | null>(null);
-
-  // Determine background color based on theme
-  const bgColor = resolvedTheme === "dark" ? "#0f172a" : "#ffffff"; // slate-900 or white
 
   // Close sidebar when clicking outside
   React.useEffect(() => {
@@ -346,10 +341,7 @@ export function UserActivitySidebar({ className }: UserActivitySidebarProps) {
           </div>
 
           {/* Menu Items */}
-          <nav
-            className="border-b border-slate-200 px-2 py-2 dark:border-slate-700"
-            style={{ backgroundColor: bgColor }}
-          >
+          <nav className="border-b border-slate-200 bg-white px-2 py-2 dark:border-slate-700 dark:bg-slate-900">
             {menuItems.map((item) => (
               <Link
                 key={item.label}
@@ -375,10 +367,7 @@ export function UserActivitySidebar({ className }: UserActivitySidebarProps) {
           </nav>
 
           {/* Notifications Section */}
-          <div
-            className="flex-1 overflow-hidden"
-            style={{ backgroundColor: bgColor }}
-          >
+          <div className="flex-1 overflow-hidden bg-white dark:bg-slate-900">
             <div className="flex items-center justify-between px-6 py-4">
               <div className="flex items-center gap-2">
                 <Bell className="h-5 w-5 text-slate-700 dark:text-slate-300" />
