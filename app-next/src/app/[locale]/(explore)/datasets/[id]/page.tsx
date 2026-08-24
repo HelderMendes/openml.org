@@ -61,8 +61,6 @@ export async function generateMetadata({
         url: `https://www.openml.org/datasets/${id}`,
         siteName: "OpenML",
         locale: "en_US",
-        // dataset image if available and wanted
-        // images: [{ url: dataset.image_url }],
       },
 
       // Twitter Card
@@ -139,10 +137,14 @@ export default async function DatasetDetailPage({
     getServerSession(authOptions),
   ]);
 
-  const sessionUser = session?.user as { id?: string; openmlUserId?: string } | undefined;
+  const sessionUser = session?.user as
+    | { id?: string; openmlUserId?: string }
+    | undefined;
   // Prefer the real OpenML user ID (resolves local dev ID mismatch)
   const effectiveUserId = sessionUser?.openmlUserId ?? sessionUser?.id;
-  const isOwner = effectiveUserId ? Number(effectiveUserId) === dataset.uploader_id : false;
+  const isOwner = effectiveUserId
+    ? Number(effectiveUserId) === dataset.uploader_id
+    : false;
 
   // If dataset is deactivated, show notice
   if (dataset.status === "deactivated") {

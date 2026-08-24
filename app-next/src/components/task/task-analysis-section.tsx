@@ -152,6 +152,7 @@ export function TaskAnalysisSection({
   const [leaderboardRuns, setLeaderboardRuns] = useState<EvaluationRun[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
+  const [leaderboardError, setLeaderboardError] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const pageSize = 1000;
@@ -237,12 +238,19 @@ export function TaskAnalysisSection({
     async function fetchLeaderboard() {
       try {
         setLoadingLeaderboard(true);
+        setLeaderboardError(false);
         const topData = await fetchTopRuns(
           task.task_id.toString(),
           selectedMetric,
           100,
           isLowerBetter ? "asc" : "desc",
         );
+
+        if (topData?.error) {
+          setLeaderboardRuns([]);
+          setLeaderboardError(true);
+          return;
+        }
 
         const evaluationList = topData?.evaluations?.evaluation || [];
         if (evaluationList.length === 0) {
@@ -293,6 +301,7 @@ export function TaskAnalysisSection({
         setLeaderboardRuns(fetchedTopRuns);
       } catch (err) {
         console.error("Error fetching leaderboard:", err);
+        setLeaderboardError(true);
       } finally {
         setLoadingLeaderboard(false);
       }
@@ -469,6 +478,14 @@ export function TaskAnalysisSection({
             <h2 className="text-xl font-bold tracking-tight">Leaderboard</h2>
             {loadingLeaderboard && leaderboard.length === 0 ? (
               <Skeleton className="h-[200px] w-full rounded-xl" />
+            ) : leaderboardError ? (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Couldn&apos;t load the leaderboard right now. Please try again
+                  later.
+                </AlertDescription>
+              </Alert>
             ) : leaderboard.length === 0 ? (
               <Alert>
                 <Info className="h-4 w-4" />
