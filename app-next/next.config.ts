@@ -10,8 +10,12 @@ const withBundleAnalyzer = bundlerAnalyzer({
 });
 
 const nextConfig: NextConfig = {
-  // Vercel-specific optimizations
-  output: "standalone", // Optimize for Vercel deployment
+  // "standalone" output is for self-hosting (see Dockerfile, which copies
+  // .next/standalone directly). Vercel's own builder does its own
+  // file-tracing/bundling and is incompatible with this mode — it fails
+  // with "ENOENT ... next-server.js.nft.json". Vercel sets process.env.VERCEL
+  // automatically, so skip "standalone" there and keep it for Docker builds.
+  ...(process.env.VERCEL ? {} : { output: "standalone" as const }),
 
   // Silence warning about multiple lockfiles by explicitly setting the root
   turbopack: {
